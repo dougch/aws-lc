@@ -1,17 +1,9 @@
 // This file is generated from a similarly-named Perl script in the BoringSSL
 // source tree. Do not edit by hand.
 
-#if !defined(__has_feature)
-#define __has_feature(x) 0
-#endif
-#if __has_feature(memory_sanitizer) && !defined(OPENSSL_NO_ASM)
-#define OPENSSL_NO_ASM
-#endif
+#include <openssl/asm_base.h>
 
-#if !defined(OPENSSL_NO_ASM) && defined(__AARCH64EL__) && defined(_WIN32)
-#if defined(BORINGSSL_PREFIX)
-#include <boringssl_prefix_symbols_asm.h>
-#endif
+#if !defined(OPENSSL_NO_ASM) && defined(OPENSSL_AARCH64) && defined(_WIN32)
 #include <openssl/arm_arch.h>
 
 .section	.rodata
@@ -222,6 +214,13 @@ Lenc_entry:
 .endef
 .align	4
 vpaes_encrypt:
+#ifdef BORINGSSL_DISPATCH_TEST
+
+	adrp	x9,BORINGSSL_function_hit
+	add	x9, x9, :lo12:BORINGSSL_function_hit
+	mov	w10, #1
+	strb	w10, [x9,#4] // kFlag_vpaes_encrypt
+#endif
 	AARCH64_SIGN_LINK_REGISTER
 	stp	x29,x30,[sp,#-16]!
 	add	x29,sp,#0
@@ -1049,6 +1048,13 @@ Lschedule_mangle_both:
 .endef
 .align	4
 vpaes_set_encrypt_key:
+#ifdef BORINGSSL_DISPATCH_TEST
+
+	adrp	x9,BORINGSSL_function_hit
+	add	x9, x9, :lo12:BORINGSSL_function_hit
+	mov	w10, #1
+	strb	w10, [x9,#5] // kFlag_vpaes_set_encrypt_key
+#endif
 	AARCH64_SIGN_LINK_REGISTER
 	stp	x29,x30,[sp,#-16]!
 	add	x29,sp,#0
@@ -1267,8 +1273,4 @@ Lctr32_done:
 	AARCH64_VALIDATE_LINK_REGISTER
 	ret
 
-#endif  // !OPENSSL_NO_ASM && defined(__AARCH64EL__) && defined(_WIN32)
-#if defined(__ELF__)
-// See https://www.airs.com/blog/archives/518.
-.section .note.GNU-stack,"",%progbits
-#endif
+#endif  // !OPENSSL_NO_ASM && defined(OPENSSL_AARCH64) && defined(_WIN32)

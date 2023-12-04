@@ -79,6 +79,10 @@ extern "C" {
 // DH_new returns a new, empty DH object or NULL on error.
 OPENSSL_EXPORT DH *DH_new(void);
 
+// DH_new_by_nid returns the DH specified by |nid|, only NID_ffdhe2048, and
+// NID_ffdhe4096 are supported. All other values will return null.
+OPENSSL_EXPORT DH *DH_new_by_nid(int nid);
+
 // DH_free decrements the reference count of |dh| and frees it if the reference
 // count drops to zero.
 OPENSSL_EXPORT void DH_free(DH *dh);
@@ -142,6 +146,11 @@ OPENSSL_EXPORT int DH_set_length(DH *dh, unsigned priv_length);
 // of memory.
 OPENSSL_EXPORT DH *DH_get_rfc7919_2048(void);
 
+// DH_get_rfc7919_4096 returns the group `ffdhe4096` from
+// https://tools.ietf.org/html/rfc7919#appendix-A.3. It returns NULL if out
+// of memory.
+OPENSSL_EXPORT DH *DH_get_rfc7919_4096(void);
+
 // BN_get_rfc3526_prime_1536 sets |*ret| to the 1536-bit MODP group from RFC
 // 3526 and returns |ret|. If |ret| is NULL then a fresh |BIGNUM| is allocated
 // and returned. It returns NULL on allocation failure.
@@ -193,7 +202,9 @@ OPENSSL_EXPORT int DH_generate_parameters_ex(DH *dh, int prime_bits,
 // Diffie-Hellman operations.
 
 // DH_generate_key generates a new, random, private key and stores it in
-// |dh|. It returns one on success and zero on error.
+// |dh|, if |dh| does not already have a private key. Otherwise, it updates
+// |dh|'s public key to match the private key. It returns one on success and
+// zero on error.
 OPENSSL_EXPORT int DH_generate_key(DH *dh);
 
 // DH_compute_key_padded calculates the shared key between |dh| and |peers_key|
@@ -371,5 +382,7 @@ BSSL_NAMESPACE_END
 #define DH_R_NO_PRIVATE_VALUE 103
 #define DH_R_DECODE_ERROR 104
 #define DH_R_ENCODE_ERROR 105
+#define DH_R_INVALID_NID 106
+#define DH_R_INVALID_PARAMETERS 107
 
 #endif  // OPENSSL_HEADER_DH_H

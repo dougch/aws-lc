@@ -79,6 +79,11 @@
 #include <stdio.h>
 #include <string.h>
 
+#if defined(OPENSSL_WINDOWS)
+#include <fcntl.h>
+#include <io.h>
+#endif  // OPENSSL_WINDOWS
+
 #include <openssl/err.h>
 #include <openssl/mem.h>
 
@@ -157,13 +162,11 @@ static int file_read(BIO *b, char *out, int outl) {
 }
 
 static int file_write(BIO *b, const char *in, int inl) {
-  int ret = 0;
-
   if (!b->init) {
     return 0;
   }
 
-  ret = fwrite(in, inl, 1, (FILE *)b->ptr);
+  int ret = (int)fwrite(in, inl, 1, (FILE *)b->ptr);
   if (ret > 0) {
     ret = inl;
   }
@@ -174,7 +177,6 @@ static long file_ctrl(BIO *b, int cmd, long num, void *ptr) {
   long ret = 1;
   FILE *fp = (FILE *)b->ptr;
   FILE **fpp;
-  char p[4];
 
   switch (cmd) {
     case BIO_CTRL_RESET:
@@ -195,31 +197,39 @@ static long file_ctrl(BIO *b, int cmd, long num, void *ptr) {
       b->shutdown = (int)num & BIO_CLOSE;
       b->ptr = ptr;
       b->init = 1;
+#if defined(OPENSSL_WINDOWS)
+      // Windows differentiates between "text" and "binary" file modes, so set
+      // the file to text mode if caller specifies BIO_FP_TEXT flag.
+      //
+      // https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/setmode?view=msvc-170#remarks
+      _setmode(_fileno(b->ptr), num & BIO_FP_TEXT ? _O_TEXT : _O_BINARY);
+#endif
       break;
     case BIO_C_SET_FILENAME:
       file_free(b);
       b->shutdown = (int)num & BIO_CLOSE;
+      const char *mode;
       if (num & BIO_FP_APPEND) {
         if (num & BIO_FP_READ) {
-          OPENSSL_strlcpy(p, "a+", sizeof(p));
+          mode = "a+";
         } else {
-          OPENSSL_strlcpy(p, "a", sizeof(p));
+          mode = "a";
         }
       } else if ((num & BIO_FP_READ) && (num & BIO_FP_WRITE)) {
-        OPENSSL_strlcpy(p, "r+", sizeof(p));
+        mode = "r+";
       } else if (num & BIO_FP_WRITE) {
-        OPENSSL_strlcpy(p, "w", sizeof(p));
+        mode = "w";
       } else if (num & BIO_FP_READ) {
-        OPENSSL_strlcpy(p, "r", sizeof(p));
+        mode = "r";
       } else {
         OPENSSL_PUT_ERROR(BIO, BIO_R_BAD_FOPEN_MODE);
         ret = 0;
         break;
       }
-      fp = fopen(ptr, p);
+      fp = fopen(ptr, mode);
       if (fp == NULL) {
         OPENSSL_PUT_SYSTEM_ERROR();
-        ERR_add_error_data(5, "fopen('", ptr, "','", p, "')");
+        ERR_add_error_data(5, "fopen('", ptr, "','", mode, "')");
         OPENSSL_PUT_ERROR(BIO, ERR_R_SYS_LIB);
         ret = 0;
         break;
@@ -253,20 +263,18 @@ static long file_ctrl(BIO *b, int cmd, long num, void *ptr) {
 }
 
 static int file_gets(BIO *bp, char *buf, int size) {
-  int ret = 0;
-
   if (size == 0) {
     return 0;
   }
 
   if (!fgets(buf, size, (FILE *)bp->ptr)) {
     buf[0] = 0;
-    goto err;
+    // TODO(davidben): This doesn't distinguish error and EOF. This should check
+    // |ferror| as in |file_read|.
+    return 0;
   }
-  ret = strlen(buf);
 
-err:
-  return ret;
+  return (int)strlen(buf);
 }
 
 static const BIO_METHOD methods_filep = {

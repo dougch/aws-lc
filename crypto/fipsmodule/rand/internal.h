@@ -26,9 +26,16 @@ extern "C" {
 #endif
 
 
-#if !defined(OPENSSL_WINDOWS) && !defined(OPENSSL_FUCHSIA) && \
-    !defined(BORINGSSL_UNSAFE_DETERMINISTIC_MODE) && !defined(OPENSSL_TRUSTY)
-#define OPENSSL_URANDOM
+#if defined(BORINGSSL_UNSAFE_DETERMINISTIC_MODE)
+#define OPENSSL_RAND_DETERMINISTIC
+#elif defined(OPENSSL_FUCHSIA)
+#define OPENSSL_RAND_FUCHSIA
+#elif defined(OPENSSL_TRUSTY)
+// Trusty's PRNG file is, for now, maintained outside the tree.
+#elif defined(OPENSSL_WINDOWS)
+#define OPENSSL_RAND_WINDOWS
+#else
+#define OPENSSL_RAND_URANDOM
 #endif
 
 // RAND_bytes_with_additional_data samples from the RNG after mixing 32 bytes
@@ -45,11 +52,15 @@ void CRYPTO_sysrand(uint8_t *buf, size_t len);
 // depending on the vendor's configuration.
 void CRYPTO_sysrand_for_seed(uint8_t *buf, size_t len);
 
-#if defined(OPENSSL_URANDOM)
+#if defined(OPENSSL_RAND_URANDOM) || defined(OPENSSL_RAND_WINDOWS)
 // CRYPTO_init_sysrand initializes long-lived resources needed to draw entropy
 // from the operating system.
 void CRYPTO_init_sysrand(void);
+#else
+OPENSSL_INLINE void CRYPTO_init_sysrand(void) {}
+#endif  // defined(OPENSSL_RAND_URANDOM) || defined(OPENSSL_RAND_WINDOWS)
 
+#if defined(OPENSSL_RAND_URANDOM)
 // CRYPTO_sysrand_if_available fills |len| bytes at |buf| with entropy from the
 // operating system, or early /dev/urandom data, and returns 1, _if_ the entropy
 // pool is initialized or if getrandom() is not available and not in FIPS mode.
@@ -57,13 +68,11 @@ void CRYPTO_init_sysrand(void);
 // return 0.
 int CRYPTO_sysrand_if_available(uint8_t *buf, size_t len);
 #else
-OPENSSL_INLINE void CRYPTO_init_sysrand(void) {}
-
 OPENSSL_INLINE int CRYPTO_sysrand_if_available(uint8_t *buf, size_t len) {
   CRYPTO_sysrand(buf, len);
   return 1;
 }
-#endif
+#endif  // defined(OPENSSL_RAND_URANDOM)
 
 // rand_fork_unsafe_buffering_enabled returns whether fork-unsafe buffering has
 // been enabled via |RAND_enable_fork_unsafe_buffering|.
@@ -128,6 +137,30 @@ OPENSSL_INLINE int have_fast_rdrand(void) {
 // spinning loops.
 #define MAX_BACKOFF_RETRIES 9
 OPENSSL_EXPORT void HAZMAT_set_urandom_test_mode_for_testing(void);
+
+// Total number of bytes of entropy to load into FIPS module. Separate constants
+// that separate the logically distinct operations (1) loading entropy, and (2)
+// invoking DRBG.
+#define PASSIVE_ENTROPY_LOAD_LENGTH CTR_DRBG_ENTROPY_LEN
+
+#if defined(BORINGSSL_FIPS)
+
+#if defined(FIPS_ENTROPY_SOURCE_JITTER_CPU)
+
+#define JITTER_MAX_NUM_TRIES (3)
+
+#elif defined(FIPS_ENTROPY_SOURCE_PASSIVE)
+
+OPENSSL_EXPORT void RAND_module_entropy_depleted(uint8_t out_entropy[CTR_DRBG_ENTROPY_LEN],
+                                  int *out_want_additional_input);
+void CRYPTO_get_seed_entropy(uint8_t entropy[PASSIVE_ENTROPY_LOAD_LENGTH],
+                             int *out_want_additional_input);
+OPENSSL_EXPORT void RAND_load_entropy(uint8_t out_entropy[CTR_DRBG_ENTROPY_LEN],
+                       uint8_t entropy[PASSIVE_ENTROPY_LOAD_LENGTH]);
+
+#endif
+
+#endif // defined(BORINGSSL_FIPS)
 
 #if defined(__cplusplus)
 }  // extern C

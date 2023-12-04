@@ -4233,9 +4233,6 @@ extern "C" {
 #define LN_auth_any "auth-any"
 #define NID_auth_any 958
 
-#define SN_CECPQ2 "CECPQ2"
-#define NID_CECPQ2 959
-
 #define SN_ED448 "ED448"
 #define NID_ED448 960
 #define OBJ_ED448 1L, 3L, 101L, 113L
@@ -4296,6 +4293,37 @@ extern "C" {
 
 #define SN_KYBER1024_R3 "KYBER1024_R3"
 #define NID_KYBER1024_R3 974
+
+#define SN_DILITHIUM3_R3 "DILITHIUM3_R3"
+#define NID_DILITHIUM3_R3 975
+#define OBJ_DILITHIUM3_R3 1L, 3L, 6L, 1L, 4L, 1L, 2L, 267L, 7L, 6L, 5L
+
+#define SN_ffdhe2048 "ffdhe2048"
+#define NID_ffdhe2048 976
+
+#define SN_ffdhe4096 "ffdhe4096"
+#define NID_ffdhe4096 977
+
+#define SN_sha512_224 "SHA512-224"
+#define LN_sha512_224 "sha512-224"
+#define NID_sha512_224 978
+#define OBJ_sha512_224 2L, 16L, 840L, 1L, 101L, 3L, 4L, 2L, 5L
+
+#define SN_shake128 "SHAKE128"
+#define LN_shake128 "shake128"
+#define NID_shake128 979
+#define OBJ_shake128 2L, 16L, 840L, 1L, 101L, 3L, 4L, 2L, 11L
+
+#define SN_shake256 "SHAKE256"
+#define LN_shake256 "shake256"
+#define NID_shake256 980
+#define OBJ_shake256 2L, 16L, 840L, 1L, 101L, 3L, 4L, 2L, 12L
+
+#define SN_SecP256r1Kyber768Draft00 "SecP256r1Kyber768Draft00"
+#define NID_SecP256r1Kyber768Draft00 981
+
+#define SN_X25519Kyber768Draft00 "X25519Kyber768Draft00"
+#define NID_X25519Kyber768Draft00 982
 
 #if defined(__cplusplus)
 } /* extern C */

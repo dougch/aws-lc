@@ -18,11 +18,28 @@ endif()
 
 option(BUILD_TESTING "Build all test targets for AWS-LC" ON)
 option(BUILD_LIBSSL "Build libssl for AWS-LC" ON)
+option(BUILD_TOOL "Build bssl tool for AWS-LC" ON)
+option(ENABLE_DILITHIUM "Enable Dilithium signatures in the EVP API" OFF)
 option(DISABLE_PERL "Disable Perl for AWS-LC" OFF)
 option(DISABLE_GO "Disable Go for AWS-LC" OFF)
+option(ENABLE_FIPS_ENTROPY_CPU_JITTER "Enable FIPS entropy source: CPU Jitter" OFF)
 include(cmake/go.cmake)
 
 enable_language(C)
+
+# Configure entropy source in case of FIPS build
+if(FIPS)
+  message(STATUS "FIPS build mode configured")
+
+  if(ENABLE_FIPS_ENTROPY_CPU_JITTER)
+    add_definitions(-DFIPS_ENTROPY_SOURCE_JITTER_CPU)
+    add_subdirectory(third_party/jitterentropy)
+    message(STATUS "FIPS entropy source method configured: CPU Jitter")
+  else()
+    add_definitions(-DFIPS_ENTROPY_SOURCE_PASSIVE)
+    message(STATUS "FIPS entropy source method configured: Passive")
+  endif()
+endif()
 
 # Tests and libssl both require the CXX language to be enabled. If a consumer
 # chooses to disable building the tests and libssl, do not enable CXX
@@ -47,6 +64,9 @@ endif()
 install(DIRECTORY include/openssl
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
         COMPONENT Development
+        PATTERN boringssl_prefix_symbols.h EXCLUDE
+        PATTERN boringssl_prefix_symbols_asm.h EXCLUDE
+        PATTERN boringssl_prefix_symbols_nasm.inc EXCLUDE
 )
 
 if(ANDROID)
@@ -86,6 +106,11 @@ if(NOT PERL_EXECUTABLE OR NOT GO_EXECUTABLE)
   set(GENERATE_CODE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/generated-src")
 endif()
 
+
+if(ENABLE_DILITHIUM)
+  add_definitions(-DENABLE_DILITHIUM)
+endif()
+
 if(USE_CUSTOM_LIBCXX)
   set(BORINGSSL_ALLOW_CXX_RUNTIME 1)
 endif()
@@ -114,19 +139,7 @@ foreach(VAR CMAKE_C_FLAGS CMAKE_CXX_FLAGS CMAKE_ASM_FLAGS)
          "${${VAR}_RELEASE}")
 endforeach()
 
-if(BORINGSSL_PREFIX)
-  add_definitions(-DBORINGSSL_PREFIX=${BORINGSSL_PREFIX})
-  # CMake automatically connects include_directories to the NASM command-line,
-  # but not add_definitions.
-  set(CMAKE_ASM_NASM_FLAGS "${CMAKE_ASM_NASM_FLAGS} -DBORINGSSL_PREFIX=${BORINGSSL_PREFIX}")
-  set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -DBORINGSSL_PREFIX=${BORINGSSL_PREFIX}")
-endif()
-
 if(BORINGSSL_PREFIX AND BORINGSSL_PREFIX_SYMBOLS AND GO_EXECUTABLE)
-
-  # Use "symbol_prefix_include" to store generated header files
-  include_directories(${CMAKE_CURRENT_BINARY_DIR}/symbol_prefix_include)
-
   if(IS_ABSOLUTE ${BORINGSSL_PREFIX_SYMBOLS})
     set(BORINGSSL_PREFIX_SYMBOLS_PATH ${BORINGSSL_PREFIX_SYMBOLS})
   else()
@@ -134,29 +147,38 @@ if(BORINGSSL_PREFIX AND BORINGSSL_PREFIX_SYMBOLS AND GO_EXECUTABLE)
   endif()
 
   add_custom_command(
-    OUTPUT symbol_prefix_include/boringssl_prefix_symbols.h
-           symbol_prefix_include/boringssl_prefix_symbols_asm.h
-           symbol_prefix_include/boringssl_prefix_symbols_nasm.inc
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/symbol_prefix_include
-    COMMAND ${GO_EXECUTABLE} run ${CMAKE_CURRENT_SOURCE_DIR}/util/make_prefix_headers.go -out ${CMAKE_CURRENT_BINARY_DIR}/symbol_prefix_include ${BORINGSSL_PREFIX_SYMBOLS_PATH}
-    # Temporary exclude all Kyber symbols.
-    # TODO(dkostic): fix the prefix build to work with Kyber source code.
-    COMMAND sed -i.bak '/pqcrystals/d' ${CMAKE_CURRENT_BINARY_DIR}/symbol_prefix_include/boringssl_prefix_symbols.h
-    COMMAND sed -i.bak '/ bignum_/d' ${CMAKE_CURRENT_BINARY_DIR}/symbol_prefix_include/boringssl_prefix_symbols.h
-    COMMAND sed -i.bak '/ bignum_/d' ${CMAKE_CURRENT_BINARY_DIR}/symbol_prefix_include/boringssl_prefix_symbols_asm.h
-    COMMAND sed -i.bak '/ bignum_/d' ${CMAKE_CURRENT_BINARY_DIR}/symbol_prefix_include/boringssl_prefix_symbols_nasm.inc
-    COMMAND sed -i.bak '/ curve25519_x25519/d' ${CMAKE_CURRENT_BINARY_DIR}/symbol_prefix_include/boringssl_prefix_symbols.h
-    COMMAND sed -i.bak '/ curve25519_x25519/d' ${CMAKE_CURRENT_BINARY_DIR}/symbol_prefix_include/boringssl_prefix_symbols_asm.h
-    COMMAND sed -i.bak '/ curve25519_x25519/d' ${CMAKE_CURRENT_BINARY_DIR}/symbol_prefix_include/boringssl_prefix_symbols_nasm.inc
+    OUTPUT symbol_prefix_include/openssl/boringssl_prefix_symbols.h
+           symbol_prefix_include/openssl/boringssl_prefix_symbols_asm.h
+           symbol_prefix_include/openssl/boringssl_prefix_symbols_nasm.inc
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/symbol_prefix_include/openssl
+    COMMAND ${GO_EXECUTABLE} run ${CMAKE_CURRENT_SOURCE_DIR}/util/make_prefix_headers.go -out ${CMAKE_CURRENT_BINARY_DIR}/symbol_prefix_include/openssl -prefix ${BORINGSSL_PREFIX} ${BORINGSSL_PREFIX_SYMBOLS_PATH}
+    COMMAND sed -i.bak '/ bignum_/d' ${CMAKE_CURRENT_BINARY_DIR}/symbol_prefix_include/openssl/boringssl_prefix_symbols.h
+    COMMAND sed -i.bak '/ bignum_/d' ${CMAKE_CURRENT_BINARY_DIR}/symbol_prefix_include/openssl/boringssl_prefix_symbols_asm.h
+    COMMAND sed -i.bak '/ bignum_/d' ${CMAKE_CURRENT_BINARY_DIR}/symbol_prefix_include/openssl/boringssl_prefix_symbols_nasm.inc
+    COMMAND sed -i.bak '/ curve25519_x25519/d' ${CMAKE_CURRENT_BINARY_DIR}/symbol_prefix_include/openssl/boringssl_prefix_symbols.h
+    COMMAND sed -i.bak '/ curve25519_x25519/d' ${CMAKE_CURRENT_BINARY_DIR}/symbol_prefix_include/openssl/boringssl_prefix_symbols_asm.h
+    COMMAND sed -i.bak '/ curve25519_x25519/d' ${CMAKE_CURRENT_BINARY_DIR}/symbol_prefix_include/openssl/boringssl_prefix_symbols_nasm.inc
+    COMMAND sed -i.bak '/ edwards25519_/d' ${CMAKE_CURRENT_BINARY_DIR}/symbol_prefix_include/openssl/boringssl_prefix_symbols.h
+    COMMAND sed -i.bak '/ edwards25519_/d' ${CMAKE_CURRENT_BINARY_DIR}/symbol_prefix_include/openssl/boringssl_prefix_symbols_asm.h
+    COMMAND sed -i.bak '/ edwards25519_/d' ${CMAKE_CURRENT_BINARY_DIR}/symbol_prefix_include/openssl/boringssl_prefix_symbols_nasm.inc
+    COMMAND ${CMAKE_COMMAND} -E remove
+          ${CMAKE_CURRENT_BINARY_DIR}/symbol_prefix_include/openssl/boringssl_prefix_symbols.h.bak
+          ${CMAKE_CURRENT_BINARY_DIR}/symbol_prefix_include/openssl/boringssl_prefix_symbols_asm.h.bak
+          ${CMAKE_CURRENT_BINARY_DIR}/symbol_prefix_include/openssl/boringssl_prefix_symbols_nasm.inc.bak
     DEPENDS util/make_prefix_headers.go
             ${BORINGSSL_PREFIX_SYMBOLS_PATH})
   # add_dependencies needs a target, not a file, so we add an intermediate
   # target.
   add_custom_target(
     boringssl_prefix_symbols
-    DEPENDS symbol_prefix_include/boringssl_prefix_symbols.h
-            symbol_prefix_include/boringssl_prefix_symbols_asm.h
-            symbol_prefix_include/boringssl_prefix_symbols_nasm.inc)
+    DEPENDS symbol_prefix_include/openssl/boringssl_prefix_symbols.h
+            symbol_prefix_include/openssl/boringssl_prefix_symbols_asm.h
+            symbol_prefix_include/openssl/boringssl_prefix_symbols_nasm.inc)
+
+  install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/symbol_prefix_include/openssl
+          DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+          COMPONENT Development
+  )
 elseif(BORINGSSL_PREFIX AND BORINGSSL_PREFIX_HEADERS)
 
   if(IS_ABSOLUTE ${BORINGSSL_PREFIX_HEADERS})
@@ -165,15 +187,30 @@ elseif(BORINGSSL_PREFIX AND BORINGSSL_PREFIX_HEADERS)
     set(BORINGSSL_PREFIX_HEADERS_PATH ${PROJECT_BINARY_DIR}/${BORINGSSL_PREFIX_HEADERS})
   endif()
 
-  include_directories(${BORINGSSL_PREFIX_HEADERS_PATH})
+  file(COPY ${BORINGSSL_PREFIX_HEADERS_PATH}/openssl/boringssl_prefix_symbols.h DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/symbol_prefix_include/openssl)
+  file(COPY ${BORINGSSL_PREFIX_HEADERS_PATH}/openssl/boringssl_prefix_symbols_asm.h DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/symbol_prefix_include/openssl)
+  file(COPY ${BORINGSSL_PREFIX_HEADERS_PATH}/openssl/boringssl_prefix_symbols_nasm.inc DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/symbol_prefix_include/openssl)
 
   add_custom_target(boringssl_prefix_symbols)
+
+  install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/symbol_prefix_include/openssl
+          DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+          COMPONENT Development
+  )
 elseif(BORINGSSL_PREFIX OR BORINGSSL_PREFIX_SYMBOLS)
   message(FATAL_ERROR "Must specify both or neither of BORINGSSL_PREFIX and BORINGSSL_PREFIX_SYMBOLS")
 elseif((BORINGSSL_PREFIX AND BORINGSSL_PREFIX_SYMBOLS) AND NOT GO_EXECUTABLE)
   message(FATAL_ERROR "Must have Go installed when using BORINGSSL_PREFIX and BORINGSSL_PREFIX_SYMBOLS")
 else()
   add_custom_target(boringssl_prefix_symbols)
+
+  install(DIRECTORY include/openssl
+          DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+          COMPONENT Development
+          PATTERN boringssl_prefix_symbols.h
+          PATTERN boringssl_prefix_symbols_asm.h
+          PATTERN boringssl_prefix_symbols_nasm.inc
+  )
 endif()
 
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Emscripten")
@@ -318,6 +355,11 @@ if(GCC OR CLANG)
     # and declare that the code is trying to free a stack pointer. GCC 4.1.3 and lower
     # doesn't support this flag and can't use it.
     set(C_CXX_FLAGS "${C_CXX_FLAGS} -Wno-free-nonheap-object")
+    # GCC (from at least 4.8) does not include -Wmissing-braces in -Wall due to Bug 25137.
+    # This warning is turned on everywhere internally however, so we have to define it here
+    # to check that our changes don't break the build.
+    # See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=25137
+    set(C_CXX_FLAGS "${C_CXX_FLAGS} -Wmissing-braces")
   endif()
 
   # -Wstring-concatenation was added in Clang 12.0.0, which corresponds to
@@ -438,6 +480,10 @@ elseif(MSVC)
       "C4191" # unsafe conversion from 'type of expression' to 'type required'
               # TODO remove once https://github.com/openssl/openssl/issues/18957 is resolved
       "C4996" # deprecated warnings using low level functions in OpenSSL 3.0
+      "C4746" # consider using __iso_volatile_load/store intrinsic functions
+      "C5264" # 'variable-name': 'const' variable is not used
+      "C5266" # 'const' qualifier on return type has no effect
+      "C5267" # definition of implicit copy constructor for '...' is deprecated because it has a user-provided destructor
           )
   set(MSVC_LEVEL4_WARNINGS_LIST
       # See https://connect.microsoft.com/VisualStudio/feedback/details/1217660/warning-c4265-when-using-functional-header
@@ -587,8 +633,13 @@ if(UBSAN)
 endif()
 
 if(GCOV)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fprofile-arcs -ftest-coverage")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage -O0")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -O0")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
+endif()
+
+if(KEEP_ASM_LOCAL_SYMBOLS)
+  set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -Wa,-L")
 endif()
 
 if(FIPS)
@@ -601,7 +652,9 @@ if(FIPS)
     message(FATAL_ERROR "Static FIPS build of AWS-LC is suported only on Linux")
   endif()
 
-  add_subdirectory(third_party/jitterentropy)
+  if(WIN32 AND CMAKE_BUILD_TYPE_LOWER STREQUAL "debug")
+    message(FATAL_ERROR "Windows Debug build is not supported with FIPS, use Release or RelWithDebInfo")
+  endif()
 
   add_definitions(-DBORINGSSL_FIPS)
   if(FIPS_BREAK_TEST)
@@ -653,13 +706,13 @@ if(MALLOC_FAILURE_TESTING)
   add_definitions(-DBORINGSSL_MALLOC_FAILURE_TESTING)
 endif()
 
-if(OPENSSL_NO_ASM)
-  add_definitions(-DOPENSSL_NO_ASM)
-endif()
-
 TEST_BIG_ENDIAN(BIG_ENDIAN)
 if(BIG_ENDIAN)
-  message(FATAL_ERROR "Big Endian is not supported.")
+  if(ENABLE_EXPERIMENTAL_BIG_ENDIAN_SUPPORT)
+    message(STATUS "Continuing with experimental support on big endian platform")
+  else()
+    message(FATAL_ERROR "Big Endian is not supported.")
+  endif()
 endif()
 
 if(OPENSSL_NO_SSE2_FOR_TESTING)
@@ -682,15 +735,24 @@ elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|amd64|AMD64")
 elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "x86|i386|i686")
   set(ARCH "x86")
 elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64.*|ARM64|aarch64")
-  set(ARCH "aarch64")
+  # If ARCH is originally detected as 64-bit, perform an additional check
+  # to determine whether to build as 32-bit or 64-bit. This happens in some
+  # cases such as when building on an 64-bit CPU where the OS is 32-bit.
+  if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    set(ARCH "aarch64")
+  else()
+    set(ARCH "arm")
+  endif()
 elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^arm*")
   set(ARCH "arm")
 elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "powerpc64le|ppc64le")
   set(ARCH "ppc64le")
 elseif (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "riscv64")
   set(ARCH "riscv64")
+elseif (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "loongarch64")
+  set(ARCH "loongarch64")
 else()
-  message(STATUS "Unknown processor found. Using generic implementations. Processor:" ${CMAKE_SYSTEM_PROCESSOR})
+  message(STATUS "Unknown processor found. Using generic implementations. Processor: " ${CMAKE_SYSTEM_PROCESSOR})
   set(ARCH "generic")
 endif()
 
@@ -820,22 +882,29 @@ if(BUILD_TESTING)
     set(SSL_TEST_EXEC ssl_test.so)
     set(MEM_TEST_EXEC mem_test.so)
     set(MEM_SET_TEST_EXEC mem_set_test.so)
+    set(INTEGRATION_TEST_EXEC integration_test.so)
+    set(DYNAMIC_LOADING_TEST_EXEC dynamic_loading_test.so)
   else()
     set(CRYPTO_TEST_EXEC crypto_test)
     set(RANDOM_TEST_EXEC urandom_test)
     set(SSL_TEST_EXEC ssl_test)
     set(MEM_TEST_EXEC mem_test)
     set(MEM_SET_TEST_EXEC mem_set_test)
+    set(INTEGRATION_TEST_EXEC integration_test)
+    set(DYNAMIC_LOADING_TEST_EXEC dynamic_loading_test)
   endif()
+
+  add_subdirectory(util/fipstools/acvp/modulewrapper)
 endif()
 
 add_subdirectory(crypto)
 if(BUILD_LIBSSL)
   add_subdirectory(ssl)
-  add_subdirectory(tool)
+  if(BUILD_TOOL)
+    add_subdirectory(tool)
+  endif()
 endif()
 add_subdirectory(util/fipstools)
-add_subdirectory(util/fipstools/acvp/modulewrapper)
 
 if(FUZZ)
   if(LIBFUZZER_FROM_DEPS)
@@ -885,19 +954,52 @@ if(BUILD_TESTING)
         set(ACVP_TOOL ${PROJECT_BINARY_DIR}/acvptool)
         set(TEST_WRAPPER ${PROJECT_BINARY_DIR}/testmodulewrapper)
       endif()
+
+      # Read util/go_fips_tests.txt into a CMake variable.
+      file(READ util/go_fips_tests.txt GO_FIPS_TESTS)
+      string(REPLACE "\n" ";" GO_FIPS_TESTS "${GO_FIPS_TESTS}")
+      list(REMOVE_ITEM GO_FIPS_TESTS "")
+      set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+        util/go_fips_tests.txt)
+
+      if(MSVC)
+        # Delocator doesn't support Windows. So, this test would fail.
+        string(REGEX REPLACE "./util/fipstools/delocate" "" GO_FIPS_TESTS "${GO_FIPS_TESTS}")
+      endif()
+
+      # We want to run the SHA tests iteratively because they contain Large Data Tests, which make
+      # us hash anywhere from 1-8 gigabytes of memory, so running multiple at the same time cause a
+      # failure on most machines due to a lack of memory.
+      set(acvp_sha_test_commands)
+      file(GLOB acvp_sha_tests "${PROJECT_SOURCE_DIR}/util/fipstools/acvp/acvptool/test/sha-tests/*.json")
+      foreach(test_path ${acvp_sha_tests})
+        get_filename_component(test_name ${test_path} NAME)
+        list(APPEND acvp_sha_test_commands
+              COMMAND ${GO_EXECUTABLE} run check_expected.go
+                        -tool ${ACVP_TOOL}
+                        -module-wrappers modulewrapper:$<TARGET_FILE:modulewrapper>,testmodulewrapper:${TEST_WRAPPER}
+                        -tests "sha-tests/${test_name}")
+      endforeach()
+
       add_custom_target(
-        acvp_tests
+        build_acvp_tool
         COMMAND ${GO_EXECUTABLE} build -o ${ACVP_TOOL}
                 boringssl.googlesource.com/boringssl/util/fipstools/acvp/acvptool
         COMMAND ${GO_EXECUTABLE} build -o ${TEST_WRAPPER}
                 boringssl.googlesource.com/boringssl/util/fipstools/acvp/acvptool/testmodulewrapper
-        COMMAND cd util/fipstools/acvp/acvptool/test &&
-                ${GO_EXECUTABLE} run check_expected.go
-                -tool ${ACVP_TOOL}
-                -module-wrappers modulewrapper:$<TARGET_FILE:modulewrapper>,testmodulewrapper:${TEST_WRAPPER}
-                -tests tests.json
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
         DEPENDS modulewrapper
+        ${MAYBE_USES_TERMINAL})
+
+      add_custom_target(
+        acvp_tests
+        COMMAND ${GO_EXECUTABLE} run check_expected.go
+                  -tool ${ACVP_TOOL}
+                  -module-wrappers modulewrapper:$<TARGET_FILE:modulewrapper>,testmodulewrapper:${TEST_WRAPPER}
+                  -tests tests.json
+        ${acvp_sha_test_commands}
+        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/util/fipstools/acvp/acvptool/test
+        DEPENDS build_acvp_tool
         ${MAYBE_USES_TERMINAL})
 
       add_custom_target(
@@ -907,6 +1009,16 @@ if(BUILD_TESTING)
     else()
       add_custom_target(fips_specific_tests_if_any)
     endif()
+
+    # Read util/go_tests.txt into a CMake variable.
+    file(READ util/go_tests.txt GO_TESTS)
+    foreach(fips_specific_test ${GO_FIPS_TESTS})
+      set(GO_TESTS "${GO_TESTS}\n${fips_specific_test}")
+    endforeach()
+    string(REPLACE "\n" ";" GO_TESTS "${GO_TESTS}")
+    list(REMOVE_ITEM GO_TESTS "")
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+      util/go_tests.txt)
 
     if(BUILD_LIBSSL)
       add_custom_target(
@@ -929,14 +1041,16 @@ if(BUILD_TESTING)
 
       add_custom_target(
           run_tests
+          COMMAND ${GO_EXECUTABLE} test ${GO_TESTS}
           COMMAND ${GO_EXECUTABLE} run util/all_tests.go -build-dir
-                  ${PROJECT_BINARY_DIR}
+                 ${PROJECT_BINARY_DIR}
           WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
           DEPENDS all_tests run_ssl_runner_tests
           ${MAYBE_USES_TERMINAL})
     else()
       add_custom_target(
           run_tests
+          COMMAND ${GO_EXECUTABLE} test ${GO_TESTS}
           COMMAND ${GO_EXECUTABLE} run util/all_tests.go -build-dir
                   ${PROJECT_BINARY_DIR} -ssl-tests=false
           WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
@@ -948,7 +1062,7 @@ if(BUILD_TESTING)
     add_custom_target(
         run_tests_valgrind
         COMMAND ${GO_EXECUTABLE} run util/all_tests.go -build-dir
-                ${PROJECT_BINARY_DIR} -valgrind=true -valgrind-supp-dir "tests/ci"
+                ${PROJECT_BINARY_DIR} -valgrind=true -valgrind-supp-dir="tests/ci"
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
         DEPENDS all_tests
         ${MAYBE_USES_TERMINAL})
@@ -956,7 +1070,7 @@ if(BUILD_TESTING)
     add_custom_target(
         run_tests_with_sde
         COMMAND ${GO_EXECUTABLE} run util/all_tests.go -build-dir
-                ${PROJECT_BINARY_DIR} -sde true -sde-path "$ENV{SDEROOT}/sde"
+                ${PROJECT_BINARY_DIR} -sde=true -sde-path="$ENV{SDEROOT}/sde"
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
         DEPENDS all_tests
         ${MAYBE_USES_TERMINAL})
@@ -1001,3 +1115,17 @@ FILE(STRINGS "include/openssl/opensslv.h"
 if(NOT ${BASE_VERSION_NUMBER} MATCHES ${OPENSSLV_VERSION_NUMBER})
   message( FATAL_ERROR "OPENSSL_VERSION_NUMBER in base.h and opensslv.h should match.")
 endif()
+
+# TODO: Find a way to make this automatically align with OPENSSL_VERSION_NUMBER in base.h.
+set(VERSION 1.1.1)
+
+# AWS-LC may be installed in a non-standard prefix. If OpenSSL exists in the standard path,
+# the downstream integration may build with the system's OpenSSL version instead.
+# Consider adjusting the PKG_CONFIG_PATH environment to get around this.
+file(GLOB OPENSSL_PKGCONFIGS "pkgconfig/*.pc.in")
+foreach(in_file ${OPENSSL_PKGCONFIGS})
+  file(RELATIVE_PATH in_file ${PROJECT_SOURCE_DIR} ${in_file})
+  string(REPLACE ".in" "" pc_file ${in_file})
+  configure_file(${in_file} ${CMAKE_CURRENT_BINARY_DIR}/${pc_file} @ONLY)
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${pc_file} DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
+endforeach()

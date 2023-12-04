@@ -205,7 +205,12 @@ static bool tls1_check_duplicate_extensions(const CBS *cbs) {
 }
 
 static bool is_post_quantum_group(uint16_t id) {
-  return id == SSL_CURVE_CECPQ2;
+  for (const uint16_t pq_group_id : PQGroups()) {
+    if (id == pq_group_id) {
+      return true;
+    }
+  }
+  return false;
 }
 
 bool ssl_client_hello_init(const SSL *ssl, SSL_CLIENT_HELLO *out,
@@ -302,9 +307,9 @@ bool ssl_client_hello_get_extension(const SSL_CLIENT_HELLO *client_hello,
 }
 
 static const uint16_t kDefaultGroups[] = {
-    SSL_CURVE_X25519,
-    SSL_CURVE_SECP256R1,
-    SSL_CURVE_SECP384R1,
+    SSL_GROUP_X25519,
+    SSL_GROUP_SECP256R1,
+    SSL_GROUP_SECP384R1,
 };
 
 Span<const uint16_t> tls1_get_grouplist(const SSL_HANDSHAKE *hs) {
@@ -339,13 +344,13 @@ bool tls1_get_shared_group(SSL_HANDSHAKE *hs, uint16_t *out_group_id) {
 
   for (uint16_t pref_group : pref) {
     for (uint16_t supp_group : supp) {
-      if (pref_group == supp_group &&
-          // CECPQ2(b) doesn't fit in the u8-length-prefixed ECPoint field in
-          // TLS 1.2 and below.
-          (ssl_protocol_version(ssl) >= TLS1_3_VERSION ||
-           !is_post_quantum_group(pref_group))) {
-        *out_group_id = pref_group;
-        return true;
+      if (pref_group == supp_group) {
+        // PQ groups require TLS 1.3 or later
+        if (!is_post_quantum_group(pref_group) ||
+            ssl_protocol_version(ssl) >= TLS1_3_VERSION) {
+          *out_group_id = pref_group;
+          return true;
+        }
       }
     }
   }
@@ -353,61 +358,10 @@ bool tls1_get_shared_group(SSL_HANDSHAKE *hs, uint16_t *out_group_id) {
   return false;
 }
 
-bool tls1_set_curves(Array<uint16_t> *out_group_ids, Span<const int> curves) {
-  Array<uint16_t> group_ids;
-  if (!group_ids.Init(curves.size())) {
-    return false;
-  }
-
-  for (size_t i = 0; i < curves.size(); i++) {
-    if (!ssl_nid_to_group_id(&group_ids[i], curves[i])) {
-      return false;
-    }
-  }
-
-  *out_group_ids = std::move(group_ids);
-  return true;
-}
-
-bool tls1_set_curves_list(Array<uint16_t> *out_group_ids, const char *curves) {
-  // Count the number of curves in the list.
-  size_t count = 0;
-  const char *ptr = curves, *col;
-  do {
-    col = strchr(ptr, ':');
-    count++;
-    if (col) {
-      ptr = col + 1;
-    }
-  } while (col);
-
-  Array<uint16_t> group_ids;
-  if (!group_ids.Init(count)) {
-    return false;
-  }
-
-  size_t i = 0;
-  ptr = curves;
-  do {
-    col = strchr(ptr, ':');
-    if (!ssl_name_to_group_id(&group_ids[i++], ptr,
-                              col ? (size_t)(col - ptr) : strlen(ptr))) {
-      return false;
-    }
-    if (col) {
-      ptr = col + 1;
-    }
-  } while (col);
-
-  assert(i == count);
-  *out_group_ids = std::move(group_ids);
-  return true;
-}
-
 bool tls1_check_group_id(const SSL_HANDSHAKE *hs, uint16_t group_id) {
   if (is_post_quantum_group(group_id) &&
       ssl_protocol_version(hs->ssl) < TLS1_3_VERSION) {
-    // CECPQ2(b) requires TLS 1.3.
+    // Post-quantum "groups" require TLS 1.3.
     return false;
   }
 
@@ -3452,6 +3406,7 @@ bool ssl_add_clienthello_tlsext(SSL_HANDSHAKE *hs, CBB *out, CBB *out_encoded,
   // 1.3 HelloRetryRequest. For the latter, the extensions may change, so it is
   // important to reset this value.
   hs->extensions.sent = 0;
+  hs->custom_extensions.sent = 0;
 
   // Add a fake empty extension. See RFC 8701.
   if (ssl->ctx->grease_enabled &&
@@ -3479,6 +3434,11 @@ bool ssl_add_clienthello_tlsext(SSL_HANDSHAKE *hs, CBB *out, CBB *out_encoded,
     // If the difference in lengths is only four bytes then the extension had
     // an empty body.
     last_was_empty = (bytes_written == 4);
+  }
+
+  if (!custom_ext_add_clienthello(hs, &extensions)) {
+    OPENSSL_PUT_ERROR(SSL, ERR_R_INTERNAL_ERROR);
+    return 0;
   }
 
   if (ssl->ctx->grease_enabled) {
@@ -3575,6 +3535,10 @@ bool ssl_add_serverhello_tlsext(SSL_HANDSHAKE *hs, CBB *out) {
     }
   }
 
+  if (!custom_ext_add_serverhello(hs, &extensions)) {
+    goto err;
+  }
+
   // Discard empty extensions blocks before TLS 1.3.
   if (ssl_protocol_version(ssl) < TLS1_3_VERSION &&
       CBB_len(&extensions) == 0) {
@@ -3592,6 +3556,7 @@ static bool ssl_scan_clienthello_tlsext(SSL_HANDSHAKE *hs,
                                         const SSL_CLIENT_HELLO *client_hello,
                                         int *out_alert) {
   hs->extensions.received = 0;
+  hs->custom_extensions.received = 0;
   CBS extensions;
   CBS_init(&extensions, client_hello->extensions, client_hello->extensions_len);
   while (CBS_len(&extensions) != 0) {
@@ -3609,6 +3574,10 @@ static bool ssl_scan_clienthello_tlsext(SSL_HANDSHAKE *hs,
     const struct tls_extension *const ext =
         tls_extension_find(&ext_index, type);
     if (ext == NULL) {
+      if (!custom_ext_parse_clienthello(hs, out_alert, type, &extension)) {
+        OPENSSL_PUT_ERROR(SSL, SSL_R_ERROR_PARSING_EXTENSION);
+        return 0;
+      }
       continue;
     }
 
@@ -3696,10 +3665,11 @@ static bool ssl_scan_serverhello_tlsext(SSL_HANDSHAKE *hs, const CBS *cbs,
         tls_extension_find(&ext_index, type);
 
     if (ext == NULL) {
-      OPENSSL_PUT_ERROR(SSL, SSL_R_UNEXPECTED_EXTENSION);
-      ERR_add_error_dataf("extension %u", (unsigned)type);
-      *out_alert = SSL_AD_UNSUPPORTED_EXTENSION;
-      return false;
+      hs->received_custom_extension = true;
+      if (!custom_ext_parse_serverhello(hs, out_alert, type, &extension)) {
+        return 0;
+      }
+      continue;
     }
 
     static_assert(kNumExtensions <= sizeof(hs->extensions.sent) * 8,
@@ -4049,6 +4019,11 @@ enum ssl_ticket_aead_result_t ssl_process_ticket(
   // Other consumers may expect a non-empty session ID to indicate resumption.
   session->session_id_length = SHA256_DIGEST_LENGTH;
 
+  // Ticket-based session resumption bypasses the session cache, but counts as
+  // session reuse, so update the session's "session hit" counter.
+  ssl_update_counter(ssl->session_ctx.get(), ssl->session_ctx->stats.sess_hit,
+                     true);
+
   *out_session = std::move(session);
   return ssl_ticket_aead_success;
 }
@@ -4086,11 +4061,12 @@ bool tls1_choose_signature_algorithm(SSL_HANDSHAKE *hs, uint16_t *out) {
   // Before TLS 1.2, the signature algorithm isn't negotiated as part of the
   // handshake.
   if (ssl_protocol_version(ssl) < TLS1_2_VERSION) {
-    if (!tls1_get_legacy_signature_algorithm(out, hs->local_pubkey.get())) {
-      OPENSSL_PUT_ERROR(SSL, SSL_R_NO_COMMON_SIGNATURE_ALGORITHMS);
-      return false;
+    if (tls1_get_legacy_signature_algorithm(out, hs->local_pubkey.get()) ||
+        ssl_cert_private_keys_supports_legacy_signature_algorithm(out, hs)) {
+      return true;
     }
-    return true;
+    OPENSSL_PUT_ERROR(SSL, SSL_R_NO_COMMON_SIGNATURE_ALGORITHMS);
+    return false;
   }
 
   Span<const uint16_t> sigalgs = kSignSignatureAlgorithms;
@@ -4103,20 +4079,44 @@ bool tls1_choose_signature_algorithm(SSL_HANDSHAKE *hs, uint16_t *out) {
   Span<const uint16_t> peer_sigalgs = tls1_get_peer_verify_algorithms(hs);
 
   for (uint16_t sigalg : sigalgs) {
-    if (!ssl_private_key_supports_signature_algorithm(hs, sigalg)) {
-      continue;
-    }
-
-    for (uint16_t peer_sigalg : peer_sigalgs) {
-      if (sigalg == peer_sigalg) {
-        *out = sigalg;
-        return true;
+    // We check the extracted public key for support first. If not, we go
+    // through our available private keys to check for support.
+    if (ssl_public_key_supports_signature_algorithm(hs, sigalg) ||
+        ssl_cert_private_keys_supports_signature_algorithm(hs, sigalg)) {
+      // Check if peer supports negotiated signature algorithms.
+      for (uint16_t peer_sigalg : peer_sigalgs) {
+        if (sigalg == peer_sigalg) {
+          *out = sigalg;
+          return true;
+        }
       }
     }
   }
 
   OPENSSL_PUT_ERROR(SSL, SSL_R_NO_COMMON_SIGNATURE_ALGORITHMS);
   return false;
+}
+
+bool tls1_call_ocsp_stapling_callback(SSL_HANDSHAKE *hs) {
+  SSL *const ssl = hs->ssl;
+
+  if (hs->ocsp_stapling_requested &&
+      ssl->ctx->legacy_ocsp_callback != nullptr) {
+    switch (ssl->ctx->legacy_ocsp_callback(
+        ssl, ssl->ctx->legacy_ocsp_callback_arg)) {
+      case SSL_TLSEXT_ERR_OK:
+        break;
+      case SSL_TLSEXT_ERR_NOACK:
+        hs->ocsp_stapling_requested = false;
+        break;
+      default:
+        OPENSSL_PUT_ERROR(SSL, SSL_R_OCSP_CB_ERROR);
+        ssl_send_alert(ssl, SSL3_AL_FATAL, SSL_AD_INTERNAL_ERROR);
+        return false;
+    }
+  }
+
+  return true;
 }
 
 Span<const uint16_t> tls1_get_peer_verify_algorithms(const SSL_HANDSHAKE *hs) {
@@ -4346,4 +4346,10 @@ int SSL_early_callback_ctx_extension_get(const SSL_CLIENT_HELLO *client_hello,
   *out_data = CBS_data(&cbs);
   *out_len = CBS_len(&cbs);
   return 1;
+}
+
+int SSL_extension_supported(unsigned extension_value) {
+  uint32_t index;
+  return extension_value == TLSEXT_TYPE_padding ||
+         tls_extension_find(&index, extension_value) != NULL;
 }

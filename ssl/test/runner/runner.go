@@ -48,6 +48,7 @@ import (
 	"boringssl.googlesource.com/boringssl/ssl/test/runner/hpke"
 	"boringssl.googlesource.com/boringssl/ssl/test/runner/ssl_transfer"
 	"boringssl.googlesource.com/boringssl/util/testresult"
+	"golang.org/x/crypto/cryptobyte"
 )
 
 var (
@@ -66,6 +67,7 @@ var (
 	allowHintMismatch  = flag.String("allow-hint-mismatch", "", "Semicolon-separated patterns of tests where hints may mismatch")
 	numWorkersFlag     = flag.Int("num-workers", runtime.NumCPU(), "The number of workers to run in parallel.")
 	shimPath           = flag.String("shim-path", "../../../build/ssl/test/bssl_shim", "The location of the shim binary.")
+	shimExtraFlags     = flag.String("shim-extra-flags", "", "Semicolon-separated extra flags to pass to the shim binary on each invocation.")
 	handshakerPath     = flag.String("handshaker-path", "../../../build/ssl/test/handshaker", "The location of the handshaker binary.")
 	resourceDir        = flag.String("resource-dir", ".", "The directory in which to find certificate and key files.")
 	fuzzer             = flag.Bool("fuzzer", false, "If true, tests against a BoringSSL built in fuzzer mode.")
@@ -859,10 +861,10 @@ func doExchange(test *testCase, config *Config, conn net.Conn, isResume bool, tr
 				if err := os.MkdirAll(dir, 0755); err != nil {
 					return err
 				}
-				bb := newByteBuilder()
-				bb.addU24LengthPrefixed().addBytes(encodedInner)
-				bb.addBytes(outer)
-				return os.WriteFile(filepath.Join(dir, name), bb.finish(), 0644)
+				bb := cryptobyte.NewBuilder(nil)
+				addUint24LengthPrefixedBytes(bb, encodedInner)
+				bb.AddBytes(outer)
+				return os.WriteFile(filepath.Join(dir, name), bb.BytesOrPanic(), 0644)
 			}
 		}
 
@@ -1288,9 +1290,12 @@ var (
 )
 
 type shimProcess struct {
-	cmd            *exec.Cmd
-	waitChan       chan error
-	listener       *net.TCPListener
+	cmd *exec.Cmd
+	// done is closed when the process has exited. At that point, childErr may be
+	// read for the result.
+	done           chan struct{}
+	childErr       error
+	listener       *shimListener
 	stdout, stderr bytes.Buffer
 	// default value is false.
 	// This is marked as true in |(s *shimProcess) wait()|.
@@ -1300,28 +1305,32 @@ type shimProcess struct {
 // newShimProcess starts a new shim with the specified executable, flags, and
 // environment. It internally creates a TCP listener and adds the the -port
 // flag.
-func newShimProcess(shimPath string, flags []string, env []string) (*shimProcess, error) {
-	shim := new(shimProcess)
-	var err error
-	shim.listener, err = net.ListenTCP("tcp", &net.TCPAddr{IP: net.IPv6loopback})
-	if err != nil {
-		shim.listener, err = net.ListenTCP("tcp4", &net.TCPAddr{IP: net.IP{127, 0, 0, 1}})
-	}
+func newShimProcess(dispatcher *shimDispatcher, shimPath string, flags []string, env []string) (*shimProcess, error) {
+	listener, err := dispatcher.NewShim()
 	if err != nil {
 		return nil, err
 	}
 
-	flags = append([]string{"-port", strconv.Itoa(shim.listener.Addr().(*net.TCPAddr).Port)}, flags...)
+	shim := &shimProcess{listener: listener}
+	cmdFlags := []string{
+		"-port", strconv.Itoa(listener.Port()),
+		"-shim-id", strconv.FormatUint(listener.ShimID(), 10),
+	}
+	if listener.IsIPv6() {
+		cmdFlags = append(cmdFlags, "-ipv6")
+	}
+	cmdFlags = append(cmdFlags, flags...)
+
 	if *useValgrind {
-		shim.cmd = valgrindOf(false, shimPath, flags...)
+		shim.cmd = valgrindOf(false, shimPath, cmdFlags...)
 	} else if *useGDB {
-		shim.cmd = gdbOf(shimPath, flags...)
+		shim.cmd = gdbOf(shimPath, cmdFlags...)
 	} else if *useLLDB {
-		shim.cmd = lldbOf(shimPath, flags...)
+		shim.cmd = lldbOf(shimPath, cmdFlags...)
 	} else if *useRR {
-		shim.cmd = rrOf(shimPath, flags...)
+		shim.cmd = rrOf(shimPath, cmdFlags...)
 	} else {
-		shim.cmd = exec.Command(shimPath, flags...)
+		shim.cmd = exec.Command(shimPath, cmdFlags...)
 	}
 	shim.cmd.Stdin = os.Stdin
 	shim.cmd.Stdout = &shim.stdout
@@ -1333,37 +1342,24 @@ func newShimProcess(shimPath string, flags []string, env []string) (*shimProcess
 		return nil, err
 	}
 	shim.idled = false
-	shim.waitChan = make(chan error, 1)
-	go func() { shim.waitChan <- shim.cmd.Wait() }()
+
+	shim.done = make(chan struct{})
+	go func() {
+		shim.childErr = shim.cmd.Wait()
+		shim.listener.Close()
+		close(shim.done)
+	}()
 	return shim, nil
 }
 
 // accept returns a new TCP connection with the shim process, or returns an
 // error on timeout or shim exit.
 func (s *shimProcess) accept() (net.Conn, error) {
-	type connOrError struct {
-		conn net.Conn
-		err  error
+	var deadline time.Time
+	if !useDebugger() {
+		deadline = time.Now().Add(*idleTimeout)
 	}
-	connChan := make(chan connOrError, 1)
-	go func() {
-		if !useDebugger() {
-			s.listener.SetDeadline(time.Now().Add(*idleTimeout))
-		}
-		conn, err := s.listener.Accept()
-		connChan <- connOrError{conn, err}
-		close(connChan)
-	}()
-	select {
-	case result := <-connChan:
-		return result.conn, result.err
-	case childErr := <-s.waitChan:
-		s.waitChan <- childErr
-		if childErr == nil {
-			return nil, fmt.Errorf("child exited early with no error")
-		}
-		return nil, fmt.Errorf("child exited early: %s", childErr)
-	}
+	return s.listener.Accept(deadline)
 }
 
 // wait finishes the test and waits for the shim process to exit.
@@ -1386,9 +1382,8 @@ func (s *shimProcess) wait() error {
 		defer waitTimeout.Stop()
 	}
 
-	err := <-s.waitChan
-	s.waitChan <- err
-	return err
+	<-s.done
+	return s.childErr
 }
 
 // close releases resources associated with the shimProcess. This is safe to
@@ -1478,7 +1473,7 @@ const shimInitialWrite = "hello"
 // the test name is renamed with (|test.name| + |SSL_TRANSFER_SUFFIX|).
 const SSL_TRANSFER_SUFFIX = "-SSL_Transfer"
 
-func runTest(statusChan chan statusMsg, test *testCase, shimPath string, mallocNumToFail int64) error {
+func runTest(dispatcher *shimDispatcher, statusChan chan statusMsg, test *testCase, shimPath string, mallocNumToFail int64) error {
 	// Help debugging panics on the Go side.
 	defer func() {
 		if r := recover(); r != nil {
@@ -1488,6 +1483,9 @@ func runTest(statusChan chan statusMsg, test *testCase, shimPath string, mallocN
 	}()
 
 	var flags []string
+	if len(*shimExtraFlags) > 0 {
+		flags = strings.Split(*shimExtraFlags, ";")
+	}
 	if test.testType == serverTest {
 		flags = append(flags, "-server")
 
@@ -1686,7 +1684,7 @@ func runTest(statusChan chan statusMsg, test *testCase, shimPath string, mallocN
 		env = append(env, "_MALLOC_CHECK=1")
 	}
 
-	shim, err := newShimProcess(shimPath, flags, env)
+	shim, err := newShimProcess(dispatcher, shimPath, flags, env)
 	if err != nil {
 		return err
 	}
@@ -1699,7 +1697,7 @@ func runTest(statusChan chan statusMsg, test *testCase, shimPath string, mallocN
 	// shim is marked as idled only when |idleTimeout| is reached.
 	// This retry fix is scoped with "InvalidChannelIDSignature-TLS13-TLS-Sync-SplitHandshakeRecords".
 	if shim.idled && test.name == "InvalidChannelIDSignature-TLS13-TLS-Sync-SplitHandshakeRecords" {
-		shim, err = newShimProcess(shimPath, flags, env)
+		shim, err := newShimProcess(dispatcher, shimPath, flags, env)
 		if err != nil {
 			return err
 		}
@@ -1957,7 +1955,12 @@ func bigFromHex(hex string) *big.Int {
 
 func convertToSplitHandshakeTests(tests []testCase) (splitHandshakeTests []testCase, err error) {
 	var stdout bytes.Buffer
-	shim := exec.Command(*shimPath, "-is-handshaker-supported")
+	var flags []string
+	if len(*shimExtraFlags) > 0 {
+		flags = strings.Split(*shimExtraFlags, ";")
+	}
+	flags = append(flags, "-is-handshaker-supported")
+	shim := exec.Command(*shimPath, flags...)
 	shim.Stdout = &stdout
 	if err := shim.Run(); err != nil {
 		return nil, err
@@ -9837,26 +9840,29 @@ var testSignatureAlgorithms = []struct {
 	name string
 	id   signatureAlgorithm
 	cert testCert
+	// If non-zero, the curve that must be supported in TLS 1.2 for cert to be
+	// accepted.
+	curve CurveID
 }{
-	{"RSA_PKCS1_SHA1", signatureRSAPKCS1WithSHA1, testCertRSA},
-	{"RSA_PKCS1_SHA256", signatureRSAPKCS1WithSHA256, testCertRSA},
-	{"RSA_PKCS1_SHA384", signatureRSAPKCS1WithSHA384, testCertRSA},
-	{"RSA_PKCS1_SHA512", signatureRSAPKCS1WithSHA512, testCertRSA},
-	{"ECDSA_SHA1", signatureECDSAWithSHA1, testCertECDSAP256},
+	{"RSA_PKCS1_SHA1", signatureRSAPKCS1WithSHA1, testCertRSA, 0},
+	{"RSA_PKCS1_SHA256", signatureRSAPKCS1WithSHA256, testCertRSA, 0},
+	{"RSA_PKCS1_SHA384", signatureRSAPKCS1WithSHA384, testCertRSA, 0},
+	{"RSA_PKCS1_SHA512", signatureRSAPKCS1WithSHA512, testCertRSA, 0},
+	{"ECDSA_SHA1", signatureECDSAWithSHA1, testCertECDSAP256, CurveP256},
 	// The “P256” in the following line is not a mistake. In TLS 1.2 the
 	// hash function doesn't have to match the curve and so the same
 	// signature algorithm works with P-224.
-	{"ECDSA_P224_SHA256", signatureECDSAWithP256AndSHA256, testCertECDSAP224},
-	{"ECDSA_P256_SHA256", signatureECDSAWithP256AndSHA256, testCertECDSAP256},
-	{"ECDSA_P384_SHA384", signatureECDSAWithP384AndSHA384, testCertECDSAP384},
-	{"ECDSA_P521_SHA512", signatureECDSAWithP521AndSHA512, testCertECDSAP521},
-	{"RSA_PSS_SHA256", signatureRSAPSSWithSHA256, testCertRSA},
-	{"RSA_PSS_SHA384", signatureRSAPSSWithSHA384, testCertRSA},
-	{"RSA_PSS_SHA512", signatureRSAPSSWithSHA512, testCertRSA},
-	{"Ed25519", signatureEd25519, testCertEd25519},
+	{"ECDSA_P224_SHA256", signatureECDSAWithP256AndSHA256, testCertECDSAP224, CurveP224},
+	{"ECDSA_P256_SHA256", signatureECDSAWithP256AndSHA256, testCertECDSAP256, CurveP256},
+	{"ECDSA_P384_SHA384", signatureECDSAWithP384AndSHA384, testCertECDSAP384, CurveP384},
+	{"ECDSA_P521_SHA512", signatureECDSAWithP521AndSHA512, testCertECDSAP521, CurveP521},
+	{"RSA_PSS_SHA256", signatureRSAPSSWithSHA256, testCertRSA, 0},
+	{"RSA_PSS_SHA384", signatureRSAPSSWithSHA384, testCertRSA, 0},
+	{"RSA_PSS_SHA512", signatureRSAPSSWithSHA512, testCertRSA, 0},
+	{"Ed25519", signatureEd25519, testCertEd25519, 0},
 	// Tests for key types prior to TLS 1.2.
-	{"RSA", 0, testCertRSA},
-	{"ECDSA", 0, testCertECDSAP256},
+	{"RSA", 0, testCertRSA, 0},
+	{"ECDSA", 0, testCertECDSAP256, CurveP256},
 }
 
 const fakeSigAlg1 signatureAlgorithm = 0x2a01
@@ -9908,6 +9914,14 @@ func addSignatureAlgorithmTests() {
 				rejectByDefault = true
 			}
 
+			var curveFlags []string
+			if alg.curve != 0 && ver.version <= VersionTLS12 {
+				// In TLS 1.2, the ECDH curve list also constrains ECDSA keys. Ensure the
+				// corresponding curve is enabled on the shim. Also include X25519 to
+				// ensure the shim and runner have something in common for ECDH.
+				curveFlags = flagInts("-curves", []int{int(CurveX25519), int(alg.curve)})
+			}
+
 			var signError, signLocalError, verifyError, verifyLocalError, defaultError, defaultLocalError string
 			if shouldFail {
 				signError = ":NO_COMMON_SIGNATURE_ALGORITHMS:"
@@ -9946,7 +9960,7 @@ func addSignatureAlgorithmTests() {
 							"-cert-file", path.Join(*resourceDir, getShimCertificate(alg.cert)),
 							"-key-file", path.Join(*resourceDir, getShimKey(alg.cert)),
 						},
-						flagInts("-curves", shimConfig.AllCurves)...,
+						curveFlags...,
 					),
 					shouldFail:         shouldFail,
 					expectedError:      signError,
@@ -9970,7 +9984,7 @@ func addSignatureAlgorithmTests() {
 							"-cert-file", path.Join(*resourceDir, getShimCertificate(alg.cert)),
 							"-key-file", path.Join(*resourceDir, getShimKey(alg.cert)),
 						},
-						flagInts("-curves", shimConfig.AllCurves)...,
+						curveFlags...,
 					),
 					expectations: connectionExpectations{
 						peerSignatureAlgorithm: alg.id,
@@ -10011,7 +10025,7 @@ func addSignatureAlgorithmTests() {
 							IgnorePeerSignatureAlgorithmPreferences: shouldFail,
 						},
 					},
-					flags: flagInts("-curves", shimConfig.AllCurves),
+					flags: curveFlags,
 					// Resume the session to assert the peer signature
 					// algorithm is reported on both handshakes.
 					resumeSession:      !shouldFail,
@@ -10044,7 +10058,7 @@ func addSignatureAlgorithmTests() {
 					},
 					flags: append(
 						[]string{"-expect-peer-signature-algorithm", strconv.Itoa(int(alg.id))},
-						flagInts("-curves", shimConfig.AllCurves)...,
+						curveFlags...,
 					),
 					// Resume the session to assert the peer signature
 					// algorithm is reported on both handshakes.
@@ -10068,7 +10082,7 @@ func addSignatureAlgorithmTests() {
 							InvalidSignature: true,
 						},
 					},
-					flags:         flagInts("-curves", shimConfig.AllCurves),
+					flags:         curveFlags,
 					shouldFail:    true,
 					expectedError: ":BAD_SIGNATURE:",
 				}
@@ -11354,6 +11368,275 @@ func addTLSUniqueTests() {
 }
 
 func addCustomExtensionTests() {
+	expectedContents := "custom extension"
+	emptyString := ""
+
+	for _, isClient := range []bool{false, true} {
+		suffix := "Server"
+		flag := "-enable-server-custom-extension"
+		testType := serverTest
+		if isClient {
+			suffix = "Client"
+			flag = "-enable-client-custom-extension"
+			testType = clientTest
+		}
+
+		testCases = append(testCases, testCase{
+			testType: testType,
+			name:     "CustomExtensions-" + suffix,
+			config: Config{
+				MaxVersion: VersionTLS12,
+				Bugs: ProtocolBugs{
+					CustomExtension:         expectedContents,
+					ExpectedCustomExtension: &expectedContents,
+				},
+			},
+			flags: []string{flag},
+		})
+		testCases = append(testCases, testCase{
+			testType: testType,
+			name:     "CustomExtensions-" + suffix + "-TLS13",
+			config: Config{
+				MaxVersion: VersionTLS13,
+				Bugs: ProtocolBugs{
+					CustomExtension:         expectedContents,
+					ExpectedCustomExtension: &expectedContents,
+				},
+			},
+			flags: []string{flag},
+		})
+
+		// If the parse callback fails, the handshake should also fail.
+		testCases = append(testCases, testCase{
+			testType: testType,
+			name:     "CustomExtensions-ParseError-" + suffix,
+			config: Config{
+				MaxVersion: VersionTLS12,
+				Bugs: ProtocolBugs{
+					CustomExtension:         expectedContents + "foo",
+					ExpectedCustomExtension: &expectedContents,
+				},
+			},
+			flags:         []string{flag},
+			shouldFail:    true,
+			expectedError: ":CUSTOM_EXTENSION_ERROR:",
+		})
+		testCases = append(testCases, testCase{
+			testType: testType,
+			name:     "CustomExtensions-ParseError-" + suffix + "-TLS13",
+			config: Config{
+				MaxVersion: VersionTLS13,
+				Bugs: ProtocolBugs{
+					CustomExtension:         expectedContents + "foo",
+					ExpectedCustomExtension: &expectedContents,
+				},
+			},
+			flags:         []string{flag},
+			shouldFail:    true,
+			expectedError: ":CUSTOM_EXTENSION_ERROR:",
+		})
+
+		// If the add callback fails, the handshake should also fail.
+		testCases = append(testCases, testCase{
+			testType: testType,
+			name:     "CustomExtensions-FailAdd-" + suffix,
+			config: Config{
+				MaxVersion: VersionTLS12,
+				Bugs: ProtocolBugs{
+					CustomExtension:         expectedContents,
+					ExpectedCustomExtension: &expectedContents,
+				},
+			},
+			flags:         []string{flag, "-custom-extension-fail-add"},
+			shouldFail:    true,
+			expectedError: ":CUSTOM_EXTENSION_ERROR:",
+		})
+		testCases = append(testCases, testCase{
+			testType: testType,
+			name:     "CustomExtensions-FailAdd-" + suffix + "-TLS13",
+			config: Config{
+				MaxVersion: VersionTLS13,
+				Bugs: ProtocolBugs{
+					CustomExtension:         expectedContents,
+					ExpectedCustomExtension: &expectedContents,
+				},
+			},
+			flags:         []string{flag, "-custom-extension-fail-add"},
+			shouldFail:    true,
+			expectedError: ":CUSTOM_EXTENSION_ERROR:",
+		})
+
+		// If the add callback returns zero, no extension should be
+		// added.
+		skipCustomExtension := expectedContents
+		if isClient {
+			// For the case where the client skips sending the
+			// custom extension, the server must not “echo” it.
+			skipCustomExtension = ""
+		}
+		testCases = append(testCases, testCase{
+			testType: testType,
+			name:     "CustomExtensions-Skip-" + suffix,
+			config: Config{
+				MaxVersion: VersionTLS12,
+				Bugs: ProtocolBugs{
+					CustomExtension:         skipCustomExtension,
+					ExpectedCustomExtension: &emptyString,
+				},
+			},
+			flags: []string{flag, "-custom-extension-skip"},
+		})
+		testCases = append(testCases, testCase{
+			testType: testType,
+			name:     "CustomExtensions-Skip-" + suffix + "-TLS13",
+			config: Config{
+				MaxVersion: VersionTLS13,
+				Bugs: ProtocolBugs{
+					CustomExtension:         skipCustomExtension,
+					ExpectedCustomExtension: &emptyString,
+				},
+			},
+			flags: []string{flag, "-custom-extension-skip"},
+		})
+	}
+
+	// If the client sends both early data and custom extension, the handshake
+	// should succeed as long as both the extensions aren't returned by the
+	// server.
+	testCases = append(testCases, testCase{
+		testType: clientTest,
+		name:     "CustomExtensions-Client-EarlyData-None",
+		config: Config{
+			MaxVersion:       VersionTLS13,
+			MaxEarlyDataSize: 16384,
+			Bugs: ProtocolBugs{
+				ExpectedCustomExtension: &expectedContents,
+				AlwaysRejectEarlyData:   true,
+			},
+		},
+		resumeSession:           true,
+		earlyData:               true,
+		expectEarlyDataRejected: true,
+		flags: []string{
+			"-enable-client-custom-extension",
+		},
+	})
+
+	testCases = append(testCases, testCase{
+		testType: clientTest,
+		name:     "CustomExtensions-Client-EarlyData-EarlyDataAccepted",
+		config: Config{
+			MaxVersion:       VersionTLS13,
+			MaxEarlyDataSize: 16384,
+			Bugs: ProtocolBugs{
+				ExpectedCustomExtension: &expectedContents,
+			},
+		},
+		resumeSession: true,
+		earlyData:     true,
+		flags: []string{
+			"-enable-client-custom-extension",
+		},
+	})
+
+	testCases = append(testCases, testCase{
+		testType: clientTest,
+		name:     "CustomExtensions-Client-EarlyData-CustomExtensionAccepted",
+		config: Config{
+			MaxVersion:       VersionTLS13,
+			MaxEarlyDataSize: 16384,
+			Bugs: ProtocolBugs{
+				AlwaysRejectEarlyData:   true,
+				CustomExtension:         expectedContents,
+				ExpectedCustomExtension: &expectedContents,
+			},
+		},
+		resumeSession:           true,
+		earlyData:               true,
+		expectEarlyDataRejected: true,
+		flags: []string{
+			"-enable-client-custom-extension",
+		},
+	})
+
+	testCases = append(testCases, testCase{
+		testType: clientTest,
+		name:     "CustomExtensions-Client-EarlyDataAndCustomExtensions",
+		config: Config{
+			MaxVersion:       VersionTLS13,
+			MaxEarlyDataSize: 16384,
+			Bugs: ProtocolBugs{
+				CustomExtension:         expectedContents,
+				ExpectedCustomExtension: &expectedContents,
+			},
+		},
+		resumeConfig: &Config{
+			MaxVersion:       VersionTLS13,
+			MaxEarlyDataSize: 16384,
+			Bugs: ProtocolBugs{
+				CustomExtension:         expectedContents,
+				ExpectedCustomExtension: &expectedContents,
+				SendEarlyDataExtension:  true,
+			},
+		},
+		resumeSession: true,
+		shouldFail:    true,
+		expectedError: ":UNEXPECTED_EXTENSION_ON_EARLY_DATA:",
+		flags: []string{
+			"-enable-client-custom-extension",
+			"-enable-early-data",
+			"-expect-ticket-supports-early-data",
+		},
+	})
+
+	// If the server receives both early data and custom extension, only the
+	// custom extension should be accepted.
+	testCases = append(testCases, testCase{
+		testType: serverTest,
+		name:     "CustomExtensions-Server-EarlyDataOffered",
+		config: Config{
+			MaxVersion: VersionTLS13,
+			Bugs: ProtocolBugs{
+				SendEarlyData:           [][]byte{{1, 2, 3, 4}},
+				CustomExtension:         expectedContents,
+				ExpectedCustomExtension: &expectedContents,
+				ExpectEarlyDataAccepted: false,
+			},
+		},
+		resumeSession:           true,
+		earlyData:               true,
+		expectEarlyDataRejected: true,
+		flags: []string{
+			"-enable-server-custom-extension",
+		},
+	})
+
+	// The custom extension add callback should not be called if the client
+	// doesn't send the extension.
+	testCases = append(testCases, testCase{
+		testType: serverTest,
+		name:     "CustomExtensions-NotCalled-Server",
+		config: Config{
+			MaxVersion: VersionTLS12,
+			Bugs: ProtocolBugs{
+				ExpectedCustomExtension: &emptyString,
+			},
+		},
+		flags: []string{"-enable-server-custom-extension", "-custom-extension-fail-add"},
+	})
+
+	testCases = append(testCases, testCase{
+		testType: serverTest,
+		name:     "CustomExtensions-NotCalled-Server-TLS13",
+		config: Config{
+			MaxVersion: VersionTLS13,
+			Bugs: ProtocolBugs{
+				ExpectedCustomExtension: &emptyString,
+			},
+		},
+		flags: []string{"-enable-server-custom-extension", "-custom-extension-fail-add"},
+	})
+
 	// Test an unknown extension from the server.
 	testCases = append(testCases, testCase{
 		testType: clientTest,
@@ -11361,7 +11644,7 @@ func addCustomExtensionTests() {
 		config: Config{
 			MaxVersion: VersionTLS12,
 			Bugs: ProtocolBugs{
-				CustomExtension: "custom extension",
+				CustomExtension: expectedContents,
 			},
 		},
 		shouldFail:         true,
@@ -11374,7 +11657,7 @@ func addCustomExtensionTests() {
 		config: Config{
 			MaxVersion: VersionTLS13,
 			Bugs: ProtocolBugs{
-				CustomExtension: "custom extension",
+				CustomExtension: expectedContents,
 			},
 		},
 		shouldFail:         true,
@@ -11387,7 +11670,7 @@ func addCustomExtensionTests() {
 		config: Config{
 			MaxVersion: VersionTLS13,
 			Bugs: ProtocolBugs{
-				CustomUnencryptedExtension: "custom extension",
+				CustomUnencryptedExtension: expectedContents,
 			},
 		},
 		shouldFail:    true,
@@ -11488,13 +11771,12 @@ var testCurves = []struct {
 	{"P-384", CurveP384},
 	{"P-521", CurveP521},
 	{"X25519", CurveX25519},
-	{"CECPQ2", CurveCECPQ2},
 }
 
 const bogusCurve = 0x1234
 
 func isPqGroup(r CurveID) bool {
-	return r == CurveCECPQ2
+	return false
 }
 
 func addCurveTests() {
@@ -11955,131 +12237,6 @@ func addCurveTests() {
 			Bugs: ProtocolBugs{
 				SetX25519HighBit: true,
 			},
-		},
-	})
-
-	// CECPQ2 should not be offered by a TLS < 1.3 client.
-	testCases = append(testCases, testCase{
-		name: "CECPQ2NotInTLS12",
-		config: Config{
-			Bugs: ProtocolBugs{
-				FailIfCECPQ2Offered: true,
-			},
-		},
-		flags: []string{
-			"-max-version", strconv.Itoa(VersionTLS12),
-			"-curves", strconv.Itoa(int(CurveCECPQ2)),
-			"-curves", strconv.Itoa(int(CurveX25519)),
-		},
-	})
-
-	// CECPQ2 should not crash a TLS < 1.3 client if the server mistakenly
-	// selects it.
-	testCases = append(testCases, testCase{
-		name: "CECPQ2NotAcceptedByTLS12Client",
-		config: Config{
-			Bugs: ProtocolBugs{
-				SendCurve: CurveCECPQ2,
-			},
-		},
-		flags: []string{
-			"-max-version", strconv.Itoa(VersionTLS12),
-			"-curves", strconv.Itoa(int(CurveCECPQ2)),
-			"-curves", strconv.Itoa(int(CurveX25519)),
-		},
-		shouldFail:    true,
-		expectedError: ":WRONG_CURVE:",
-	})
-
-	// CECPQ2 should not be offered by default as a client.
-	testCases = append(testCases, testCase{
-		name: "CECPQ2NotEnabledByDefaultInClients",
-		config: Config{
-			MinVersion: VersionTLS13,
-			Bugs: ProtocolBugs{
-				FailIfCECPQ2Offered: true,
-			},
-		},
-	})
-
-	// If CECPQ2 is offered, both X25519 and CECPQ2 should have a key-share.
-	testCases = append(testCases, testCase{
-		name: "NotJustCECPQ2KeyShare",
-		config: Config{
-			MinVersion: VersionTLS13,
-			Bugs: ProtocolBugs{
-				ExpectedKeyShares: []CurveID{CurveCECPQ2, CurveX25519},
-			},
-		},
-		flags: []string{
-			"-curves", strconv.Itoa(int(CurveCECPQ2)),
-			"-curves", strconv.Itoa(int(CurveX25519)),
-			"-expect-curve-id", strconv.Itoa(int(CurveCECPQ2)),
-		},
-	})
-
-	// ... and the other way around
-	testCases = append(testCases, testCase{
-		name: "CECPQ2KeyShareIncludedSecond",
-		config: Config{
-			MinVersion: VersionTLS13,
-			Bugs: ProtocolBugs{
-				ExpectedKeyShares: []CurveID{CurveX25519, CurveCECPQ2},
-			},
-		},
-		flags: []string{
-			"-curves", strconv.Itoa(int(CurveX25519)),
-			"-curves", strconv.Itoa(int(CurveCECPQ2)),
-			"-expect-curve-id", strconv.Itoa(int(CurveX25519)),
-		},
-	})
-
-	// ... and even if there's another curve in the middle because it's the
-	// first classical and first post-quantum "curves" that get key shares
-	// included.
-	testCases = append(testCases, testCase{
-		name: "CECPQ2KeyShareIncludedThird",
-		config: Config{
-			MinVersion: VersionTLS13,
-			Bugs: ProtocolBugs{
-				ExpectedKeyShares: []CurveID{CurveX25519, CurveCECPQ2},
-			},
-		},
-		flags: []string{
-			"-curves", strconv.Itoa(int(CurveX25519)),
-			"-curves", strconv.Itoa(int(CurveP256)),
-			"-curves", strconv.Itoa(int(CurveCECPQ2)),
-			"-expect-curve-id", strconv.Itoa(int(CurveX25519)),
-		},
-	})
-
-	// If CECPQ2 is the only configured curve, the key share is sent.
-	testCases = append(testCases, testCase{
-		name: "JustConfiguringCECPQ2Works",
-		config: Config{
-			MinVersion: VersionTLS13,
-			Bugs: ProtocolBugs{
-				ExpectedKeyShares: []CurveID{CurveCECPQ2},
-			},
-		},
-		flags: []string{
-			"-curves", strconv.Itoa(int(CurveCECPQ2)),
-			"-expect-curve-id", strconv.Itoa(int(CurveCECPQ2)),
-		},
-	})
-
-	// As a server, CECPQ2 is not yet supported by default.
-	testCases = append(testCases, testCase{
-		testType: serverTest,
-		name:     "CECPQ2NotEnabledByDefaultForAServer",
-		config: Config{
-			MinVersion:       VersionTLS13,
-			CurvePreferences: []CurveID{CurveCECPQ2, CurveX25519},
-			DefaultCurves:    []CurveID{CurveCECPQ2},
-		},
-		flags: []string{
-			"-server-preference",
-			"-expect-curve-id", strconv.Itoa(int(CurveX25519)),
 		},
 	})
 }
@@ -19427,7 +19584,257 @@ func addHintMismatchTests() {
 	}
 }
 
-func worker(statusChan chan statusMsg, c chan *testCase, shimPath string, wg *sync.WaitGroup) {
+var testMultipleCertSlotsAlgorithms = []struct {
+	name   string
+	cipher uint16
+	id     signatureAlgorithm
+	cert   testCert
+	// If non-zero, the curve that must be supported in TLS 1.2 for cert to be
+	// accepted.
+	curve CurveID
+}{
+	{"RSA_PKCS1_SHA1", TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA, signatureRSAPKCS1WithSHA1, testCertRSA, 0},
+	{"RSA_PKCS1_SHA256", TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA, signatureRSAPKCS1WithSHA256, testCertRSA, 0},
+	{"RSA_PKCS1_SHA384", TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA, signatureRSAPKCS1WithSHA384, testCertRSA, 0},
+	{"RSA_PKCS1_SHA512", TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA, signatureRSAPKCS1WithSHA512, testCertRSA, 0},
+	{"ECDSA_SHA1", TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA, signatureECDSAWithSHA1, testCertECDSAP256, CurveP256},
+	// The “P256” in the following line is not a mistake. In TLS 1.2 the
+	// hash function doesn't have to match the curve and so the same
+	// signature algorithm works with P-224.
+	{"ECDSA_P224_SHA256", TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA, signatureECDSAWithP256AndSHA256, testCertECDSAP224, CurveP224},
+	{"ECDSA_P256_SHA256", TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA, signatureECDSAWithP256AndSHA256, testCertECDSAP256, CurveP256},
+	{"RSA_PSS_SHA256", TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA, signatureRSAPSSWithSHA256, testCertRSA, 0},
+	{"RSA_PSS_SHA384", TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA, signatureRSAPSSWithSHA384, testCertRSA, 0},
+	{"RSA_PSS_SHA512", TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA, signatureRSAPSSWithSHA512, testCertRSA, 0},
+	{"Ed25519", TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256, signatureEd25519, testCertEd25519, 0},
+	// Tests for key types prior to TLS 1.2.
+	{"RSA", TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA, 0, testCertRSA, 0},
+	{"ECDSA", TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA, 0, testCertECDSAP256, CurveP256},
+}
+
+func addMultipleCertSlotTests() {
+	var allAlgorithms []signatureAlgorithm
+	for _, alg := range testMultipleCertSlotsAlgorithms {
+		if alg.id != 0 {
+			allAlgorithms = append(allAlgorithms, alg.id)
+		}
+	}
+	multipleCertsFlag := "-multiple-certs-slot"
+	rsaCertSlot := []string{
+		multipleCertsFlag, path.Join(*resourceDir, getShimCertificate(testCertRSA)) + "," + path.Join(*resourceDir, getShimKey(testCertRSA)),
+	}
+	ecdsaCertSlot := []string{
+		multipleCertsFlag, path.Join(*resourceDir, getShimCertificate(testCertECDSAP256)) + "," + path.Join(*resourceDir, getShimKey(testCertECDSAP256)),
+	}
+	ed25519CertSlot := []string{
+		multipleCertsFlag, path.Join(*resourceDir, getShimCertificate(testCertEd25519)) + "," + path.Join(*resourceDir, getShimKey(testCertEd25519)),
+	}
+	certificateSlotFlags := append([]string{}, rsaCertSlot...)
+	certificateSlotFlags = append(certificateSlotFlags, ecdsaCertSlot...)
+	certificateSlotFlags = append(certificateSlotFlags, ed25519CertSlot...)
+
+	signError := ":NO_COMMON_SIGNATURE_ALGORITHMS:"
+	signLocalError := "remote error: handshake failure"
+
+	// Make sure each signature algorithm works.
+	for _, alg := range testMultipleCertSlotsAlgorithms {
+		for _, ver := range tlsVersions {
+			if (ver.version < VersionTLS12) != (alg.id == 0) {
+				continue
+			}
+
+			prefix := "Server-"
+			var shouldFail bool
+			// ecdsa_sha1 does not exist in TLS 1.3.
+			if ver.version >= VersionTLS13 && alg.id == signatureECDSAWithSHA1 {
+				shouldFail = true
+			}
+			// RSA-PKCS1 does not exist in TLS 1.3.
+			if ver.version >= VersionTLS13 && hasComponent(alg.name, "PKCS1") {
+				shouldFail = true
+			}
+			// SHA-224 has been removed from TLS 1.3 and, in 1.3,
+			// the curve has to match the hash size.
+			if ver.version >= VersionTLS13 && alg.cert == testCertECDSAP224 {
+				shouldFail = true
+			}
+
+			var curveFlags []string
+			if alg.curve != 0 && ver.version <= VersionTLS12 {
+				// In TLS 1.2, the ECDH curve list also constrains ECDSA keys. Ensure the
+				// corresponding curve is enabled on the shim. Also include X25519 to
+				// ensure the shim and runner have something in common for ECDH.
+				curveFlags = flagInts("-curves", []int{int(CurveX25519), int(alg.curve)})
+			}
+
+			suffix := "-" + alg.name + "-" + ver.name
+
+			// Test that the shim will select the algorithm when configured to only
+			// support it.
+			strictAlgTest := testCase{
+				testType: serverTest,
+				name:     prefix + "Multiple-Cert-Strict-Alg" + suffix,
+				config: Config{
+					MaxVersion:                ver.version,
+					VerifySignatureAlgorithms: allAlgorithms,
+				},
+				flags: func() []string {
+				   flags := append([]string{}, certificateSlotFlags...)
+				   flags = append(flags, curveFlags...)
+				   return flags
+				}(),
+				expectations: connectionExpectations{
+					peerSignatureAlgorithm: alg.id,
+				},
+			}
+
+			if alg.id != 0 {
+				strictAlgTest.flags = append(strictAlgTest.flags, "-signing-prefs", strconv.Itoa(int(alg.id)))
+			}
+
+			// TLS 1.2 servers only sign on some cipher suites.
+			if ver.version <= VersionTLS12 {
+				strictAlgTest.config.CipherSuites = []uint16{alg.cipher}
+			}
+
+			// Extend the original test, but force it to use the early certificate callback instead.
+			// Expected behavior should be the same.
+			strictAlgCallbackTest := strictAlgTest
+			strictAlgCallbackTest.name = prefix + "Multiple-Cert-Strict-Alg-Callback" + suffix
+			strictAlgCallbackTest.flags = append(strictAlgCallbackTest.flags, "-use-early-callback")
+
+			// Verify that we don't support multiple certificate slots on the client side. The client should be
+			// configured with the last certificate set (ED25519 in this case).
+			prefix = "Client-"
+			strictAlgClientTest := testCase{
+				testType: clientTest,
+				name:     prefix + "Multiple-Cert-Strict-Alg" + suffix,
+				config: Config{
+					MaxVersion:                ver.version,
+					VerifySignatureAlgorithms: []signatureAlgorithm{alg.id},
+					ClientAuth:                RequireAnyClientCert,
+					Certificates:              []Certificate{rsaCertificate, ecdsaP256Certificate, ed25519Certificate},
+				},
+				flags: func() []string {
+				   flags := append([]string{}, certificateSlotFlags...)
+				   flags = append(flags, curveFlags...)
+				   return flags
+				}(),
+			}
+			if alg.id != signatureEd25519 {
+				// ED25519 is the last certificate set in |certificateSlotFlags|. We don't support multiple certificate
+				// slots on the client side, so the client should only be configured to use ED25519.
+				strictAlgClientTest.shouldFail = true
+				strictAlgClientTest.expectedError = signError
+				strictAlgClientTest.expectedLocalError = signLocalError
+			}
+
+			if !shouldFail {
+				testCases = append(testCases, strictAlgTest)
+				testCases = append(testCases, strictAlgCallbackTest)
+				testCases = append(testCases, strictAlgClientTest)
+			}
+		}
+	}
+
+	for _, ver := range tlsVersions {
+		suffix := "-" + ver.name
+
+		// ED25519 signature algorithm should be prioritized if supported.
+		ed25519PriorityTest := testCase{
+			testType: serverTest,
+			name:     "Server-Multiple-Cert-ED25519-Priority" + suffix,
+			config: Config{
+				MaxVersion:                ver.version,
+				VerifySignatureAlgorithms: allAlgorithms,
+			},
+			flags: append(
+				certificateSlotFlags,
+				flagInts("-curves", []int{int(CurveX25519), int(CurveP256)})...,
+			),
+			expectations: connectionExpectations{
+				peerSignatureAlgorithm: signatureEd25519,
+			},
+		}
+
+		// Below tests verify that multiple certificates only works because we have a valid cert.
+
+		// Connection shouldn't be accepted without RSA cert.
+		noRSACertTest := testCase{
+			testType: serverTest,
+			name:     "Server-Multiple-Cert-No-RSA" + suffix,
+			config: Config{
+				MaxVersion:                ver.version,
+				VerifySignatureAlgorithms: allAlgorithms,
+			},
+			flags: []string{
+				ecdsaCertSlot[0], ecdsaCertSlot[1],
+				ed25519CertSlot[0], ed25519CertSlot[1],
+				"-signing-prefs", strconv.Itoa(int(signatureRSAPKCS1WithSHA256)),
+			},
+			shouldFail:         true,
+			expectedError:      signError,
+			expectedLocalError: signLocalError,
+		}
+		// RSA support in TLS1.2 and lower is indicated with |mask_k| in |ssl_get_compatible_server_ciphers|.
+		// We do not have a valid public or private RSA key set up, so this fails early.
+		if ver.version <= VersionTLS12 {
+			noRSACertTest.expectedError = ":NO_SHARED_CIPHER:"
+		}
+
+		// Connection shouldn't be accepted without ECDSA cert.
+		noECDSACertTest := testCase{
+			testType: serverTest,
+			name:     "Server-Multiple-Cert-No-ECDSA" + suffix,
+			config: Config{
+				MaxVersion:                ver.version,
+				VerifySignatureAlgorithms: allAlgorithms,
+			},
+			flags: []string{
+				rsaCertSlot[0], rsaCertSlot[1],
+				ed25519CertSlot[0], ed25519CertSlot[1],
+				"-signing-prefs", strconv.Itoa(int(signatureECDSAWithP256AndSHA256)),
+			},
+			shouldFail:         true,
+			expectedError:      signError,
+			expectedLocalError: signLocalError,
+		}
+
+		// Connection shouldn't be accepted without ED25519 cert.
+		noED25519CertTest := testCase{
+			testType: serverTest,
+			name:     "Server-Multiple-Cert-No-ED25519" + suffix,
+			config: Config{
+				MaxVersion:                ver.version,
+				VerifySignatureAlgorithms: allAlgorithms,
+			},
+			flags: []string{
+				rsaCertSlot[0], rsaCertSlot[1],
+				ecdsaCertSlot[0], ecdsaCertSlot[1],
+				"-signing-prefs", strconv.Itoa(int(signatureEd25519)),
+			},
+			shouldFail:         true,
+			expectedError:      signError,
+			expectedLocalError: signLocalError,
+		}
+
+		if ver.version <= VersionTLS12 {
+			noRSACertTest.config.CipherSuites = []uint16{TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA}
+			noECDSACertTest.config.CipherSuites = []uint16{TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA}
+			noED25519CertTest.config.CipherSuites = []uint16{TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256}
+		}
+
+		// ED25519 is only supported in TLS1.2 and above.
+		if ver.version >= VersionTLS12 {
+			testCases = append(testCases, ed25519PriorityTest)
+			testCases = append(testCases, noED25519CertTest)
+		}
+		testCases = append(testCases, noRSACertTest)
+		testCases = append(testCases, noECDSACertTest)
+	}
+}
+
+func worker(dispatcher *shimDispatcher, statusChan chan statusMsg, c chan *testCase, shimPath string, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	for test := range c {
@@ -19436,7 +19843,7 @@ func worker(statusChan chan statusMsg, c chan *testCase, shimPath string, wg *sy
 		if *mallocTest >= 0 {
 			for mallocNumToFail := int64(*mallocTest); ; mallocNumToFail++ {
 				statusChan <- statusMsg{test: test, statusType: statusStarted}
-				if err = runTest(statusChan, test, shimPath, mallocNumToFail); err != errMoreMallocs {
+				if err = runTest(dispatcher, statusChan, test, shimPath, mallocNumToFail); err != errMoreMallocs {
 					if err != nil {
 						fmt.Printf("\n\nmalloc test failed at %d: %s\n", mallocNumToFail, err)
 					}
@@ -19446,11 +19853,11 @@ func worker(statusChan chan statusMsg, c chan *testCase, shimPath string, wg *sy
 		} else if *repeatUntilFailure {
 			for err == nil {
 				statusChan <- statusMsg{test: test, statusType: statusStarted}
-				err = runTest(statusChan, test, shimPath, -1)
+				err = runTest(dispatcher, statusChan, test, shimPath, -1)
 			}
 		} else {
 			statusChan <- statusMsg{test: test, statusType: statusStarted}
-			err = runTest(statusChan, test, shimPath, -1)
+			err = runTest(dispatcher, statusChan, test, shimPath, -1)
 		}
 		statusChan <- statusMsg{test: test, statusType: statusDone, err: err}
 	}
@@ -19643,7 +20050,7 @@ func fixUpCipherSuites() {
 		}
 
 		if add_disabld_cipher_suite {
-			test_case.flags = append(test_case.flags, "-cipher", "DEFAULT" + disabled_ciphers)
+			test_case.flags = append(test_case.flags, "-cipher", "DEFAULT"+disabled_ciphers)
 			testCases[index] = test_case
 		}
 	}
@@ -19748,6 +20155,7 @@ func main() {
 	addDelegatedCredentialTests()
 	addEncryptedClientHelloTests()
 	addHintMismatchTests()
+	addMultipleCertSlotTests()
 
 	toAppend, err := convertToSplitHandshakeTests(testCases)
 	if err != nil {
@@ -19783,6 +20191,13 @@ func main() {
 
 	checkTests()
 
+	dispatcher, err := newShimDispatcher()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error opening socket: %s", err)
+		os.Exit(1)
+	}
+	defer dispatcher.Close()
+
 	numWorkers := *numWorkersFlag
 	if useDebugger() {
 		numWorkers = 1
@@ -19797,7 +20212,7 @@ func main() {
 	var wg sync.WaitGroup
 	for i := 0; i < numWorkers; i++ {
 		wg.Add(1)
-		go worker(statusChan, testChan, *shimPath, &wg)
+		go worker(dispatcher, statusChan, testChan, *shimPath, &wg)
 	}
 
 	var oneOfPatternIfAny, noneOfPattern []string

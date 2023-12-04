@@ -8,9 +8,9 @@
 #include <openssl/aes.h>
 #include <openssl/base64.h>
 #include <openssl/bn.h>
-#include "openssl/ctrdrbg.h"
 #include <openssl/curve25519.h>
 #include <openssl/crypto.h>
+#include <openssl/dh.h>
 #include <openssl/digest.h>
 #include <openssl/err.h>
 #include <openssl/ec.h>

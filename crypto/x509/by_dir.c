@@ -81,7 +81,6 @@ typedef struct lookup_dir_entry_st {
 } BY_DIR_ENTRY;
 
 typedef struct lookup_dir_st {
-  BUF_MEM *buffer;
   STACK_OF(BY_DIR_ENTRY) *dirs;
 } BY_DIR;
 
@@ -141,10 +140,6 @@ static int new_dir(X509_LOOKUP *lu) {
   if ((a = (BY_DIR *)OPENSSL_malloc(sizeof(BY_DIR))) == NULL) {
     return 0;
   }
-  if ((a->buffer = BUF_MEM_new()) == NULL) {
-    OPENSSL_free(a);
-    return 0;
-  }
   a->dirs = NULL;
   lu->method_data = a;
   return 1;
@@ -152,7 +147,8 @@ static int new_dir(X509_LOOKUP *lu) {
 
 static void by_dir_hash_free(BY_DIR_HASH *hash) { OPENSSL_free(hash); }
 
-static int by_dir_hash_cmp(const BY_DIR_HASH **a, const BY_DIR_HASH **b) {
+static int by_dir_hash_cmp(const BY_DIR_HASH *const *a,
+                           const BY_DIR_HASH *const *b) {
   if ((*a)->hash > (*b)->hash) {
     return 1;
   }
@@ -174,7 +170,6 @@ static void free_dir(X509_LOOKUP *lu) {
   BY_DIR *a = lu->method_data;
   if (a != NULL) {
     sk_BY_DIR_ENTRY_pop_free(a->dirs, by_dir_entry_free);
-    BUF_MEM_free(a->buffer);
     OPENSSL_free(a);
   }
 }

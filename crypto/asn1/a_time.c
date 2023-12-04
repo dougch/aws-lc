@@ -60,6 +60,7 @@
 #include <time.h>
 
 #include <openssl/asn1t.h>
+#include <openssl/bytestring.h>
 #include <openssl/err.h>
 #include <openssl/mem.h>
 
@@ -81,6 +82,10 @@ ASN1_TIME *ASN1_TIME_set(ASN1_TIME *s, time_t time) {
   return ASN1_TIME_adj(s, time, 0, 0);
 }
 
+static int fits_in_utc_time(const struct tm *tm) {
+  return 50 <= tm->tm_year && tm->tm_year < 150;
+}
+
 ASN1_TIME *ASN1_TIME_adj(ASN1_TIME *s, int64_t posix_time, int offset_day,
                          long offset_sec) {
   struct tm tm;
@@ -94,7 +99,7 @@ ASN1_TIME *ASN1_TIME_adj(ASN1_TIME *s, int64_t posix_time, int offset_day,
       return NULL;
     }
   }
-  if ((tm.tm_year >= 50) && (tm.tm_year < 150)) {
+  if (fits_in_utc_time(&tm)) {
     return ASN1_UTCTIME_adj(s, posix_time, offset_day, offset_sec);
   }
   return ASN1_GENERALIZEDTIME_adj(s, posix_time, offset_day, offset_sec);
@@ -170,6 +175,34 @@ int ASN1_TIME_set_string(ASN1_TIME *s, const char *str) {
          ASN1_GENERALIZEDTIME_set_string(s, str);
 }
 
+int ASN1_TIME_set_string_X509(ASN1_TIME *s, const char *str) {
+  CBS cbs;
+  CBS_init(&cbs, (const uint8_t*)str, strlen(str));
+  int type;
+  struct tm tm;
+  if (CBS_parse_utc_time(&cbs, /*out_tm=*/NULL,
+                         /*allow_timezone_offset=*/0)) {
+    type = V_ASN1_UTCTIME;
+  } else if (CBS_parse_generalized_time(&cbs, &tm,
+                                        /*allow_timezone_offset=*/0)) {
+    type = V_ASN1_GENERALIZEDTIME;
+    if (fits_in_utc_time(&tm)) {
+      type = V_ASN1_UTCTIME;
+      CBS_skip(&cbs, 2);
+    }
+  } else {
+    return 0;
+  }
+
+  if (s != NULL) {
+    if (!ASN1_STRING_set(s, CBS_data(&cbs), CBS_len(&cbs))) {
+      return 0;
+    }
+    s->type = type;
+  }
+  return 1;
+}
+
 static int asn1_time_to_tm(struct tm *tm, const ASN1_TIME *t,
                            int allow_timezone_offset) {
   if (t == NULL) {
@@ -208,6 +241,10 @@ int ASN1_TIME_diff(int *out_days, int *out_seconds, const ASN1_TIME *from,
 // slightly different than the many other copies of X.509 time validation
 // sprinkled through the codebase. The custom checks in X509_cmp_time meant that
 // it did not allow four digit timezone offsets in UTC times.
+int ASN1_TIME_to_tm(const ASN1_TIME *s, struct tm *tm) {
+  return asn1_time_to_tm(tm, s, /*allow_timezone_offset=*/0);
+}
+
 int ASN1_TIME_to_time_t(const ASN1_TIME *t, time_t *out_time) {
   struct tm tm;
   if (!asn1_time_to_tm(&tm, t, /*allow_timezone_offset=*/0)) {

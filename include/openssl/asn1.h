@@ -471,9 +471,6 @@ OPENSSL_EXPORT ASN1_STRING *ASN1_item_pack(void *obj, const ASN1_ITEM *it,
 //
 // WARNING: This function's is slightly different from other |d2i_*| functions
 // because |ASN1_BOOLEAN| is not a pointer type.
-//
-// TODO(https://crbug.com/boringssl/354): This function currently also accepts
-// BER, but this will be removed in the future.
 OPENSSL_EXPORT ASN1_BOOLEAN d2i_ASN1_BOOLEAN(ASN1_BOOLEAN *out,
                                              const unsigned char **inp,
                                              long len);
@@ -770,15 +767,17 @@ OPENSSL_EXPORT int ASN1_STRING_to_UTF8(unsigned char **out,
 // the result. If |out| is NULL, it returns the selected output type without
 // constructing an |ASN1_STRING|. On error, this function returns -1.
 OPENSSL_EXPORT int ASN1_mbstring_copy(ASN1_STRING **out, const uint8_t *in,
-                                      int len, int inform, unsigned long mask);
+                                      ossl_ssize_t len, int inform,
+                                      unsigned long mask);
 
 // ASN1_mbstring_ncopy behaves like |ASN1_mbstring_copy| but returns an error if
 // the input is less than |minsize| or greater than |maxsize| codepoints long. A
 // |maxsize| value of zero is ignored. Note the sizes are measured in
 // codepoints, not output bytes.
 OPENSSL_EXPORT int ASN1_mbstring_ncopy(ASN1_STRING **out, const uint8_t *in,
-                                       int len, int inform, unsigned long mask,
-                                       long minsize, long maxsize);
+                                       ossl_ssize_t len, int inform,
+                                       unsigned long mask, ossl_ssize_t minsize,
+                                       ossl_ssize_t maxsize);
 
 // ASN1_STRING_set_by_NID behaves like |ASN1_mbstring_ncopy|, but determines
 // |mask|, |minsize|, and |maxsize| based on |nid|. When |nid| is a recognized
@@ -804,7 +803,7 @@ OPENSSL_EXPORT int ASN1_mbstring_ncopy(ASN1_STRING **out, const uint8_t *in,
 // to call |ASN1_mbstring_ncopy| directly instead.
 OPENSSL_EXPORT ASN1_STRING *ASN1_STRING_set_by_NID(ASN1_STRING **out,
                                                    const unsigned char *in,
-                                                   int len, int inform,
+                                                   ossl_ssize_t len, int inform,
                                                    int nid);
 
 // STABLE_NO_MASK causes |ASN1_STRING_TABLE_add| to allow types other than
@@ -1403,6 +1402,27 @@ OPENSSL_EXPORT ASN1_GENERALIZEDTIME *ASN1_TIME_to_generalizedtime(
 // GeneralizedTime. If |str| is neither, it returns zero.
 OPENSSL_EXPORT int ASN1_TIME_set_string(ASN1_TIME *s, const char *str);
 
+
+// ASN1_TIME conversion functions.
+//
+// |struct| |tm| represents a calendar date: year, month, day... it is not
+// necessarily a valid day, e.g. month 13. |time_t| is a typedef for the system's
+// type that represents the seconds since the UNIX epoch. Posix time is
+// a signed 64-bit integer which also represents the seconds since the UNIX
+// epoch.
+
+// ASN1_TIME_to_tm converts the ASN1 time |t| to the calendar day representation
+// and writes it to |out|. If |t| is NULL, then the current time is converted.
+// The output time is GMT. The tm_sec, tm_min, tm_hour, tm_mday, tm_mon and
+// tm_year fields of |out| are set to proper values, all other fields are set
+// to 0. If tm is NULL this function performs a format check on |t| only.
+OPENSSL_EXPORT int ASN1_TIME_to_tm(const ASN1_TIME *t, struct tm *out);
+
+// ASN1_TIME_set_string_X509 behaves like |ASN1_TIME_set_string| except it
+// additionally converts GeneralizedTime to UTCTime if it is in the range where
+// UTCTime is used. See RFC 5280, section 4.1.2.5.
+OPENSSL_EXPORT int ASN1_TIME_set_string_X509(ASN1_TIME *s, const char *str);
+
 // ASN1_TIME_to_time_t converts |t| to a time_t value in |out|. On
 // success, one is returned. On failure zero is returned. This function
 // will fail if the time can not be represented in a time_t.
@@ -1468,7 +1488,7 @@ DEFINE_STACK_OF(ASN1_OBJECT)
 // TODO(davidben): Should we just ignore all those parameters? NIDs and names
 // are only relevant for |ASN1_OBJECT|s in the obj.h table.
 OPENSSL_EXPORT ASN1_OBJECT *ASN1_OBJECT_create(int nid, const uint8_t *data,
-                                               int len, const char *sn,
+                                               size_t len, const char *sn,
                                                const char *ln);
 
 // ASN1_OBJECT_free releases memory associated with |a|. If |a| is a static
@@ -1476,16 +1496,13 @@ OPENSSL_EXPORT ASN1_OBJECT *ASN1_OBJECT_create(int nid, const uint8_t *data,
 OPENSSL_EXPORT void ASN1_OBJECT_free(ASN1_OBJECT *a);
 
 // d2i_ASN1_OBJECT parses a DER-encoded ASN.1 OBJECT IDENTIFIER from up to |len|
-// bytes at |*inp|, as described in |d2i_SAMPLE_with_reuse|.
-//
-// TODO(https://crbug.com/boringssl/354): This function currently also accepts
-// BER, but this will be removed in the future.
+// bytes at |*inp|, as described in |d2i_SAMPLE|.
 OPENSSL_EXPORT ASN1_OBJECT *d2i_ASN1_OBJECT(ASN1_OBJECT **out,
                                             const uint8_t **inp, long len);
 
 // i2d_ASN1_OBJECT marshals |in| as a DER-encoded ASN.1 OBJECT IDENTIFIER, as
 // described in |i2d_SAMPLE|.
-OPENSSL_EXPORT int i2d_ASN1_OBJECT(const ASN1_OBJECT *a, uint8_t **outp);
+OPENSSL_EXPORT int i2d_ASN1_OBJECT(const ASN1_OBJECT *in, uint8_t **outp);
 
 // c2i_ASN1_OBJECT decodes |len| bytes from |*inp| as the contents of a
 // DER-encoded OBJECT IDENTIFIER, excluding the tag and length. It behaves like

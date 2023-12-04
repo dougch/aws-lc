@@ -1,18 +1,25 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0 OR ISC
 
-# If having trouble reaching proxy.golang.org, uncomment the following:
-#go env -w GOPROXY=direct
-
+SRC_ROOT="$(pwd)"
 if [ -v CODEBUILD_SRC_DIR ]; then
   SRC_ROOT="$CODEBUILD_SRC_DIR"
-else
-  SRC_ROOT=$(pwd)
+elif [ "$(basename "${SRC_ROOT}")" != 'aws-lc' ]; then
+  SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+  SRC_ROOT="${SCRIPT_DIR}/../.."
 fi
-echo "$SRC_ROOT"
+SRC_ROOT="$(readlink -f "${SRC_ROOT}")"
+echo SRC_ROOT="$SRC_ROOT"
+
+SYS_ROOT="$(readlink -f "${SRC_ROOT}/..")"
+echo SYS_ROOT="$SYS_ROOT"
+
+cd $SRC_ROOT
 
 BUILD_ROOT="${SRC_ROOT}/test_build_dir"
-echo "$BUILD_ROOT"
+echo BUILD_ROOT="$BUILD_ROOT"
+
+PLATFORM=$(uname -m)
 
 NUM_CPU_THREADS=''
 KERNEL_NAME=$(uname -s)
@@ -22,9 +29,23 @@ if [[ "${KERNEL_NAME}" == "Darwin" ]]; then
 else
   # Assume KERNEL_NAME is Linux.
   NUM_CPU_THREADS=$(grep -c ^processor /proc/cpuinfo)
+  if [[ $PLATFORM == "aarch64" ]]; then
+    CPU_PART=$(grep -Po -m 1 'CPU part.*:\s\K.*' /proc/cpuinfo)
+    NUM_CPU_PART=$(grep -c $CPU_PART /proc/cpuinfo)
+    # Set capabilities via the static flags for valgrind tests.
+    # This is because valgrind reports the instruction
+    #   mrs %0, MIDR_EL1
+    # which fetches the CPU part number, as illegal.
+    # For some reason, valgrind also reports SHA512 instructions illegal,
+    # so the SHA512 capability is not included below.
+    VALGRIND_STATIC_CAP_FLAGS="-DOPENSSL_STATIC_ARMCAP -DOPENSSL_STATIC_ARMCAP_NEON"
+    VALGRIND_STATIC_CAP_FLAGS+=" -DOPENSSL_STATIC_ARMCAP_AES -DOPENSSL_STATIC_ARMCAP_PMULL "
+    VALGRIND_STATIC_CAP_FLAGS+=" -DOPENSSL_STATIC_ARMCAP_SHA1 -DOPENSSL_STATIC_ARMCAP_SHA256 "
+    if [[ $NUM_CPU_PART == $NUM_CPU_THREADS ]] && [[ ${CPU_PART} =~ 0x[dD]40 ]]; then
+      VALGRIND_STATIC_CAP_FLAGS+=" -DOPENSSL_STATIC_ARMCAP_SHA3 -DOPENSSL_STATIC_ARMCAP_NEOVERSE_V1"
+    fi
+  fi
 fi
-
-PLATFORM=$(uname -m)
 
 # Pick cmake3 if possible. We don't know of any OS that installs a cmake3
 # executable that is not at least version 3.0.
@@ -75,7 +96,6 @@ function generate_symbols_file {
   # read_symbols.go currently only support static libraries
   if [ ! -f  "$BUILD_ROOT"/crypto/libcrypto.a ]; then
     echo "Static library not found: ${BUILD_ROOT}/crypto/libcrypto.a"
-    print_system_and_dependency_information
     exit 1
   fi
 
@@ -99,7 +119,7 @@ function verify_symbols_prefixed {
   #  * "\(bignum\|curve25519_x25519\)": match string of either "bignum" or "curve25519_x25519".
   # Recall that the option "-v" reverse the pattern matching. So, we are really
   # filtering out lines that contain either "bignum" or "curve25519_x25519".
-  cat "$BUILD_ROOT"/symbols_final_crypto.txt  "$BUILD_ROOT"/symbols_final_ssl.txt | grep -v -e '^_\?\(bignum\|curve25519_x25519\)' >  "$SRC_ROOT"/symbols_final.txt
+  cat "$BUILD_ROOT"/symbols_final_crypto.txt  "$BUILD_ROOT"/symbols_final_ssl.txt | grep -v -e '^_\?\(bignum\|curve25519_x25519\|edwards25519\)' >  "$SRC_ROOT"/symbols_final.txt
   # Now filter out every line that has the unique prefix $CUSTOM_PREFIX. If we
   # have any lines left, then some symbol(s) weren't prefixed, unexpectedly.
   if [ $(grep -c -v ${CUSTOM_PREFIX}  "$SRC_ROOT"/symbols_final.txt) -ne 0 ]; then
@@ -140,8 +160,31 @@ function fips_build_and_test {
 }
 
 function build_and_test_valgrind {
-  run_build "$@"
-  run_cmake_custom_target 'run_tests_valgrind' && run_cmake_custom_target 'run_ssl_runner_tests_valgrind'
+  if [[ $PLATFORM == "aarch64" ]]; then
+    run_build "$@" -DCMAKE_C_FLAGS="$VALGRIND_STATIC_CAP_FLAGS"
+    run_cmake_custom_target 'run_tests_valgrind'
+
+    # Disable all capabilities and run again
+    # (We don't use the env. variable OPENSSL_armcap because it is currently
+    #  restricted to the case of runtime discovery of capabilities
+    #  in cpu_aarch64_linux.c)
+    run_build "$@" -DCMAKE_C_FLAGS="-DOPENSSL_STATIC_ARMCAP"
+    run_cmake_custom_target 'run_tests_valgrind'
+  else
+    run_build "$@"
+    run_cmake_custom_target 'run_tests_valgrind'
+  fi
+}
+
+function build_and_test_ssl_runner_valgrind {
+  export AWS_LC_GO_TEST_TIMEOUT="60m"
+
+  if [[ $PLATFORM == "aarch64" ]]; then
+    run_build "$@" -DCMAKE_C_FLAGS="$VALGRIND_STATIC_CAP_FLAGS"
+  else
+    run_build "$@"
+  fi
+    run_cmake_custom_target 'run_ssl_runner_tests_valgrind'
 }
 
 function build_and_test_with_sde {
@@ -152,6 +195,19 @@ function build_and_test_with_sde {
 function build_and_run_minimal_test {
   run_build "$@"
   run_cmake_custom_target 'run_minimal_tests'
+}
+
+# Install local build of AWS-LC for integration testing.
+function aws_lc_build() {
+  AWS_LC_DIR=${1}
+  BUILD_FOLDER=${2}
+  INSTALL_FOLDER=${3}
+
+  echo "Building AWS-LC to ${BUILD_FOLDER} and installing to ${INSTALL_FOLDER} with CFlags "${@:4}""
+  ${CMAKE_COMMAND} ${AWS_LC_DIR} -GNinja "-B${BUILD_FOLDER}" "-DCMAKE_INSTALL_PREFIX=${INSTALL_FOLDER}" "${@:4}"
+  ninja -C ${BUILD_FOLDER} install
+  ls -R ${INSTALL_FOLDER}
+  rm -rf ${BUILD_FOLDER:?}/*
 }
 
 function print_executable_information {
@@ -169,26 +225,34 @@ function print_executable_information {
   fi
 }
 
-function print_system_and_dependency_information {
-  print_executable_information "cmake" "--version" "CMake version"
-  print_executable_information "cmake3" "--version" "CMake version (cmake3 executable)"
-  print_executable_information "go" "version" "Go version"
-  print_executable_information "perl" "--version" "Perl version"
-  # Ninja executable names are not uniform over operating systems
-  print_executable_information "ninja-build" "--version" "Ninja version (ninja-build executable)"
-  print_executable_information "ninja" "--version" "Ninja version (ninja executable)"
-  print_executable_information "gcc" "--version" "gcc version"
-  print_executable_information "g++" "--version" "g++ version"
-  print_executable_information "clang" "--version" "clang version"
-  print_executable_information "clang++" "--version" "clang++ version"
-  print_executable_information "cc" "--version" "cc version"
-  print_executable_information "c++" "--version" "c++ version"
-  print_executable_information "make" "--version" "Make version"
-  print_executable_information "rustup" "show" "Rust toolchain"
-  echo ""
-  echo "Operating system information:"
-  uname -a
-  echo ""
-  echo "Environment variables"
-  env
+function sde_getenforce_check {
+  # Based on Intel SDE README, SELinux should be turned off to allow pin to work.
+  # https://software.intel.com/content/www/us/en/develop/articles/intel-software-development-emulator.html#system-configuration
+  if [[ "$(getenforce)" == 'Disabled' ]]; then
+    echo "SELinux is disabled. Disabling SELinux is needed by sde to allow pin work.";
+  else
+    echo "SELinux should be turned off to allow sde pin to work." && exit 1;
+  fi
 }
+
+print_executable_information "cmake" "--version" "CMake version"
+print_executable_information "cmake3" "--version" "CMake version (cmake3 executable)"
+print_executable_information "go" "version" "Go version"
+print_executable_information "perl" "--version" "Perl version"
+# Ninja executable names are not uniform over operating systems
+print_executable_information "ninja-build" "--version" "Ninja version (ninja-build executable)"
+print_executable_information "ninja" "--version" "Ninja version (ninja executable)"
+print_executable_information "gcc" "--version" "gcc version"
+print_executable_information "g++" "--version" "g++ version"
+print_executable_information "clang" "--version" "clang version"
+print_executable_information "clang++" "--version" "clang++ version"
+print_executable_information "cc" "--version" "cc version"
+print_executable_information "c++" "--version" "c++ version"
+print_executable_information "make" "--version" "Make version"
+print_executable_information "rustup" "show" "Rust toolchain"
+echo ""
+echo "Operating system information:"
+uname -a
+echo ""
+echo "Environment variables:"
+env

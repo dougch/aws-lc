@@ -29,6 +29,10 @@ foo:
 	adrp x1, OPENSSL_armcap_P
 	ldr w2, [x1, :lo12:OPENSSL_armcap_P]
 
+	// armcap to x30
+	adrp x30, OPENSSL_armcap_P
+	ldr w2, [x30, :lo12:OPENSSL_armcap_P]
+
 	// armcap to w0
 	adrp x0, OPENSSL_armcap_P
 	ldr w1, [x1, :lo12:OPENSSL_armcap_P]
@@ -78,6 +82,10 @@ foo:
 	add w0, w1, b2, sxtw
 	add w0, w1, b2, sxtx
 
+	// Make sure we can parse different immediates
+	add x22, sp, #(13*32)
+	add x22, sp, #(13*32)+96
+	add x22, sp, #(13*32)+96*32
 
 local_function:
 

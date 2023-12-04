@@ -1,7 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0 OR ISC
 
-#if defined(BORINGSSL_FIPS)
+#if defined(BORINGSSL_FIPS) && defined(FIPS_ENTROPY_SOURCE_JITTER_CPU)
 
 #include <gtest/gtest.h>
 
@@ -56,6 +56,12 @@ TEST(CPUJitterEntropyTest, Basic) {
   jitter_ec.instance = jent_entropy_collector_alloc(osr, JENT_FORCE_FIPS);
   EXPECT_NE(jitter_ec.instance, nullptr);
   EXPECT_EQ(jitter_ec.instance->osr, osr);
+
+  // Test drawing entropy from the Jitter object that was reset.
+  EXPECT_EQ(jent_read_entropy(jitter_ec.instance,
+                              (char*) data0, data_len), data_len);
+  EXPECT_EQ(jent_read_entropy_safe(&jitter_ec.instance,
+                                   (char*) data1, data_len), data_len);
 
   // Verify that the Jitter library version is v3.4.0.
   unsigned int jitter_version = 3040000;

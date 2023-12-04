@@ -138,17 +138,15 @@ OPENSSL_EXPORT const EVP_AEAD *EVP_aead_aes_128_ctr_hmac_sha256(void);
 // authentication. See |EVP_aead_aes_128_ctr_hmac_sha256| for details.
 OPENSSL_EXPORT const EVP_AEAD *EVP_aead_aes_256_ctr_hmac_sha256(void);
 
-// EVP_aead_aes_128_gcm_siv is AES-128 in GCM-SIV mode. See
-// https://tools.ietf.org/html/draft-irtf-cfrg-gcmsiv-02
+// EVP_aead_aes_128_gcm_siv is AES-128 in GCM-SIV mode. See RFC 8452.
 OPENSSL_EXPORT const EVP_AEAD *EVP_aead_aes_128_gcm_siv(void);
 
-// EVP_aead_aes_256_gcm_siv is AES-256 in GCM-SIV mode. See
-// https://tools.ietf.org/html/draft-irtf-cfrg-gcmsiv-02
+// EVP_aead_aes_256_gcm_siv is AES-256 in GCM-SIV mode. See RFC 8452.
 OPENSSL_EXPORT const EVP_AEAD *EVP_aead_aes_256_gcm_siv(void);
 
 // EVP_aead_aes_128_gcm_randnonce is AES-128 in Galois Counter Mode with
 // internal nonce generation. The 12-byte nonce is appended to the tag
-// and is generated internally. The "tag", for the purpurses of the API, is thus
+// and is generated internally. The "tag", for the purposes of the API, is thus
 // 12 bytes larger. The nonce parameter when using this AEAD must be
 // zero-length. Since the nonce is random, a single key should not be used for
 // more than 2^32 seal operations.
@@ -160,7 +158,7 @@ OPENSSL_EXPORT const EVP_AEAD *EVP_aead_aes_128_gcm_randnonce(void);
 
 // EVP_aead_aes_256_gcm_randnonce is AES-256 in Galois Counter Mode with
 // internal nonce generation. The 12-byte nonce is appended to the tag
-// and is generated internally. The "tag", for the purpurses of the API, is thus
+// and is generated internally. The "tag", for the purposes of the API, is thus
 // 12 bytes larger. The nonce parameter when using this AEAD must be
 // zero-length. Since the nonce is random, a single key should not be used for
 // more than 2^32 seal operations.
@@ -171,7 +169,7 @@ OPENSSL_EXPORT const EVP_AEAD *EVP_aead_aes_128_gcm_randnonce(void);
 OPENSSL_EXPORT const EVP_AEAD *EVP_aead_aes_256_gcm_randnonce(void);
 
 // EVP_aead_aes_128_ccm_bluetooth is AES-128-CCM with M=4 and L=2 (4-byte tags
-// and 13-byte nonces), as decribed in the Bluetooth Core Specification v5.0,
+// and 13-byte nonces), as described in the Bluetooth Core Specification v5.0,
 // Volume 6, Part E, Section 1.
 OPENSSL_EXPORT const EVP_AEAD *EVP_aead_aes_128_ccm_bluetooth(void);
 
@@ -196,7 +194,8 @@ OPENSSL_EXPORT int EVP_has_aes_hardware(void);
 OPENSSL_EXPORT size_t EVP_AEAD_key_length(const EVP_AEAD *aead);
 
 // EVP_AEAD_nonce_length returns the length, in bytes, of the per-message nonce
-// for |aead|.
+// for |aead|. Some |aead|s might support a larger set of nonce-lengths (e.g.
+// aes-gcm).
 OPENSSL_EXPORT size_t EVP_AEAD_nonce_length(const EVP_AEAD *aead);
 
 // EVP_AEAD_max_overhead returns the maximum number of additional bytes added
@@ -212,7 +211,7 @@ OPENSSL_EXPORT size_t EVP_AEAD_max_tag_len(const EVP_AEAD *aead);
 // AEAD operations.
 
 union evp_aead_ctx_st_state {
-  uint8_t opaque[580];
+  uint8_t opaque[564];
   uint64_t alignment;
   void *ptr;
 };
@@ -222,6 +221,7 @@ union evp_aead_ctx_st_state {
 struct evp_aead_ctx_st {
   const EVP_AEAD *aead;
   union evp_aead_ctx_st_state state;
+  uint8_t state_offset;
   // tag_len may contain the actual length of the authentication tag if it is
   // known at initialization time.
   uint8_t tag_len;
@@ -466,8 +466,8 @@ OPENSSL_EXPORT int EVP_AEAD_CTX_tag_len(const EVP_AEAD_CTX *ctx,
 
 // EVP_AEAD_get_iv_from_ipv4_nanosecs computes a deterministic IV compliant with
 // NIST SP 800-38D, built from an IPv4 address and the number of nanoseconds
-// since boot, writing it to |out_iv|. It returns one on success or zero for
-// error.
+// since boot, writing it to |out_iv| (in little endian).
+// It returns one on success or zero for error.
 //
 // This is not a general-purpose API, you should not be using it unless you
 // specifically know you need to use this.

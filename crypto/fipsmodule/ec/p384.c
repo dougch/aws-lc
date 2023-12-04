@@ -11,8 +11,11 @@
 #include <openssl/mem.h>
 
 #include "../bn/internal.h"
+#include "../cpucap/internal.h"
 #include "../delocate.h"
 #include "internal.h"
+
+#if !defined(OPENSSL_SMALL)
 
 // We have two implementations of the field arithmetic for P-384 curve:
 //   - Fiat-crypto
@@ -29,10 +32,12 @@
 //   #define p384_felem_add(out, in0, in1) bignum_add_p384(out, in0, in1)
 // when s2n-bignum is used.
 //
-#if !defined(OPENSSL_NO_ASM) && \
-    (defined(OPENSSL_LINUX) || defined(OPENSSL_APPLE)) && \
-    (defined(OPENSSL_X86_64) || defined(OPENSSL_AARCH64)) && \
-    !defined(MY_ASSEMBLER_IS_TOO_OLD_FOR_AVX)
+// If (1) x86_64 or aarch64, (2) linux or apple, and (3) OPENSSL_NO_ASM is not
+// set, s2n-bignum path is capable.
+#if !defined(OPENSSL_NO_ASM) &&                                                \
+    (defined(OPENSSL_LINUX) || defined(OPENSSL_APPLE)) &&                      \
+    ((defined(OPENSSL_X86_64) && !defined(MY_ASSEMBLER_IS_TOO_OLD_FOR_AVX)) || \
+     defined(OPENSSL_AARCH64))
 
 #  include "../../../third_party/s2n-bignum/include/s2n-bignum_aws-lc.h"
 
@@ -77,8 +82,7 @@ static const p384_felem p384_felem_one = {
 // every x86 CPU so we have to check if they are available and in case
 // they are not we fallback to slightly slower but generic implementation.
 static inline uint8_t p384_use_s2n_bignum_alt(void) {
-  return ((OPENSSL_ia32cap_get()[2] & (1u <<  8)) == 0) || // bmi2
-         ((OPENSSL_ia32cap_get()[2] & (1u << 19)) == 0);   // adx
+  return (!CRYPTO_is_BMI2_capable() || !CRYPTO_is_ADX_capable());
 }
 #else
 // On aarch64 platforms s2n-bignum has two implementations of certain
@@ -86,16 +90,8 @@ static inline uint8_t p384_use_s2n_bignum_alt(void) {
 // Depending on the architecture one version is faster than the other.
 // Generally, the "_alt" functions are faster on architectures with higher
 // multiplier throughput, for example, Graviton 3, Apple's M1 and iPhone chips.
-// Until we find a clear way to determine in runtime which architecture we
-// are running on we stick with the default s2n-bignum functions. Except in
-// the case of Apple, because we know that on Apple's Arm chips the "_alt"
-// functions are faster.
 static inline uint8_t p384_use_s2n_bignum_alt(void) {
-#if defined(OPENSSL_APPLE)
-  return 1;
-#else
-  return 0;
-#endif
+  return CRYPTO_is_ARMv8_wide_multiplier_capable();
 }
 #endif
 
@@ -147,6 +143,7 @@ static p384_limb_t p384_felem_nz(const p384_limb_t in1[P384_NLIMBS]) {
 
 #endif // P384_USE_S2N_BIGNUM_FIELD_ARITH
 
+
 static void p384_felem_copy(p384_limb_t out[P384_NLIMBS],
                            const p384_limb_t in1[P384_NLIMBS]) {
   for (size_t i = 0; i < P384_NLIMBS; i++) {
@@ -164,19 +161,39 @@ static void p384_felem_cmovznz(p384_limb_t out[P384_NLIMBS],
   }
 }
 
-// NOTE: the input and output are in little-endian representation.
 static void p384_from_generic(p384_felem out, const EC_FELEM *in) {
-  p384_felem_from_bytes(out, in->bytes);
+#ifdef OPENSSL_BIG_ENDIAN
+  uint8_t tmp[P384_EC_FELEM_BYTES];
+  bn_words_to_little_endian(tmp, P384_EC_FELEM_BYTES, in->words, P384_EC_FELEM_WORDS);
+  p384_felem_from_bytes(out, tmp);
+#else
+  p384_felem_from_bytes(out, (const uint8_t *)in->words);
+#endif
 }
 
-// NOTE: the input and output are in little-endian representation.
 static void p384_to_generic(EC_FELEM *out, const p384_felem in) {
   // This works because 384 is a multiple of 64, so there are no excess bytes to
   // zero when rounding up to |BN_ULONG|s.
   OPENSSL_STATIC_ASSERT(
       384 / 8 == sizeof(BN_ULONG) * ((384 + BN_BITS2 - 1) / BN_BITS2),
       p384_felem_to_bytes_leaves_bytes_uninitialized);
-  p384_felem_to_bytes(out->bytes, in);
+#ifdef OPENSSL_BIG_ENDIAN
+  uint8_t tmp[P384_EC_FELEM_BYTES];
+  p384_felem_to_bytes(tmp, in);
+  bn_little_endian_to_words(out->words, P384_EC_FELEM_WORDS, tmp, P384_EC_FELEM_BYTES);
+#else
+  p384_felem_to_bytes((uint8_t *)out->words, in);
+#endif
+}
+
+static void p384_from_scalar(p384_felem out, const EC_SCALAR *in) {
+#ifdef OPENSSL_BIG_ENDIAN
+  uint8_t tmp[P384_EC_FELEM_BYTES];
+  bn_words_to_little_endian(tmp, P384_EC_FELEM_BYTES, in->words, P384_EC_FELEM_WORDS);
+  p384_felem_from_bytes(out, tmp);
+#else
+  p384_felem_from_bytes(out, (const uint8_t *)in->words);
+#endif
 }
 
 // p384_inv_square calculates |out| = |in|^{-2}
@@ -435,7 +452,7 @@ static void p384_point_add(p384_felem x3, p384_felem y3, p384_felem z3,
   p384_limb_t is_nontrivial_double = constant_time_is_zero_w(xneq | yneq) &
                                     ~constant_time_is_zero_w(z1nz) &
                                     ~constant_time_is_zero_w(z2nz);
-  if (is_nontrivial_double) {
+  if (constant_time_declassify_w(is_nontrivial_double)) {
     p384_point_double(x3, y3, z3, x1, y1, z1);
     return;
   }
@@ -480,10 +497,10 @@ static void p384_point_add(p384_felem x3, p384_felem y3, p384_felem z3,
 // Takes the Jacobian coordinates (X, Y, Z) of a point and returns:
 //   (X', Y') = (X/Z^2, Y/Z^3).
 static int ec_GFp_nistp384_point_get_affine_coordinates(
-    const EC_GROUP *group, const EC_RAW_POINT *point,
+    const EC_GROUP *group, const EC_JACOBIAN *point,
     EC_FELEM *x_out, EC_FELEM *y_out) {
 
-  if (ec_GFp_simple_is_at_infinity(group, point)) {
+  if (constant_time_declassify_w(ec_GFp_simple_is_at_infinity(group, point))) {
     OPENSSL_PUT_ERROR(EC, EC_R_POINT_AT_INFINITY);
     return 0;
   }
@@ -511,8 +528,8 @@ static int ec_GFp_nistp384_point_get_affine_coordinates(
   return 1;
 }
 
-static void ec_GFp_nistp384_add(const EC_GROUP *group, EC_RAW_POINT *r,
-                                const EC_RAW_POINT *a, const EC_RAW_POINT *b) {
+static void ec_GFp_nistp384_add(const EC_GROUP *group, EC_JACOBIAN *r,
+                                const EC_JACOBIAN *a, const EC_JACOBIAN *b) {
   p384_felem x1, y1, z1, x2, y2, z2;
   p384_from_generic(x1, &a->X);
   p384_from_generic(y1, &a->Y);
@@ -526,8 +543,8 @@ static void ec_GFp_nistp384_add(const EC_GROUP *group, EC_RAW_POINT *r,
   p384_to_generic(&r->Z, z1);
 }
 
-static void ec_GFp_nistp384_dbl(const EC_GROUP *group, EC_RAW_POINT *r,
-                                const EC_RAW_POINT *a) {
+static void ec_GFp_nistp384_dbl(const EC_GROUP *group, EC_JACOBIAN *r,
+                                const EC_JACOBIAN *a) {
   p384_felem x, y, z;
   p384_from_generic(x, &a->X);
   p384_from_generic(y, &a->Y);
@@ -544,17 +561,15 @@ static void ec_GFp_nistp384_dbl(const EC_GROUP *group, EC_RAW_POINT *r,
 static void ec_GFp_nistp384_mont_felem_to_bytes(
   const EC_GROUP *group, uint8_t *out, size_t *out_len, const EC_FELEM *in) {
 
-  size_t len = BN_num_bytes(&group->field);
+  size_t len = BN_num_bytes(&group->field.N);
   EC_FELEM felem_tmp;
   p384_felem tmp;
   p384_from_generic(tmp, in);
   p384_felem_from_mont(tmp, tmp);
   p384_to_generic(&felem_tmp, tmp);
 
-  // Convert to a big-endian byte array.
-  for (size_t i = 0; i < len; i++) {
-    out[i] = felem_tmp.bytes[len - 1 - i];
-  }
+  bn_words_to_big_endian(out, len, felem_tmp.words, group->order.N.width);
+
   *out_len = len;
 }
 
@@ -574,7 +589,7 @@ static int ec_GFp_nistp384_mont_felem_from_bytes(
 }
 
 static int ec_GFp_nistp384_cmp_x_coordinate(const EC_GROUP *group,
-                                            const EC_RAW_POINT *p,
+                                            const EC_JACOBIAN *p,
                                             const EC_SCALAR *r) {
   if (ec_GFp_simple_is_at_infinity(group, p)) {
     return 0;
@@ -588,7 +603,7 @@ static int ec_GFp_nistp384_cmp_x_coordinate(const EC_GROUP *group,
   p384_felem_mul(Z2_mont, Z2_mont, Z2_mont);
 
   p384_felem r_Z2;
-  p384_felem_from_bytes(r_Z2, r->bytes);  // r < order < p, so this is valid.
+  p384_from_scalar(r_Z2, r);  // r < order < p, so this is valid.
   p384_felem_mul(r_Z2, r_Z2, Z2_mont);
 
   p384_felem X;
@@ -604,12 +619,12 @@ static int ec_GFp_nistp384_cmp_x_coordinate(const EC_GROUP *group,
   // that group_order < p.x < p.
   // In that case, we need not only to compare against |r| but also to
   // compare against r+group_order.
-  assert(group->field.width == group->order.width);
-  if (bn_less_than_words(r->words, group->field_minus_order.words,
-                         group->field.width)) {
-    // We can ignore the carry because: r + group_order < p < 2^384.
-    EC_FELEM tmp;
-    bn_add_words(tmp.words, r->words, group->order.d, group->order.width);
+  assert(group->field.N.width == group->order.N.width);
+  EC_FELEM tmp;
+  BN_ULONG carry =
+      bn_add_words(tmp.words, r->words, group->order.N.d, group->field.N.width);
+  if (carry == 0 &&
+      bn_less_than_words(tmp.words, group->field.N.d, group->field.N.width)) {
     p384_from_generic(r_Z2, &tmp);
     p384_felem_mul(r_Z2, r_Z2, Z2_mont);
     if (OPENSSL_memcmp(&r_Z2, &X, sizeof(r_Z2)) == 0) {
@@ -655,11 +670,17 @@ static int ec_GFp_nistp384_cmp_x_coordinate(const EC_GROUP *group,
 
 
 // p384_get_bit returns the |i|-th bit in |in|
-static crypto_word_t p384_get_bit(const uint8_t *in, int i) {
+static crypto_word_t p384_get_bit(const EC_SCALAR *in, int i) {
   if (i < 0 || i >= 384) {
     return 0;
   }
-  return (in[i >> 3] >> (i & 7)) & 1;
+#if defined(OPENSSL_64_BIT)
+  assert(sizeof(BN_ULONG) == 8);
+  return (in->words[i >> 6] >> (i & 63)) & 1;
+#else
+  assert(sizeof(BN_ULONG) == 4);
+  return (in->words[i >> 5] >> (i & 31)) & 1;
+#endif
 }
 
 // Constants for scalar encoding in the scalar multiplication functions.
@@ -673,7 +694,7 @@ OPENSSL_STATIC_ASSERT(P384_MUL_WSIZE == 5,
 #define P384_MUL_WSIZE_MASK   ((P384_MUL_TWO_TO_WSIZE << 1) - 1)
 
 // Number of |P384_MUL_WSIZE|-bit windows in a 384-bit value
-#define P384_MUL_NWINDOWS     ((384 + P384_MUL_WSIZE - 1)/P384_MUL_WSIZE) 
+#define P384_MUL_NWINDOWS     ((384 + P384_MUL_WSIZE - 1)/P384_MUL_WSIZE)
 
 // For the public point in |ec_GFp_nistp384_point_mul_public| function
 // we use window size w = 5.
@@ -689,10 +710,10 @@ OPENSSL_STATIC_ASSERT(P384_MUL_WSIZE == 5,
 // It forces an odd scalar and outputs digits in
 // {\pm 1, \pm 3, \pm 5, \pm 7, \pm 9, ...}
 // i.e. signed odd digits with _no zeroes_ -- that makes it "regular".
-static void p384_felem_mul_scalar_rwnaf(int16_t *out, const unsigned char *in) {
+static void p384_felem_mul_scalar_rwnaf(int16_t *out, const EC_SCALAR *in) {
   int16_t window, d;
 
-  window = (in[0] & P384_MUL_WSIZE_MASK) | 1;
+  window = (in->words[0] & P384_MUL_WSIZE_MASK) | 1;
   for (size_t i = 0; i < P384_MUL_NWINDOWS - 1; i++) {
     d = (window & P384_MUL_WSIZE_MASK) - P384_MUL_TWO_TO_WSIZE;
     out[i] = d;
@@ -762,8 +783,8 @@ static void p384_select_point_affine(p384_felem out[2],
 //          negate it if s_i is negative, and add it to the accumulator.
 //
 // Note: this function is constant-time.
-static void ec_GFp_nistp384_point_mul(const EC_GROUP *group, EC_RAW_POINT *r,
-                                      const EC_RAW_POINT *p,
+static void ec_GFp_nistp384_point_mul(const EC_GROUP *group, EC_JACOBIAN *r,
+                                      const EC_JACOBIAN *p,
                                       const EC_SCALAR *scalar) {
 
   p384_felem res[3] = {{0}, {0}, {0}}, tmp[3] = {{0}, {0}, {0}}, ftmp;
@@ -791,7 +812,7 @@ static void ec_GFp_nistp384_point_mul(const EC_GROUP *group, EC_RAW_POINT *r,
 
   // Recode the scalar.
   int16_t rnaf[P384_MUL_NWINDOWS] = {0};
-  p384_felem_mul_scalar_rwnaf(rnaf, scalar->bytes);
+  p384_felem_mul_scalar_rwnaf(rnaf, scalar);
 
   // Initialize the accumulator |res| with the table entry corresponding to
   // the most significant digit of the recoded scalar (note that this digit
@@ -837,9 +858,9 @@ static void ec_GFp_nistp384_point_mul(const EC_GROUP *group, EC_RAW_POINT *r,
                  0 /* both Jacobian */, tmp[0], tmp[1], tmp[2]);
 
   // Select |res| or |tmp| based on the |scalar| parity, in constant-time.
-  p384_felem_cmovznz(res[0], scalar->bytes[0] & 1, tmp[0], res[0]);
-  p384_felem_cmovznz(res[1], scalar->bytes[0] & 1, tmp[1], res[1]);
-  p384_felem_cmovznz(res[2], scalar->bytes[0] & 1, tmp[2], res[2]);
+  p384_felem_cmovznz(res[0], scalar->words[0] & 1, tmp[0], res[0]);
+  p384_felem_cmovznz(res[1], scalar->words[0] & 1, tmp[1], res[1]);
+  p384_felem_cmovznz(res[2], scalar->words[0] & 1, tmp[2], res[2]);
 
   // Copy the result to the output.
   p384_to_generic(&r->X, res[0]);
@@ -908,14 +929,14 @@ static void ec_GFp_nistp384_point_mul(const EC_GROUP *group, EC_RAW_POINT *r,
 //
 // Note: this function is constant-time.
 static void ec_GFp_nistp384_point_mul_base(const EC_GROUP *group,
-                                           EC_RAW_POINT *r,
+                                           EC_JACOBIAN *r,
                                            const EC_SCALAR *scalar) {
 
   p384_felem res[3] = {{0}, {0}, {0}}, tmp[3] = {{0}, {0}, {0}}, ftmp;
   int16_t rnaf[P384_MUL_NWINDOWS] = {0};
 
   // Recode the scalar.
-  p384_felem_mul_scalar_rwnaf(rnaf, scalar->bytes);
+  p384_felem_mul_scalar_rwnaf(rnaf, scalar);
 
   // Process the 4 groups of digits starting from group (3) down to group (0).
   for (int i = 3; i >= 0; i--) {
@@ -971,9 +992,9 @@ static void ec_GFp_nistp384_point_mul_base(const EC_GROUP *group,
                  1 /* mixed */, tmp[0], tmp[1], p384_felem_one);
 
   // Select |res| or |tmp| based on the |scalar| parity.
-  p384_felem_cmovznz(res[0], scalar->bytes[0] & 1, tmp[0], res[0]);
-  p384_felem_cmovznz(res[1], scalar->bytes[0] & 1, tmp[1], res[1]);
-  p384_felem_cmovznz(res[2], scalar->bytes[0] & 1, tmp[2], res[2]);
+  p384_felem_cmovznz(res[0], scalar->words[0] & 1, tmp[0], res[0]);
+  p384_felem_cmovznz(res[1], scalar->words[0] & 1, tmp[1], res[1]);
+  p384_felem_cmovznz(res[2], scalar->words[0] & 1, tmp[2], res[2]);
 
   // Copy the result to the output.
   p384_to_generic(&r->X, res[0]);
@@ -1015,9 +1036,9 @@ static void ec_GFp_nistp384_point_mul_base(const EC_GROUP *group,
 //
 // Note: this function is NOT constant-time.
 static void ec_GFp_nistp384_point_mul_public(const EC_GROUP *group,
-                                             EC_RAW_POINT *r,
+                                             EC_JACOBIAN *r,
                                              const EC_SCALAR *g_scalar,
-                                             const EC_RAW_POINT *p,
+                                             const EC_JACOBIAN *p,
                                              const EC_SCALAR *p_scalar) {
 
   p384_felem res[3] = {{0}, {0}, {0}}, two_p[3] = {{0}, {0}, {0}}, ftmp;
@@ -1129,9 +1150,6 @@ static void ec_GFp_nistp384_point_mul_public(const EC_GROUP *group,
 }
 
 DEFINE_METHOD_FUNCTION(EC_METHOD, EC_GFp_nistp384_method) {
-  out->group_init = ec_GFp_mont_group_init;
-  out->group_finish = ec_GFp_mont_group_finish;
-  out->group_set_curve = ec_GFp_mont_group_set_curve;
   out->point_get_affine_coordinates =
       ec_GFp_nistp384_point_get_affine_coordinates;
   out->jacobian_to_affine_batch =
@@ -1489,3 +1507,4 @@ DEFINE_METHOD_FUNCTION(EC_METHOD, EC_GFp_nistp384_method) {
 //     a = -0xfffffffffffffffffffffffffffffffffffffffffffffffc7634d81f4372ddf581a0db248b0a77aecec196accc52973
 // '''
 //
+#endif // !defined(OPENSSL_SMALL)

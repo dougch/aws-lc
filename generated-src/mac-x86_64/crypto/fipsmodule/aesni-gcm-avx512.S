@@ -1,16 +1,9 @@
 // This file is generated from a similarly-named Perl script in the BoringSSL
 // source tree. Do not edit by hand.
 
-#if defined(__has_feature)
-#if __has_feature(memory_sanitizer) && !defined(OPENSSL_NO_ASM)
-#define OPENSSL_NO_ASM
-#endif
-#endif
+#include <openssl/asm_base.h>
 
-#if defined(__x86_64__) && !defined(OPENSSL_NO_ASM) && defined(__APPLE__)
-#if defined(BORINGSSL_PREFIX)
-#include <boringssl_prefix_symbols_asm.h>
-#endif
+#if !defined(OPENSSL_NO_ASM) && defined(OPENSSL_X86_64) && defined(__APPLE__)
 .text	
 .globl	_gcm_init_avx512
 .private_extern _gcm_init_avx512
@@ -2048,7 +2041,7 @@ L$setiv_seh_prolog_end:
 	cmpq	$12,%rcx
 	je	iv_len_12_init_IV
 	vpxor	%xmm2,%xmm2,%xmm2
-	leaq	96(%rsi),%r13
+	leaq	80(%rsi),%r13
 	movq	%rdx,%r10
 	movq	%rcx,%r11
 	orq	%r11,%r11
@@ -3978,7 +3971,7 @@ L$aes_gcm_encrypt_128_avx512:
 
 	vmovdqu64	16(%rsi),%xmm3
 
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	vmovdqu64	240(%r10),%xmm4
 
 
@@ -4184,7 +4177,7 @@ L$_next_16_ok_yByFrylbFDFnFCp:
 	vmovdqa64	%zmm10,832(%rsp)
 	vmovdqa64	%zmm11,896(%rsp)
 	vmovdqa64	%zmm12,960(%rsp)
-	leaq	96(%rsi),%r12
+	leaq	80(%rsi),%r12
 	testq	%r14,%r14
 	jnz	L$_skip_hkeys_precomputation_achfkmnqFwjgbDD
 
@@ -5334,7 +5327,7 @@ L$_16_blocks_ok_azzgqhumkfnyDqm:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%xmm29,%xmm0,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -5533,7 +5526,7 @@ L$_16_blocks_ok_yekhBCebufcAiFh:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%ymm29,%ymm0,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -5731,7 +5724,7 @@ L$_16_blocks_ok_usjywjwllaabozc:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -5930,7 +5923,7 @@ L$_16_blocks_ok_xobkzaAwcplaFgb:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -6150,7 +6143,7 @@ L$_16_blocks_ok_bpsqdGAhjeggABn:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%xmm29,%xmm3,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -6376,7 +6369,7 @@ L$_16_blocks_ok_qmgDCpkysmqcgnB:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%ymm29,%ymm3,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -6608,7 +6601,7 @@ L$_16_blocks_ok_jaFyvjvpAfzmwyg:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -6841,7 +6834,7 @@ L$_16_blocks_ok_FbwsrgpDGDmccid:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -7095,7 +7088,7 @@ L$_16_blocks_ok_dtxuExFwmpsGEiG:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%xmm29,%xmm4,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -7357,7 +7350,7 @@ L$_16_blocks_ok_damgrhyFxffganz:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%ymm29,%ymm4,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -7625,7 +7618,7 @@ L$_16_blocks_ok_gnGEkpgDpmugvpk:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -7894,7 +7887,7 @@ L$_16_blocks_ok_qkecuzhoaAuxmmC:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -8180,7 +8173,7 @@ L$_16_blocks_ok_BjhkFcriuCnuFez:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%xmm29,%xmm5,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -8470,7 +8463,7 @@ L$_16_blocks_ok_kGBwgppdvolmGmc:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%ymm29,%ymm5,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -8766,7 +8759,7 @@ L$_16_blocks_ok_EBkkfjcEDyEptfo:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -9063,7 +9056,7 @@ L$_16_blocks_ok_BlcvjlyDGzsAttk:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 L$_small_initial_partial_block_aGAffhBljtiFsea:
 
@@ -9771,7 +9764,7 @@ L$_16_blocks_ok_dbajrbEcjsFpceD:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%xmm29,%xmm0,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -9970,7 +9963,7 @@ L$_16_blocks_ok_kgpAeeaoAnozgEF:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%ymm29,%ymm0,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -10168,7 +10161,7 @@ L$_16_blocks_ok_kblsDeoCDCisntD:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -10367,7 +10360,7 @@ L$_16_blocks_ok_eGcBplCnDqdtGiy:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -10587,7 +10580,7 @@ L$_16_blocks_ok_bgsqDFmekFAimag:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%xmm29,%xmm3,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -10813,7 +10806,7 @@ L$_16_blocks_ok_oaGuttEwoetbnjp:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%ymm29,%ymm3,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -11045,7 +11038,7 @@ L$_16_blocks_ok_FvhiAqmdFpdFmlp:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -11278,7 +11271,7 @@ L$_16_blocks_ok_hwGtCmqmcvackpz:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -11532,7 +11525,7 @@ L$_16_blocks_ok_DDnhmxjezrilein:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%xmm29,%xmm4,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -11794,7 +11787,7 @@ L$_16_blocks_ok_zCijhbGCeraapou:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%ymm29,%ymm4,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -12062,7 +12055,7 @@ L$_16_blocks_ok_aafwvnrniBpBhGh:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -12331,7 +12324,7 @@ L$_16_blocks_ok_szlfmGmeuofoAra:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -12617,7 +12610,7 @@ L$_16_blocks_ok_knBrwwsfezoBuDz:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%xmm29,%xmm5,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -12907,7 +12900,7 @@ L$_16_blocks_ok_xfkAqxxGjDnhBjB:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%ymm29,%ymm5,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -13203,7 +13196,7 @@ L$_16_blocks_ok_myvDpkrqCoAukhb:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -13500,7 +13493,7 @@ L$_16_blocks_ok_zEAEoetgkvqojFa:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 L$_small_initial_partial_block_erAoEayjDqpuhEu:
 
@@ -14019,7 +14012,7 @@ L$_16_blocks_ok_CfAjeyGwbnghnsF:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%xmm29,%xmm0,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -14211,7 +14204,7 @@ L$_16_blocks_ok_sbkoxvmnmihnaig:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%ymm29,%ymm0,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -14428,7 +14421,7 @@ L$_16_blocks_ok_zopCCjajxtsjEdG:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -14646,7 +14639,7 @@ L$_16_blocks_ok_utgfjaowycovqbp:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -14884,7 +14877,7 @@ L$_16_blocks_ok_wugoGjfryfqCjFa:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%xmm29,%xmm3,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -15131,7 +15124,7 @@ L$_16_blocks_ok_bpCexfjrkbCbhBc:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%ymm29,%ymm3,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -15388,7 +15381,7 @@ L$_16_blocks_ok_ifByzBizpdBxFnD:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -15646,7 +15639,7 @@ L$_16_blocks_ok_cjwhqEvpCfjCcEa:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -15921,7 +15914,7 @@ L$_16_blocks_ok_xiomBjDmsdhvtig:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%xmm29,%xmm4,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -16204,7 +16197,7 @@ L$_16_blocks_ok_cEyikykuFcExlBe:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%ymm29,%ymm4,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -16497,7 +16490,7 @@ L$_16_blocks_ok_gsBoGfzrmwqlomo:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -16791,7 +16784,7 @@ L$_16_blocks_ok_CAvgqgqjrtonFws:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -17098,7 +17091,7 @@ L$_16_blocks_ok_zqBffksAbxFoiFr:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%xmm29,%xmm5,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -17409,7 +17402,7 @@ L$_16_blocks_ok_mBiifnhuGFDpfDy:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%ymm29,%ymm5,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -17730,7 +17723,7 @@ L$_16_blocks_ok_zDGlqyFvuaglkeB:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -18052,7 +18045,7 @@ L$_16_blocks_ok_uwtqqfwgewBdjhg:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 L$_small_initial_partial_block_ifytbdtuElzEqkG:
 
@@ -18199,7 +18192,7 @@ L$_message_below_32_blocks_pzwgkGgbplFqzaB:
 	subq	$256,%r8
 	addq	$256,%rax
 	movl	%r8d,%r10d
-	leaq	96(%rsi),%r12
+	leaq	80(%rsi),%r12
 	testq	%r14,%r14
 	jnz	L$_skip_hkeys_precomputation_mgjxphyGhnqeEta
 	vmovdqu64	640(%rsp),%zmm3
@@ -18472,7 +18465,7 @@ L$_16_blocks_ok_zCjdttbyboeGxFb:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%xmm29,%xmm0,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -18671,7 +18664,7 @@ L$_16_blocks_ok_fhFvhqpaozkgyzE:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%ymm29,%ymm0,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -18869,7 +18862,7 @@ L$_16_blocks_ok_hjBmpccGhruhCnv:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -19068,7 +19061,7 @@ L$_16_blocks_ok_bBrsEuBDcsAcscn:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -19288,7 +19281,7 @@ L$_16_blocks_ok_nygdGeFptfwzvpw:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%xmm29,%xmm3,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -19514,7 +19507,7 @@ L$_16_blocks_ok_adtbeheumiAkmlw:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%ymm29,%ymm3,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -19746,7 +19739,7 @@ L$_16_blocks_ok_aDdoAskralEtovy:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -19979,7 +19972,7 @@ L$_16_blocks_ok_hjBdmnrbjjzAbzC:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -20233,7 +20226,7 @@ L$_16_blocks_ok_szBmuqzxwjxBawF:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%xmm29,%xmm4,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -20495,7 +20488,7 @@ L$_16_blocks_ok_xhlcvtlyGczsicp:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%ymm29,%ymm4,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -20763,7 +20756,7 @@ L$_16_blocks_ok_CkhBiupnDlzBoGx:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -21032,7 +21025,7 @@ L$_16_blocks_ok_svvcxnisrDiilsD:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -21318,7 +21311,7 @@ L$_16_blocks_ok_oDDmorFzihnoffg:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%xmm29,%xmm5,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -21608,7 +21601,7 @@ L$_16_blocks_ok_liipuseeafvnkfi:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%ymm29,%ymm5,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -21904,7 +21897,7 @@ L$_16_blocks_ok_cuygxmuthGeaeby:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -22201,7 +22194,7 @@ L$_16_blocks_ok_AgkAgztElEpGqer:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 L$_small_initial_partial_block_eruDeitqttsEEhG:
 
@@ -22434,7 +22427,7 @@ L$_small_initial_num_blocks_is_1_Arjlgemsqpaxhfj:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%xmm29,%xmm0,%xmm6
 	vextracti32x4	$0,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -22548,7 +22541,7 @@ L$_small_initial_num_blocks_is_2_Arjlgemsqpaxhfj:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%ymm29,%ymm0,%ymm6
 	vextracti32x4	$1,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -22687,7 +22680,7 @@ L$_small_initial_num_blocks_is_3_Arjlgemsqpaxhfj:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm6
 	vextracti32x4	$2,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -22827,7 +22820,7 @@ L$_small_initial_num_blocks_is_4_Arjlgemsqpaxhfj:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm6
 	vextracti32x4	$3,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -22985,7 +22978,7 @@ L$_small_initial_num_blocks_is_5_Arjlgemsqpaxhfj:
 	vpshufb	%zmm29,%zmm0,%zmm6
 	vpshufb	%xmm29,%xmm3,%xmm7
 	vextracti32x4	$0,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -23152,7 +23145,7 @@ L$_small_initial_num_blocks_is_6_Arjlgemsqpaxhfj:
 	vpshufb	%zmm29,%zmm0,%zmm6
 	vpshufb	%ymm29,%ymm3,%ymm7
 	vextracti32x4	$1,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -23329,7 +23322,7 @@ L$_small_initial_num_blocks_is_7_Arjlgemsqpaxhfj:
 	vpshufb	%zmm29,%zmm0,%zmm6
 	vpshufb	%zmm29,%zmm3,%zmm7
 	vextracti32x4	$2,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -23507,7 +23500,7 @@ L$_small_initial_num_blocks_is_8_Arjlgemsqpaxhfj:
 	vpshufb	%zmm29,%zmm0,%zmm6
 	vpshufb	%zmm29,%zmm3,%zmm7
 	vextracti32x4	$3,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -23701,7 +23694,7 @@ L$_small_initial_num_blocks_is_9_Arjlgemsqpaxhfj:
 	vpshufb	%zmm29,%zmm3,%zmm7
 	vpshufb	%xmm29,%xmm4,%xmm10
 	vextracti32x4	$0,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -23903,7 +23896,7 @@ L$_small_initial_num_blocks_is_10_Arjlgemsqpaxhfj:
 	vpshufb	%zmm29,%zmm3,%zmm7
 	vpshufb	%ymm29,%ymm4,%ymm10
 	vextracti32x4	$1,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -24115,7 +24108,7 @@ L$_small_initial_num_blocks_is_11_Arjlgemsqpaxhfj:
 	vpshufb	%zmm29,%zmm3,%zmm7
 	vpshufb	%zmm29,%zmm4,%zmm10
 	vextracti32x4	$2,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -24328,7 +24321,7 @@ L$_small_initial_num_blocks_is_12_Arjlgemsqpaxhfj:
 	vpshufb	%zmm29,%zmm3,%zmm7
 	vpshufb	%zmm29,%zmm4,%zmm10
 	vextracti32x4	$3,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -24553,7 +24546,7 @@ L$_small_initial_num_blocks_is_13_Arjlgemsqpaxhfj:
 	vpshufb	%zmm29,%zmm4,%zmm10
 	vpshufb	%xmm29,%xmm5,%xmm11
 	vextracti32x4	$0,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -24782,7 +24775,7 @@ L$_small_initial_num_blocks_is_14_Arjlgemsqpaxhfj:
 	vpshufb	%zmm29,%zmm4,%zmm10
 	vpshufb	%ymm29,%ymm5,%ymm11
 	vextracti32x4	$1,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -25021,7 +25014,7 @@ L$_small_initial_num_blocks_is_15_Arjlgemsqpaxhfj:
 	vpshufb	%zmm29,%zmm4,%zmm10
 	vpshufb	%zmm29,%zmm5,%zmm11
 	vextracti32x4	$2,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -25261,7 +25254,7 @@ L$_small_initial_num_blocks_is_16_Arjlgemsqpaxhfj:
 	vpshufb	%zmm29,%zmm4,%zmm10
 	vpshufb	%zmm29,%zmm5,%zmm11
 	vextracti32x4	$3,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 L$_small_initial_partial_block_icDnnqvChyBsuli:
 
@@ -25365,7 +25358,7 @@ L$aes_gcm_encrypt_192_avx512:
 
 	vmovdqu64	16(%rsi),%xmm3
 
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	vmovdqu64	240(%r10),%xmm4
 
 
@@ -25581,7 +25574,7 @@ L$_next_16_ok_lelEEvckqsGkuGn:
 	vmovdqa64	%zmm10,832(%rsp)
 	vmovdqa64	%zmm11,896(%rsp)
 	vmovdqa64	%zmm12,960(%rsp)
-	leaq	96(%rsi),%r12
+	leaq	80(%rsi),%r12
 	testq	%r14,%r14
 	jnz	L$_skip_hkeys_precomputation_EclAduckuFhozAl
 
@@ -26778,7 +26771,7 @@ L$_16_blocks_ok_czjqmrcuGbkhjtu:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%xmm29,%xmm0,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -26981,7 +26974,7 @@ L$_16_blocks_ok_tCDuaqxntEtBCqr:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%ymm29,%ymm0,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -27183,7 +27176,7 @@ L$_16_blocks_ok_AxfvkflbDBEFEmp:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -27386,7 +27379,7 @@ L$_16_blocks_ok_xkpgotEfuidCEnC:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -27612,7 +27605,7 @@ L$_16_blocks_ok_pxAyyxhuewraobh:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%xmm29,%xmm3,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -27844,7 +27837,7 @@ L$_16_blocks_ok_rlBkdasaFkzjByu:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%ymm29,%ymm3,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -28082,7 +28075,7 @@ L$_16_blocks_ok_keqkskoubnuElfA:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -28321,7 +28314,7 @@ L$_16_blocks_ok_hwCFDDlqwBqrdyx:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -28583,7 +28576,7 @@ L$_16_blocks_ok_ybEEnfpGmbdDyaC:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%xmm29,%xmm4,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -28853,7 +28846,7 @@ L$_16_blocks_ok_opfbCaznAiAepnv:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%ymm29,%ymm4,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -29129,7 +29122,7 @@ L$_16_blocks_ok_qxFolltldGnscDg:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -29406,7 +29399,7 @@ L$_16_blocks_ok_nvmdGffBdmtukpe:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -29702,7 +29695,7 @@ L$_16_blocks_ok_zGEqEwwbyegFygC:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%xmm29,%xmm5,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -30002,7 +29995,7 @@ L$_16_blocks_ok_hGfdBnfArvqgnDo:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%ymm29,%ymm5,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -30308,7 +30301,7 @@ L$_16_blocks_ok_AhbxhfFAjAuyeFk:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -30615,7 +30608,7 @@ L$_16_blocks_ok_njybzcioxuyaaaD:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 L$_small_initial_partial_block_bCffyflcoaBxCzy:
 
@@ -31349,7 +31342,7 @@ L$_16_blocks_ok_BvAqyjatyidEnnt:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%xmm29,%xmm0,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -31552,7 +31545,7 @@ L$_16_blocks_ok_nbawutokAutAqum:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%ymm29,%ymm0,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -31754,7 +31747,7 @@ L$_16_blocks_ok_CwkxGelBrtqaaxv:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -31957,7 +31950,7 @@ L$_16_blocks_ok_gFpynBlybCeGalG:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -32183,7 +32176,7 @@ L$_16_blocks_ok_xwErcCwicbEwFqC:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%xmm29,%xmm3,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -32415,7 +32408,7 @@ L$_16_blocks_ok_baDecrAptncCCuf:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%ymm29,%ymm3,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -32653,7 +32646,7 @@ L$_16_blocks_ok_iltrljarpeDchus:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -32892,7 +32885,7 @@ L$_16_blocks_ok_eyzjCojxduufqEi:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -33154,7 +33147,7 @@ L$_16_blocks_ok_bwdCwgCmnErFeDe:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%xmm29,%xmm4,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -33424,7 +33417,7 @@ L$_16_blocks_ok_eGGpBsfFnpwwbub:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%ymm29,%ymm4,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -33700,7 +33693,7 @@ L$_16_blocks_ok_eddhoEuAgjbBjFF:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -33977,7 +33970,7 @@ L$_16_blocks_ok_bfsFAnmADrmmioq:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -34273,7 +34266,7 @@ L$_16_blocks_ok_eqddxBoxqiwCsny:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%xmm29,%xmm5,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -34573,7 +34566,7 @@ L$_16_blocks_ok_DAGxccpeauyqpCa:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%ymm29,%ymm5,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -34879,7 +34872,7 @@ L$_16_blocks_ok_xrzdkvEbdpatlsn:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -35186,7 +35179,7 @@ L$_16_blocks_ok_nhkzxmwsyGuskoi:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 L$_small_initial_partial_block_ECtspjaqpoxwhnx:
 
@@ -35720,7 +35713,7 @@ L$_16_blocks_ok_ycAFtgAvrzFpmud:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%xmm29,%xmm0,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -35916,7 +35909,7 @@ L$_16_blocks_ok_unaFqvbBnCelmgG:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%ymm29,%ymm0,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -36137,7 +36130,7 @@ L$_16_blocks_ok_FzufylrxyerzBEy:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -36359,7 +36352,7 @@ L$_16_blocks_ok_FtupvahihsnvuAd:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -36603,7 +36596,7 @@ L$_16_blocks_ok_uBhGhomDazsjBak:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%xmm29,%xmm3,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -36856,7 +36849,7 @@ L$_16_blocks_ok_mBfhrGpovoncBkc:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%ymm29,%ymm3,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -37119,7 +37112,7 @@ L$_16_blocks_ok_FvpewBABrfyByvd:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -37383,7 +37376,7 @@ L$_16_blocks_ok_FsoptjzAkrqyAAr:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -37666,7 +37659,7 @@ L$_16_blocks_ok_iABBxfvotBEkECx:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%xmm29,%xmm4,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -37957,7 +37950,7 @@ L$_16_blocks_ok_jEngtqCkuniGdjp:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%ymm29,%ymm4,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -38258,7 +38251,7 @@ L$_16_blocks_ok_beoirgaAxslixji:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -38560,7 +38553,7 @@ L$_16_blocks_ok_sxrCycfBickEpCs:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -38877,7 +38870,7 @@ L$_16_blocks_ok_sesGGmqiCkypotq:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%xmm29,%xmm5,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -39198,7 +39191,7 @@ L$_16_blocks_ok_jqifyxAoeoxkDuE:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%ymm29,%ymm5,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -39529,7 +39522,7 @@ L$_16_blocks_ok_CBqhusrmEugbwks:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -39861,7 +39854,7 @@ L$_16_blocks_ok_hDfCleGEdmpzBiw:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 L$_small_initial_partial_block_pybhdxzahdqcprl:
 
@@ -40008,7 +40001,7 @@ L$_message_below_32_blocks_jzxBnczDBxGvzop:
 	subq	$256,%r8
 	addq	$256,%rax
 	movl	%r8d,%r10d
-	leaq	96(%rsi),%r12
+	leaq	80(%rsi),%r12
 	testq	%r14,%r14
 	jnz	L$_skip_hkeys_precomputation_dzmCrsBiciGnliE
 	vmovdqu64	640(%rsp),%zmm3
@@ -40285,7 +40278,7 @@ L$_16_blocks_ok_BsFiEfmuvxGEGuk:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%xmm29,%xmm0,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -40488,7 +40481,7 @@ L$_16_blocks_ok_DrefbggoCuhFosm:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%ymm29,%ymm0,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -40690,7 +40683,7 @@ L$_16_blocks_ok_oskEeEmCEGeqECv:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -40893,7 +40886,7 @@ L$_16_blocks_ok_aAxBGtfyfEadAkB:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -41119,7 +41112,7 @@ L$_16_blocks_ok_bpEikxmsheidfwq:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%xmm29,%xmm3,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -41351,7 +41344,7 @@ L$_16_blocks_ok_otEmDDixbpFEmvy:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%ymm29,%ymm3,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -41589,7 +41582,7 @@ L$_16_blocks_ok_kEvFawDBkeclidj:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -41828,7 +41821,7 @@ L$_16_blocks_ok_nfBegzmtymkjkuE:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -42090,7 +42083,7 @@ L$_16_blocks_ok_zjmfGFrkFzfxxez:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%xmm29,%xmm4,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -42360,7 +42353,7 @@ L$_16_blocks_ok_BvDkzdlGxbqBdwD:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%ymm29,%ymm4,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -42636,7 +42629,7 @@ L$_16_blocks_ok_wfjezxDvGpDnoFf:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -42913,7 +42906,7 @@ L$_16_blocks_ok_pbckDbEtDdqavpn:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -43209,7 +43202,7 @@ L$_16_blocks_ok_oCotpBuspdAtjpe:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%xmm29,%xmm5,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -43509,7 +43502,7 @@ L$_16_blocks_ok_bbvjuqrsjgdyCBn:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%ymm29,%ymm5,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -43815,7 +43808,7 @@ L$_16_blocks_ok_GriwFAotfyoEekC:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -44122,7 +44115,7 @@ L$_16_blocks_ok_sjAcjwAAtCgmwjr:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 L$_small_initial_partial_block_ayefrejzGqbkfya:
 
@@ -44359,7 +44352,7 @@ L$_small_initial_num_blocks_is_1_wjgmgrFcljfrexe:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%xmm29,%xmm0,%xmm6
 	vextracti32x4	$0,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -44477,7 +44470,7 @@ L$_small_initial_num_blocks_is_2_wjgmgrFcljfrexe:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%ymm29,%ymm0,%ymm6
 	vextracti32x4	$1,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -44620,7 +44613,7 @@ L$_small_initial_num_blocks_is_3_wjgmgrFcljfrexe:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm6
 	vextracti32x4	$2,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -44764,7 +44757,7 @@ L$_small_initial_num_blocks_is_4_wjgmgrFcljfrexe:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm6
 	vextracti32x4	$3,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -44928,7 +44921,7 @@ L$_small_initial_num_blocks_is_5_wjgmgrFcljfrexe:
 	vpshufb	%zmm29,%zmm0,%zmm6
 	vpshufb	%xmm29,%xmm3,%xmm7
 	vextracti32x4	$0,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -45101,7 +45094,7 @@ L$_small_initial_num_blocks_is_6_wjgmgrFcljfrexe:
 	vpshufb	%zmm29,%zmm0,%zmm6
 	vpshufb	%ymm29,%ymm3,%ymm7
 	vextracti32x4	$1,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -45284,7 +45277,7 @@ L$_small_initial_num_blocks_is_7_wjgmgrFcljfrexe:
 	vpshufb	%zmm29,%zmm0,%zmm6
 	vpshufb	%zmm29,%zmm3,%zmm7
 	vextracti32x4	$2,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -45468,7 +45461,7 @@ L$_small_initial_num_blocks_is_8_wjgmgrFcljfrexe:
 	vpshufb	%zmm29,%zmm0,%zmm6
 	vpshufb	%zmm29,%zmm3,%zmm7
 	vextracti32x4	$3,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -45670,7 +45663,7 @@ L$_small_initial_num_blocks_is_9_wjgmgrFcljfrexe:
 	vpshufb	%zmm29,%zmm3,%zmm7
 	vpshufb	%xmm29,%xmm4,%xmm10
 	vextracti32x4	$0,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -45880,7 +45873,7 @@ L$_small_initial_num_blocks_is_10_wjgmgrFcljfrexe:
 	vpshufb	%zmm29,%zmm3,%zmm7
 	vpshufb	%ymm29,%ymm4,%ymm10
 	vextracti32x4	$1,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -46100,7 +46093,7 @@ L$_small_initial_num_blocks_is_11_wjgmgrFcljfrexe:
 	vpshufb	%zmm29,%zmm3,%zmm7
 	vpshufb	%zmm29,%zmm4,%zmm10
 	vextracti32x4	$2,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -46321,7 +46314,7 @@ L$_small_initial_num_blocks_is_12_wjgmgrFcljfrexe:
 	vpshufb	%zmm29,%zmm3,%zmm7
 	vpshufb	%zmm29,%zmm4,%zmm10
 	vextracti32x4	$3,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -46556,7 +46549,7 @@ L$_small_initial_num_blocks_is_13_wjgmgrFcljfrexe:
 	vpshufb	%zmm29,%zmm4,%zmm10
 	vpshufb	%xmm29,%xmm5,%xmm11
 	vextracti32x4	$0,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -46795,7 +46788,7 @@ L$_small_initial_num_blocks_is_14_wjgmgrFcljfrexe:
 	vpshufb	%zmm29,%zmm4,%zmm10
 	vpshufb	%ymm29,%ymm5,%ymm11
 	vextracti32x4	$1,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -47044,7 +47037,7 @@ L$_small_initial_num_blocks_is_15_wjgmgrFcljfrexe:
 	vpshufb	%zmm29,%zmm4,%zmm10
 	vpshufb	%zmm29,%zmm5,%zmm11
 	vextracti32x4	$2,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -47294,7 +47287,7 @@ L$_small_initial_num_blocks_is_16_wjgmgrFcljfrexe:
 	vpshufb	%zmm29,%zmm4,%zmm10
 	vpshufb	%zmm29,%zmm5,%zmm11
 	vextracti32x4	$3,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 L$_small_initial_partial_block_qxCpdapFxyCuqwj:
 
@@ -47398,7 +47391,7 @@ L$aes_gcm_encrypt_256_avx512:
 
 	vmovdqu64	16(%rsi),%xmm3
 
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	vmovdqu64	240(%r10),%xmm4
 
 
@@ -47624,7 +47617,7 @@ L$_next_16_ok_FolitFcvmzDtzbD:
 	vmovdqa64	%zmm10,832(%rsp)
 	vmovdqa64	%zmm11,896(%rsp)
 	vmovdqa64	%zmm12,960(%rsp)
-	leaq	96(%rsi),%r12
+	leaq	80(%rsi),%r12
 	testq	%r14,%r14
 	jnz	L$_skip_hkeys_precomputation_slhsqgEufGclFec
 
@@ -48871,7 +48864,7 @@ L$_16_blocks_ok_igvodhikativhxs:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%xmm29,%xmm0,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -49078,7 +49071,7 @@ L$_16_blocks_ok_vsprwaoekjwbkng:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%ymm29,%ymm0,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -49284,7 +49277,7 @@ L$_16_blocks_ok_pdiFfjCElAtekEv:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -49491,7 +49484,7 @@ L$_16_blocks_ok_giftEyoltvfgggA:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -49723,7 +49716,7 @@ L$_16_blocks_ok_orpkewzlnxCGshz:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%xmm29,%xmm3,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -49961,7 +49954,7 @@ L$_16_blocks_ok_orictFjAdfigdzk:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%ymm29,%ymm3,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -50205,7 +50198,7 @@ L$_16_blocks_ok_ivtabDnDqnrGEcy:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -50450,7 +50443,7 @@ L$_16_blocks_ok_uBiojDdgtEoAfGd:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -50720,7 +50713,7 @@ L$_16_blocks_ok_FqperxgfhBwCqDo:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%xmm29,%xmm4,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -50998,7 +50991,7 @@ L$_16_blocks_ok_bvimoanuboioxom:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%ymm29,%ymm4,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -51282,7 +51275,7 @@ L$_16_blocks_ok_DcdigDqdkAmpala:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -51567,7 +51560,7 @@ L$_16_blocks_ok_ijmafkyicqbAgov:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -51873,7 +51866,7 @@ L$_16_blocks_ok_xewjdgAADiucjCd:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%xmm29,%xmm5,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -52183,7 +52176,7 @@ L$_16_blocks_ok_uxvkthhndspgdct:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%ymm29,%ymm5,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -52499,7 +52492,7 @@ L$_16_blocks_ok_fdeajBtuhuyobdz:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -52816,7 +52809,7 @@ L$_16_blocks_ok_mxnyyrjuxpBhloh:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 L$_small_initial_partial_block_CFywctAlrBmkufB:
 
@@ -53578,7 +53571,7 @@ L$_16_blocks_ok_alDzwCfDlrwfuue:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%xmm29,%xmm0,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -53785,7 +53778,7 @@ L$_16_blocks_ok_nCqcfaumojsjgbp:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%ymm29,%ymm0,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -53991,7 +53984,7 @@ L$_16_blocks_ok_uwpbmorybawstbl:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -54198,7 +54191,7 @@ L$_16_blocks_ok_vadkquwycFnaotd:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -54430,7 +54423,7 @@ L$_16_blocks_ok_aFkFaFcofvloukl:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%xmm29,%xmm3,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -54668,7 +54661,7 @@ L$_16_blocks_ok_hyGBuzayqDhhsut:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%ymm29,%ymm3,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -54912,7 +54905,7 @@ L$_16_blocks_ok_wfwrxhyCBsGqfaa:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -55157,7 +55150,7 @@ L$_16_blocks_ok_nwCspduhyDCpabc:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -55427,7 +55420,7 @@ L$_16_blocks_ok_FtfeaayDywckyfd:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%xmm29,%xmm4,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -55705,7 +55698,7 @@ L$_16_blocks_ok_rwkpzgCdusgbwpC:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%ymm29,%ymm4,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -55989,7 +55982,7 @@ L$_16_blocks_ok_lwGByppsljaznxt:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -56274,7 +56267,7 @@ L$_16_blocks_ok_jbqznyehrlCBlqk:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -56580,7 +56573,7 @@ L$_16_blocks_ok_zfoiakgFjhncFgz:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%xmm29,%xmm5,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -56890,7 +56883,7 @@ L$_16_blocks_ok_boaouDrBeEmAnwp:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%ymm29,%ymm5,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -57206,7 +57199,7 @@ L$_16_blocks_ok_mFdcfdxbaoeAcmw:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -57523,7 +57516,7 @@ L$_16_blocks_ok_dhDlEwplftmrFtf:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 L$_small_initial_partial_block_iuDhkykBcvvzBFb:
 
@@ -58073,7 +58066,7 @@ L$_16_blocks_ok_cmjbanhfxFrrojy:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%xmm29,%xmm0,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -58273,7 +58266,7 @@ L$_16_blocks_ok_EgjyoropybwcGcn:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%ymm29,%ymm0,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -58498,7 +58491,7 @@ L$_16_blocks_ok_wGGmGvscmpGfnny:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -58724,7 +58717,7 @@ L$_16_blocks_ok_lnowafuogaacgct:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -58974,7 +58967,7 @@ L$_16_blocks_ok_trmgpGgtzmsExiu:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%xmm29,%xmm3,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -59233,7 +59226,7 @@ L$_16_blocks_ok_FwaeBcDAewBtpAB:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%ymm29,%ymm3,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -59502,7 +59495,7 @@ L$_16_blocks_ok_AnyscuqxAspkzsl:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -59772,7 +59765,7 @@ L$_16_blocks_ok_cgqpkbbBmprdEnv:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -60063,7 +60056,7 @@ L$_16_blocks_ok_ovcajrDEfpdjwcF:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%xmm29,%xmm4,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -60362,7 +60355,7 @@ L$_16_blocks_ok_xyisBwjDghCtkcq:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%ymm29,%ymm4,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -60671,7 +60664,7 @@ L$_16_blocks_ok_oCaueqhtnkiqikA:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -60981,7 +60974,7 @@ L$_16_blocks_ok_xwjsvxAnBhmckaz:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -61308,7 +61301,7 @@ L$_16_blocks_ok_jfgktdduAaBgqFv:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%xmm29,%xmm5,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -61639,7 +61632,7 @@ L$_16_blocks_ok_xdtrxodfgwcifbm:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%ymm29,%ymm5,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -61980,7 +61973,7 @@ L$_16_blocks_ok_FrBtEqtdGyajfFu:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -62322,7 +62315,7 @@ L$_16_blocks_ok_ofhxurlakbuiiab:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 L$_small_initial_partial_block_niAfluBnEgrukbj:
 
@@ -62469,7 +62462,7 @@ L$_message_below_32_blocks_ralurfzeatcGxDF:
 	subq	$256,%r8
 	addq	$256,%rax
 	movl	%r8d,%r10d
-	leaq	96(%rsi),%r12
+	leaq	80(%rsi),%r12
 	testq	%r14,%r14
 	jnz	L$_skip_hkeys_precomputation_BiAvfDwrflaDzBx
 	vmovdqu64	640(%rsp),%zmm3
@@ -62750,7 +62743,7 @@ L$_16_blocks_ok_zDsbocmrpEvnicC:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%xmm29,%xmm0,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -62957,7 +62950,7 @@ L$_16_blocks_ok_fkqtFBuohiwoapu:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%ymm29,%ymm0,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -63163,7 +63156,7 @@ L$_16_blocks_ok_myfxreEhmAEiFvd:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -63370,7 +63363,7 @@ L$_16_blocks_ok_EshcbGrbbBjGmFs:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -63602,7 +63595,7 @@ L$_16_blocks_ok_rBzncCcAACDmBwu:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%xmm29,%xmm3,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -63840,7 +63833,7 @@ L$_16_blocks_ok_yghnlDweoeGyiyD:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%ymm29,%ymm3,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -64084,7 +64077,7 @@ L$_16_blocks_ok_stoalvbzsyrkrBC:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -64329,7 +64322,7 @@ L$_16_blocks_ok_miFDzcCBFGrssiv:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -64599,7 +64592,7 @@ L$_16_blocks_ok_lkCdskAdsidpkuw:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%xmm29,%xmm4,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -64877,7 +64870,7 @@ L$_16_blocks_ok_hktAeBlvDcCnios:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%ymm29,%ymm4,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -65161,7 +65154,7 @@ L$_16_blocks_ok_bblFcfwEgdzswCm:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -65446,7 +65439,7 @@ L$_16_blocks_ok_qmmgmehghErCGvF:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -65752,7 +65745,7 @@ L$_16_blocks_ok_dulzkutdgjakGvB:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%xmm29,%xmm5,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -66062,7 +66055,7 @@ L$_16_blocks_ok_nntbrGkellunBas:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%ymm29,%ymm5,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -66378,7 +66371,7 @@ L$_16_blocks_ok_gqGDtzmCceFkfal:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -66695,7 +66688,7 @@ L$_16_blocks_ok_nnArmAxpgvlqCpA:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 L$_small_initial_partial_block_uqdvluxFgGqdFqv:
 
@@ -66936,7 +66929,7 @@ L$_small_initial_num_blocks_is_1_hdjaAabmubhzgrE:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%xmm29,%xmm0,%xmm6
 	vextracti32x4	$0,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -67058,7 +67051,7 @@ L$_small_initial_num_blocks_is_2_hdjaAabmubhzgrE:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%ymm29,%ymm0,%ymm6
 	vextracti32x4	$1,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -67205,7 +67198,7 @@ L$_small_initial_num_blocks_is_3_hdjaAabmubhzgrE:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm6
 	vextracti32x4	$2,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -67353,7 +67346,7 @@ L$_small_initial_num_blocks_is_4_hdjaAabmubhzgrE:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm6
 	vextracti32x4	$3,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -67523,7 +67516,7 @@ L$_small_initial_num_blocks_is_5_hdjaAabmubhzgrE:
 	vpshufb	%zmm29,%zmm0,%zmm6
 	vpshufb	%xmm29,%xmm3,%xmm7
 	vextracti32x4	$0,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -67702,7 +67695,7 @@ L$_small_initial_num_blocks_is_6_hdjaAabmubhzgrE:
 	vpshufb	%zmm29,%zmm0,%zmm6
 	vpshufb	%ymm29,%ymm3,%ymm7
 	vextracti32x4	$1,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -67891,7 +67884,7 @@ L$_small_initial_num_blocks_is_7_hdjaAabmubhzgrE:
 	vpshufb	%zmm29,%zmm0,%zmm6
 	vpshufb	%zmm29,%zmm3,%zmm7
 	vextracti32x4	$2,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -68081,7 +68074,7 @@ L$_small_initial_num_blocks_is_8_hdjaAabmubhzgrE:
 	vpshufb	%zmm29,%zmm0,%zmm6
 	vpshufb	%zmm29,%zmm3,%zmm7
 	vextracti32x4	$3,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -68291,7 +68284,7 @@ L$_small_initial_num_blocks_is_9_hdjaAabmubhzgrE:
 	vpshufb	%zmm29,%zmm3,%zmm7
 	vpshufb	%xmm29,%xmm4,%xmm10
 	vextracti32x4	$0,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -68509,7 +68502,7 @@ L$_small_initial_num_blocks_is_10_hdjaAabmubhzgrE:
 	vpshufb	%zmm29,%zmm3,%zmm7
 	vpshufb	%ymm29,%ymm4,%ymm10
 	vextracti32x4	$1,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -68737,7 +68730,7 @@ L$_small_initial_num_blocks_is_11_hdjaAabmubhzgrE:
 	vpshufb	%zmm29,%zmm3,%zmm7
 	vpshufb	%zmm29,%zmm4,%zmm10
 	vextracti32x4	$2,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -68966,7 +68959,7 @@ L$_small_initial_num_blocks_is_12_hdjaAabmubhzgrE:
 	vpshufb	%zmm29,%zmm3,%zmm7
 	vpshufb	%zmm29,%zmm4,%zmm10
 	vextracti32x4	$3,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -69211,7 +69204,7 @@ L$_small_initial_num_blocks_is_13_hdjaAabmubhzgrE:
 	vpshufb	%zmm29,%zmm4,%zmm10
 	vpshufb	%xmm29,%xmm5,%xmm11
 	vextracti32x4	$0,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -69460,7 +69453,7 @@ L$_small_initial_num_blocks_is_14_hdjaAabmubhzgrE:
 	vpshufb	%zmm29,%zmm4,%zmm10
 	vpshufb	%ymm29,%ymm5,%ymm11
 	vextracti32x4	$1,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -69719,7 +69712,7 @@ L$_small_initial_num_blocks_is_15_hdjaAabmubhzgrE:
 	vpshufb	%zmm29,%zmm4,%zmm10
 	vpshufb	%zmm29,%zmm5,%zmm11
 	vextracti32x4	$2,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -69979,7 +69972,7 @@ L$_small_initial_num_blocks_is_16_hdjaAabmubhzgrE:
 	vpshufb	%zmm29,%zmm4,%zmm10
 	vpshufb	%zmm29,%zmm5,%zmm11
 	vextracti32x4	$3,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 L$_small_initial_partial_block_mlladecCGcaEame:
 
@@ -70173,7 +70166,7 @@ L$aes_gcm_decrypt_128_avx512:
 
 	vmovdqu64	16(%rsi),%xmm3
 
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	vmovdqu64	240(%r10),%xmm4
 
 
@@ -70379,7 +70372,7 @@ L$_next_16_ok_DkBvliAEspzoabf:
 	vmovdqa64	%zmm10,832(%rsp)
 	vmovdqa64	%zmm11,896(%rsp)
 	vmovdqa64	%zmm12,960(%rsp)
-	leaq	96(%rsi),%r12
+	leaq	80(%rsi),%r12
 	testq	%r14,%r14
 	jnz	L$_skip_hkeys_precomputation_yDAnEECuuGxfwvr
 
@@ -71529,7 +71522,7 @@ L$_16_blocks_ok_lClAAkfGiaxqtqb:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%xmm29,%xmm17,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -71728,7 +71721,7 @@ L$_16_blocks_ok_dxfcclgCzfhujoB:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%ymm29,%ymm17,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -71926,7 +71919,7 @@ L$_16_blocks_ok_GzfdDtolkqgqFel:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -72125,7 +72118,7 @@ L$_16_blocks_ok_tFlldonsxgiBeEi:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -72345,7 +72338,7 @@ L$_16_blocks_ok_lAbhcGDwivukqtE:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%xmm29,%xmm19,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -72571,7 +72564,7 @@ L$_16_blocks_ok_xsoFcrclantxpei:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%ymm29,%ymm19,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -72803,7 +72796,7 @@ L$_16_blocks_ok_xeeduBscFEzvdva:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -73036,7 +73029,7 @@ L$_16_blocks_ok_kBlrofzDjhoFnxv:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -73290,7 +73283,7 @@ L$_16_blocks_ok_whsqDBkDGaknbAC:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%xmm29,%xmm20,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -73552,7 +73545,7 @@ L$_16_blocks_ok_GbBbalFokmrvvlx:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%ymm29,%ymm20,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -73820,7 +73813,7 @@ L$_16_blocks_ok_ldEsDEbywdmplpt:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -74089,7 +74082,7 @@ L$_16_blocks_ok_rAsEscwvsFrjwEn:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -74375,7 +74368,7 @@ L$_16_blocks_ok_yuCmdhwEwEhlsnq:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%xmm29,%xmm21,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -74665,7 +74658,7 @@ L$_16_blocks_ok_oEwrswoqGyjlsqe:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%ymm29,%ymm21,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -74961,7 +74954,7 @@ L$_16_blocks_ok_CtjhmwDvAgBsAry:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -75258,7 +75251,7 @@ L$_16_blocks_ok_ejwsGBcDyFeryCA:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 L$_small_initial_partial_block_vqjlBldpifEzCAi:
 
@@ -75966,7 +75959,7 @@ L$_16_blocks_ok_kounvuokEjmfgDl:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%xmm29,%xmm17,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -76165,7 +76158,7 @@ L$_16_blocks_ok_GkcjorkhgDBFApE:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%ymm29,%ymm17,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -76363,7 +76356,7 @@ L$_16_blocks_ok_GlGoAfCtaxDnccC:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -76562,7 +76555,7 @@ L$_16_blocks_ok_zwfpgGyijsBkpeE:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -76782,7 +76775,7 @@ L$_16_blocks_ok_CizAwbkEgozyasa:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%xmm29,%xmm19,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -77008,7 +77001,7 @@ L$_16_blocks_ok_yuzbpkwFyzjuBAz:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%ymm29,%ymm19,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -77240,7 +77233,7 @@ L$_16_blocks_ok_fDccaFllCyjzgaw:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -77473,7 +77466,7 @@ L$_16_blocks_ok_yuxjCAwGGjlocDt:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -77727,7 +77720,7 @@ L$_16_blocks_ok_FrborCeuBByFkga:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%xmm29,%xmm20,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -77989,7 +77982,7 @@ L$_16_blocks_ok_uqpvEzAtlprmDsg:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%ymm29,%ymm20,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -78257,7 +78250,7 @@ L$_16_blocks_ok_wyBrnxyfcdFguiF:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -78526,7 +78519,7 @@ L$_16_blocks_ok_nbfsGzmFjniAhpc:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -78812,7 +78805,7 @@ L$_16_blocks_ok_BlpixnjkGtBtzBl:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%xmm29,%xmm21,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -79102,7 +79095,7 @@ L$_16_blocks_ok_nlkisqljGgnlewr:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%ymm29,%ymm21,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -79398,7 +79391,7 @@ L$_16_blocks_ok_FewkqxwDmrjetmG:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -79695,7 +79688,7 @@ L$_16_blocks_ok_hEoxzbghGBmpbpw:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 L$_small_initial_partial_block_usEFihDgqghhogg:
 
@@ -80214,7 +80207,7 @@ L$_16_blocks_ok_iCcBbEaCnnBtiGz:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%xmm29,%xmm17,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -80406,7 +80399,7 @@ L$_16_blocks_ok_spdFufbAAGcAxFf:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%ymm29,%ymm17,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -80623,7 +80616,7 @@ L$_16_blocks_ok_sBAazunogzDjqho:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -80841,7 +80834,7 @@ L$_16_blocks_ok_sekyjhofosAtkyB:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -81079,7 +81072,7 @@ L$_16_blocks_ok_zdkGskjaniDljeq:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%xmm29,%xmm19,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -81326,7 +81319,7 @@ L$_16_blocks_ok_mrylAcnDjuqklnd:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%ymm29,%ymm19,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -81583,7 +81576,7 @@ L$_16_blocks_ok_ektccsvjwlnFwnw:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -81841,7 +81834,7 @@ L$_16_blocks_ok_GGmuDhkjBtqxcEd:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -82116,7 +82109,7 @@ L$_16_blocks_ok_lDwlixsAzhAgDkG:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%xmm29,%xmm20,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -82399,7 +82392,7 @@ L$_16_blocks_ok_BbbzknmqtuDuEfg:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%ymm29,%ymm20,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -82692,7 +82685,7 @@ L$_16_blocks_ok_jatgakEfrDmqCyG:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -82986,7 +82979,7 @@ L$_16_blocks_ok_tovGfhABebkuFEt:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -83293,7 +83286,7 @@ L$_16_blocks_ok_ChCrwqCswoEpicz:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%xmm29,%xmm21,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -83604,7 +83597,7 @@ L$_16_blocks_ok_GzibzgsizEbkyAE:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%ymm29,%ymm21,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -83925,7 +83918,7 @@ L$_16_blocks_ok_DExqfkaBzzhxtrd:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -84247,7 +84240,7 @@ L$_16_blocks_ok_fanaekDAulfkhcb:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 L$_small_initial_partial_block_pCDjmBApGDgFGhw:
 
@@ -84394,7 +84387,7 @@ L$_message_below_32_blocks_icBhFhCkojGgnBc:
 	subq	$256,%r8
 	addq	$256,%rax
 	movl	%r8d,%r10d
-	leaq	96(%rsi),%r12
+	leaq	80(%rsi),%r12
 	testq	%r14,%r14
 	jnz	L$_skip_hkeys_precomputation_lurmstfAeByrDpz
 	vmovdqu64	640(%rsp),%zmm3
@@ -84667,7 +84660,7 @@ L$_16_blocks_ok_erjqEcdgnsabCAp:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%xmm29,%xmm17,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -84866,7 +84859,7 @@ L$_16_blocks_ok_AibviGpsltwhwck:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%ymm29,%ymm17,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -85064,7 +85057,7 @@ L$_16_blocks_ok_cwyoDiaxggCofzt:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -85263,7 +85256,7 @@ L$_16_blocks_ok_fqeFwlbvdGyejoA:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -85483,7 +85476,7 @@ L$_16_blocks_ok_cjnavuxfcgGzzCb:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%xmm29,%xmm19,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -85709,7 +85702,7 @@ L$_16_blocks_ok_DndbknmyrzkriDg:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%ymm29,%ymm19,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -85941,7 +85934,7 @@ L$_16_blocks_ok_jtGaGqFaokuwcFo:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -86174,7 +86167,7 @@ L$_16_blocks_ok_BCegvazduGiwBqv:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -86428,7 +86421,7 @@ L$_16_blocks_ok_nGczFFdvDDdbdAl:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%xmm29,%xmm20,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -86690,7 +86683,7 @@ L$_16_blocks_ok_oulxbBotdhvdFbg:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%ymm29,%ymm20,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -86958,7 +86951,7 @@ L$_16_blocks_ok_nCertFgkfoCxtun:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -87227,7 +87220,7 @@ L$_16_blocks_ok_DtwkcFbdCfdcCrh:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -87513,7 +87506,7 @@ L$_16_blocks_ok_ndumifgEEuiqDiF:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%xmm29,%xmm21,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -87803,7 +87796,7 @@ L$_16_blocks_ok_osDGzgifEhqjECm:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%ymm29,%ymm21,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -88099,7 +88092,7 @@ L$_16_blocks_ok_tiCBFudBnEgekda:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -88396,7 +88389,7 @@ L$_16_blocks_ok_ennneCoBjzBsijF:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 L$_small_initial_partial_block_qbevliloqkkkFsD:
 
@@ -88629,7 +88622,7 @@ L$_small_initial_num_blocks_is_1_fAioGdenAmmvupb:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%xmm29,%xmm6,%xmm6
 	vextracti32x4	$0,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -88743,7 +88736,7 @@ L$_small_initial_num_blocks_is_2_fAioGdenAmmvupb:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%ymm29,%ymm6,%ymm6
 	vextracti32x4	$1,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -88882,7 +88875,7 @@ L$_small_initial_num_blocks_is_3_fAioGdenAmmvupb:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm6,%zmm6
 	vextracti32x4	$2,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -89022,7 +89015,7 @@ L$_small_initial_num_blocks_is_4_fAioGdenAmmvupb:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm6,%zmm6
 	vextracti32x4	$3,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -89180,7 +89173,7 @@ L$_small_initial_num_blocks_is_5_fAioGdenAmmvupb:
 	vpshufb	%zmm29,%zmm6,%zmm6
 	vpshufb	%xmm29,%xmm7,%xmm7
 	vextracti32x4	$0,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -89347,7 +89340,7 @@ L$_small_initial_num_blocks_is_6_fAioGdenAmmvupb:
 	vpshufb	%zmm29,%zmm6,%zmm6
 	vpshufb	%ymm29,%ymm7,%ymm7
 	vextracti32x4	$1,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -89524,7 +89517,7 @@ L$_small_initial_num_blocks_is_7_fAioGdenAmmvupb:
 	vpshufb	%zmm29,%zmm6,%zmm6
 	vpshufb	%zmm29,%zmm7,%zmm7
 	vextracti32x4	$2,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -89702,7 +89695,7 @@ L$_small_initial_num_blocks_is_8_fAioGdenAmmvupb:
 	vpshufb	%zmm29,%zmm6,%zmm6
 	vpshufb	%zmm29,%zmm7,%zmm7
 	vextracti32x4	$3,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -89896,7 +89889,7 @@ L$_small_initial_num_blocks_is_9_fAioGdenAmmvupb:
 	vpshufb	%zmm29,%zmm7,%zmm7
 	vpshufb	%xmm29,%xmm10,%xmm10
 	vextracti32x4	$0,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -90098,7 +90091,7 @@ L$_small_initial_num_blocks_is_10_fAioGdenAmmvupb:
 	vpshufb	%zmm29,%zmm7,%zmm7
 	vpshufb	%ymm29,%ymm10,%ymm10
 	vextracti32x4	$1,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -90310,7 +90303,7 @@ L$_small_initial_num_blocks_is_11_fAioGdenAmmvupb:
 	vpshufb	%zmm29,%zmm7,%zmm7
 	vpshufb	%zmm29,%zmm10,%zmm10
 	vextracti32x4	$2,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -90523,7 +90516,7 @@ L$_small_initial_num_blocks_is_12_fAioGdenAmmvupb:
 	vpshufb	%zmm29,%zmm7,%zmm7
 	vpshufb	%zmm29,%zmm10,%zmm10
 	vextracti32x4	$3,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -90748,7 +90741,7 @@ L$_small_initial_num_blocks_is_13_fAioGdenAmmvupb:
 	vpshufb	%zmm29,%zmm10,%zmm10
 	vpshufb	%xmm29,%xmm11,%xmm11
 	vextracti32x4	$0,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -90977,7 +90970,7 @@ L$_small_initial_num_blocks_is_14_fAioGdenAmmvupb:
 	vpshufb	%zmm29,%zmm10,%zmm10
 	vpshufb	%ymm29,%ymm11,%ymm11
 	vextracti32x4	$1,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -91216,7 +91209,7 @@ L$_small_initial_num_blocks_is_15_fAioGdenAmmvupb:
 	vpshufb	%zmm29,%zmm10,%zmm10
 	vpshufb	%zmm29,%zmm11,%zmm11
 	vextracti32x4	$2,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -91456,7 +91449,7 @@ L$_small_initial_num_blocks_is_16_fAioGdenAmmvupb:
 	vpshufb	%zmm29,%zmm10,%zmm10
 	vpshufb	%zmm29,%zmm11,%zmm11
 	vextracti32x4	$3,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 L$_small_initial_partial_block_fvqkmnelfBwdflt:
 
@@ -91560,7 +91553,7 @@ L$aes_gcm_decrypt_192_avx512:
 
 	vmovdqu64	16(%rsi),%xmm3
 
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	vmovdqu64	240(%r10),%xmm4
 
 
@@ -91776,7 +91769,7 @@ L$_next_16_ok_bmCGDqjpElhfFfq:
 	vmovdqa64	%zmm10,832(%rsp)
 	vmovdqa64	%zmm11,896(%rsp)
 	vmovdqa64	%zmm12,960(%rsp)
-	leaq	96(%rsi),%r12
+	leaq	80(%rsi),%r12
 	testq	%r14,%r14
 	jnz	L$_skip_hkeys_precomputation_mbihlziFEFsDoGE
 
@@ -92973,7 +92966,7 @@ L$_16_blocks_ok_nlADBBgdbvxiiEb:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%xmm29,%xmm17,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -93176,7 +93169,7 @@ L$_16_blocks_ok_uvnjGlBDyvrfirm:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%ymm29,%ymm17,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -93378,7 +93371,7 @@ L$_16_blocks_ok_FgovsDdCfEGrkbF:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -93581,7 +93574,7 @@ L$_16_blocks_ok_DlimwiDzackronx:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -93807,7 +93800,7 @@ L$_16_blocks_ok_qGrgsssqhFxDdtg:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%xmm29,%xmm19,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -94039,7 +94032,7 @@ L$_16_blocks_ok_ufEGEnqpAFAEymx:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%ymm29,%ymm19,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -94277,7 +94270,7 @@ L$_16_blocks_ok_xgpGrqoEEApwzGE:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -94516,7 +94509,7 @@ L$_16_blocks_ok_DBafwcnsvcxAbsv:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -94778,7 +94771,7 @@ L$_16_blocks_ok_muonozkGretEzbg:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%xmm29,%xmm20,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -95048,7 +95041,7 @@ L$_16_blocks_ok_tcxAtedExcFvxwb:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%ymm29,%ymm20,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -95324,7 +95317,7 @@ L$_16_blocks_ok_oCyoemhjBbobeot:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -95601,7 +95594,7 @@ L$_16_blocks_ok_rechbAAmkFuppsn:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -95897,7 +95890,7 @@ L$_16_blocks_ok_llFkwrFhuxfvsGD:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%xmm29,%xmm21,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -96197,7 +96190,7 @@ L$_16_blocks_ok_euGgDuqlvgCFoFG:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%ymm29,%ymm21,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -96503,7 +96496,7 @@ L$_16_blocks_ok_pFsoEbjdpyaFdzt:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -96810,7 +96803,7 @@ L$_16_blocks_ok_lxzkkenajCqycbF:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 L$_small_initial_partial_block_rerkgBbyampldto:
 
@@ -97544,7 +97537,7 @@ L$_16_blocks_ok_mklqBGCbyBjeEom:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%xmm29,%xmm17,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -97747,7 +97740,7 @@ L$_16_blocks_ok_ADzEaGzEEnztayt:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%ymm29,%ymm17,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -97949,7 +97942,7 @@ L$_16_blocks_ok_lcaBxDbeGChbeFD:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -98152,7 +98145,7 @@ L$_16_blocks_ok_pawpbdkivckxDwC:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -98378,7 +98371,7 @@ L$_16_blocks_ok_DaxgvFmGcDpdBDr:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%xmm29,%xmm19,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -98610,7 +98603,7 @@ L$_16_blocks_ok_GCBuEfGizfDEkbf:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%ymm29,%ymm19,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -98848,7 +98841,7 @@ L$_16_blocks_ok_sxxwCglaApctqvC:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -99087,7 +99080,7 @@ L$_16_blocks_ok_CnnuddjEBnFGdsj:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -99349,7 +99342,7 @@ L$_16_blocks_ok_jwawBbqsGrnbEEd:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%xmm29,%xmm20,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -99619,7 +99612,7 @@ L$_16_blocks_ok_bEhtipvqjwytqAA:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%ymm29,%ymm20,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -99895,7 +99888,7 @@ L$_16_blocks_ok_peywgEttBymhlkG:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -100172,7 +100165,7 @@ L$_16_blocks_ok_pfftEtegsrsinbs:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -100468,7 +100461,7 @@ L$_16_blocks_ok_hoEpuvlFtAdDDCj:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%xmm29,%xmm21,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -100768,7 +100761,7 @@ L$_16_blocks_ok_kDibsGzbehdlyln:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%ymm29,%ymm21,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -101074,7 +101067,7 @@ L$_16_blocks_ok_vejCgbGykbnkAnl:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -101381,7 +101374,7 @@ L$_16_blocks_ok_oEmrkvwdwsmBgef:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 L$_small_initial_partial_block_emEtFnwcsvbsGee:
 
@@ -101915,7 +101908,7 @@ L$_16_blocks_ok_EztzACczExrozqe:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%xmm29,%xmm17,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -102111,7 +102104,7 @@ L$_16_blocks_ok_ddpheeylmysesqA:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%ymm29,%ymm17,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -102332,7 +102325,7 @@ L$_16_blocks_ok_vAzgdsEEohhszlv:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -102554,7 +102547,7 @@ L$_16_blocks_ok_ciiDnbwsdfFhyEA:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -102798,7 +102791,7 @@ L$_16_blocks_ok_AGvFmhBetCxAviv:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%xmm29,%xmm19,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -103051,7 +103044,7 @@ L$_16_blocks_ok_sjympigbCCDhsDn:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%ymm29,%ymm19,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -103314,7 +103307,7 @@ L$_16_blocks_ok_puBiejaewnoDvka:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -103578,7 +103571,7 @@ L$_16_blocks_ok_eaeCeiduedGDdDq:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -103861,7 +103854,7 @@ L$_16_blocks_ok_zgrBucdeiivwwje:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%xmm29,%xmm20,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -104152,7 +104145,7 @@ L$_16_blocks_ok_rqjyEzzCiBijwho:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%ymm29,%ymm20,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -104453,7 +104446,7 @@ L$_16_blocks_ok_udirAnChEpiDCdb:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -104755,7 +104748,7 @@ L$_16_blocks_ok_nCrveguADGnpgFu:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -105072,7 +105065,7 @@ L$_16_blocks_ok_FuAeDsuGfAcCbnh:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%xmm29,%xmm21,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -105393,7 +105386,7 @@ L$_16_blocks_ok_FvEhyckDsphilDy:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%ymm29,%ymm21,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -105724,7 +105717,7 @@ L$_16_blocks_ok_lpConoqwylkjlwn:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -106056,7 +106049,7 @@ L$_16_blocks_ok_vhaFwxkrByAhtie:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 L$_small_initial_partial_block_ciyykzjryphtjAc:
 
@@ -106203,7 +106196,7 @@ L$_message_below_32_blocks_efvnrtvwAsfehEC:
 	subq	$256,%r8
 	addq	$256,%rax
 	movl	%r8d,%r10d
-	leaq	96(%rsi),%r12
+	leaq	80(%rsi),%r12
 	testq	%r14,%r14
 	jnz	L$_skip_hkeys_precomputation_yBFabBiEpjEBBsr
 	vmovdqu64	640(%rsp),%zmm3
@@ -106480,7 +106473,7 @@ L$_16_blocks_ok_yqjovttCDEvpyyd:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%xmm29,%xmm17,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -106683,7 +106676,7 @@ L$_16_blocks_ok_dunlemEBzoyBoxa:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%ymm29,%ymm17,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -106885,7 +106878,7 @@ L$_16_blocks_ok_gknxnDbcehnficG:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -107088,7 +107081,7 @@ L$_16_blocks_ok_vkChDblsuoFkgEp:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -107314,7 +107307,7 @@ L$_16_blocks_ok_aGCpdetktlAtivE:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%xmm29,%xmm19,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -107546,7 +107539,7 @@ L$_16_blocks_ok_DlEhcmhmAqggthl:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%ymm29,%ymm19,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -107784,7 +107777,7 @@ L$_16_blocks_ok_szxcAmcFcFxFikD:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -108023,7 +108016,7 @@ L$_16_blocks_ok_nGgmonbofwfdiqp:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -108285,7 +108278,7 @@ L$_16_blocks_ok_isErwnbzGxuwnib:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%xmm29,%xmm20,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -108555,7 +108548,7 @@ L$_16_blocks_ok_ylkmjtxhbazdAht:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%ymm29,%ymm20,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -108831,7 +108824,7 @@ L$_16_blocks_ok_amFqbyqnsgkbEyu:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -109108,7 +109101,7 @@ L$_16_blocks_ok_Gxdljjoscahpipo:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -109404,7 +109397,7 @@ L$_16_blocks_ok_BzbwlusABaejjjy:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%xmm29,%xmm21,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -109704,7 +109697,7 @@ L$_16_blocks_ok_wfxluBeiqgADmFb:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%ymm29,%ymm21,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -110010,7 +110003,7 @@ L$_16_blocks_ok_vyklFkDwzsnvgsC:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -110317,7 +110310,7 @@ L$_16_blocks_ok_cwmmduuojwChbzc:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 L$_small_initial_partial_block_EFFoGallwwbomEy:
 
@@ -110554,7 +110547,7 @@ L$_small_initial_num_blocks_is_1_sFoDGktxtpnDmhn:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%xmm29,%xmm6,%xmm6
 	vextracti32x4	$0,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -110672,7 +110665,7 @@ L$_small_initial_num_blocks_is_2_sFoDGktxtpnDmhn:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%ymm29,%ymm6,%ymm6
 	vextracti32x4	$1,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -110815,7 +110808,7 @@ L$_small_initial_num_blocks_is_3_sFoDGktxtpnDmhn:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm6,%zmm6
 	vextracti32x4	$2,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -110959,7 +110952,7 @@ L$_small_initial_num_blocks_is_4_sFoDGktxtpnDmhn:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm6,%zmm6
 	vextracti32x4	$3,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -111123,7 +111116,7 @@ L$_small_initial_num_blocks_is_5_sFoDGktxtpnDmhn:
 	vpshufb	%zmm29,%zmm6,%zmm6
 	vpshufb	%xmm29,%xmm7,%xmm7
 	vextracti32x4	$0,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -111296,7 +111289,7 @@ L$_small_initial_num_blocks_is_6_sFoDGktxtpnDmhn:
 	vpshufb	%zmm29,%zmm6,%zmm6
 	vpshufb	%ymm29,%ymm7,%ymm7
 	vextracti32x4	$1,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -111479,7 +111472,7 @@ L$_small_initial_num_blocks_is_7_sFoDGktxtpnDmhn:
 	vpshufb	%zmm29,%zmm6,%zmm6
 	vpshufb	%zmm29,%zmm7,%zmm7
 	vextracti32x4	$2,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -111663,7 +111656,7 @@ L$_small_initial_num_blocks_is_8_sFoDGktxtpnDmhn:
 	vpshufb	%zmm29,%zmm6,%zmm6
 	vpshufb	%zmm29,%zmm7,%zmm7
 	vextracti32x4	$3,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -111865,7 +111858,7 @@ L$_small_initial_num_blocks_is_9_sFoDGktxtpnDmhn:
 	vpshufb	%zmm29,%zmm7,%zmm7
 	vpshufb	%xmm29,%xmm10,%xmm10
 	vextracti32x4	$0,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -112075,7 +112068,7 @@ L$_small_initial_num_blocks_is_10_sFoDGktxtpnDmhn:
 	vpshufb	%zmm29,%zmm7,%zmm7
 	vpshufb	%ymm29,%ymm10,%ymm10
 	vextracti32x4	$1,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -112295,7 +112288,7 @@ L$_small_initial_num_blocks_is_11_sFoDGktxtpnDmhn:
 	vpshufb	%zmm29,%zmm7,%zmm7
 	vpshufb	%zmm29,%zmm10,%zmm10
 	vextracti32x4	$2,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -112516,7 +112509,7 @@ L$_small_initial_num_blocks_is_12_sFoDGktxtpnDmhn:
 	vpshufb	%zmm29,%zmm7,%zmm7
 	vpshufb	%zmm29,%zmm10,%zmm10
 	vextracti32x4	$3,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -112751,7 +112744,7 @@ L$_small_initial_num_blocks_is_13_sFoDGktxtpnDmhn:
 	vpshufb	%zmm29,%zmm10,%zmm10
 	vpshufb	%xmm29,%xmm11,%xmm11
 	vextracti32x4	$0,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -112990,7 +112983,7 @@ L$_small_initial_num_blocks_is_14_sFoDGktxtpnDmhn:
 	vpshufb	%zmm29,%zmm10,%zmm10
 	vpshufb	%ymm29,%ymm11,%ymm11
 	vextracti32x4	$1,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -113239,7 +113232,7 @@ L$_small_initial_num_blocks_is_15_sFoDGktxtpnDmhn:
 	vpshufb	%zmm29,%zmm10,%zmm10
 	vpshufb	%zmm29,%zmm11,%zmm11
 	vextracti32x4	$2,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -113489,7 +113482,7 @@ L$_small_initial_num_blocks_is_16_sFoDGktxtpnDmhn:
 	vpshufb	%zmm29,%zmm10,%zmm10
 	vpshufb	%zmm29,%zmm11,%zmm11
 	vextracti32x4	$3,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 L$_small_initial_partial_block_pGqEmoznEqGhujq:
 
@@ -113593,7 +113586,7 @@ L$aes_gcm_decrypt_256_avx512:
 
 	vmovdqu64	16(%rsi),%xmm3
 
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	vmovdqu64	240(%r10),%xmm4
 
 
@@ -113819,7 +113812,7 @@ L$_next_16_ok_tpefFeFucnbumCh:
 	vmovdqa64	%zmm10,832(%rsp)
 	vmovdqa64	%zmm11,896(%rsp)
 	vmovdqa64	%zmm12,960(%rsp)
-	leaq	96(%rsi),%r12
+	leaq	80(%rsi),%r12
 	testq	%r14,%r14
 	jnz	L$_skip_hkeys_precomputation_iDAhziwpjqoADaj
 
@@ -115066,7 +115059,7 @@ L$_16_blocks_ok_BpzosFahboxovuF:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%xmm29,%xmm17,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -115273,7 +115266,7 @@ L$_16_blocks_ok_idijgbEnolbjmvb:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%ymm29,%ymm17,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -115479,7 +115472,7 @@ L$_16_blocks_ok_wghnihbAoEsnemr:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -115686,7 +115679,7 @@ L$_16_blocks_ok_CjzGmeouGBagvfs:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -115918,7 +115911,7 @@ L$_16_blocks_ok_DgBblneEbhavoAc:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%xmm29,%xmm19,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -116156,7 +116149,7 @@ L$_16_blocks_ok_sswuqofDefGijpp:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%ymm29,%ymm19,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -116400,7 +116393,7 @@ L$_16_blocks_ok_lncoDbxzFvwogbC:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -116645,7 +116638,7 @@ L$_16_blocks_ok_ExCdtGvwDseyezE:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -116915,7 +116908,7 @@ L$_16_blocks_ok_qnvdfsmvntyhGuo:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%xmm29,%xmm20,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -117193,7 +117186,7 @@ L$_16_blocks_ok_ucjmDCDgtvwsblB:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%ymm29,%ymm20,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -117477,7 +117470,7 @@ L$_16_blocks_ok_tGfszqdtairfiAy:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -117762,7 +117755,7 @@ L$_16_blocks_ok_GBxxxGGdrBGGAzv:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -118068,7 +118061,7 @@ L$_16_blocks_ok_rFdlFzmcbwfmCFo:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%xmm29,%xmm21,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -118378,7 +118371,7 @@ L$_16_blocks_ok_yDllfugovhaluis:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%ymm29,%ymm21,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -118694,7 +118687,7 @@ L$_16_blocks_ok_pincAkEEiiwgxGh:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -119011,7 +119004,7 @@ L$_16_blocks_ok_dBDAoEoFjhwcanb:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 L$_small_initial_partial_block_fdoxuvdoEsDrnFi:
 
@@ -119773,7 +119766,7 @@ L$_16_blocks_ok_fekfutzigacvqDc:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%xmm29,%xmm17,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -119980,7 +119973,7 @@ L$_16_blocks_ok_zEwleqntmDxAeyd:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%ymm29,%ymm17,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -120186,7 +120179,7 @@ L$_16_blocks_ok_acnffEtijrEjnxo:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -120393,7 +120386,7 @@ L$_16_blocks_ok_uGhvhwlitDofjoE:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -120625,7 +120618,7 @@ L$_16_blocks_ok_BwnlahcxoBDAelu:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%xmm29,%xmm19,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -120863,7 +120856,7 @@ L$_16_blocks_ok_ymfljrqweowoCvG:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%ymm29,%ymm19,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -121107,7 +121100,7 @@ L$_16_blocks_ok_ijxrtlxzmzgCbiE:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -121352,7 +121345,7 @@ L$_16_blocks_ok_zzfxscwhyoakGqc:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -121622,7 +121615,7 @@ L$_16_blocks_ok_hswtkcnEneBfnil:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%xmm29,%xmm20,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -121900,7 +121893,7 @@ L$_16_blocks_ok_EBzDixsnrGlAsGi:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%ymm29,%ymm20,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -122184,7 +122177,7 @@ L$_16_blocks_ok_qyEwjvzrfEfrwlG:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -122469,7 +122462,7 @@ L$_16_blocks_ok_bcstjouersAefmz:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -122775,7 +122768,7 @@ L$_16_blocks_ok_rymwDrficveEDaj:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%xmm29,%xmm21,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -123085,7 +123078,7 @@ L$_16_blocks_ok_kzfnwbigglfewrl:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%ymm29,%ymm21,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -123401,7 +123394,7 @@ L$_16_blocks_ok_zpEbDAveGDqklle:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -123718,7 +123711,7 @@ L$_16_blocks_ok_bjFGibBdktCEryt:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 L$_small_initial_partial_block_pBmCpEpokBigCud:
 
@@ -124268,7 +124261,7 @@ L$_16_blocks_ok_GsxmuksbpmpGjAF:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%xmm29,%xmm17,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -124468,7 +124461,7 @@ L$_16_blocks_ok_EjdqvCnEusieimt:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%ymm29,%ymm17,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -124693,7 +124686,7 @@ L$_16_blocks_ok_uctbCqtlugkklDD:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -124919,7 +124912,7 @@ L$_16_blocks_ok_gaqeqvovBwleCnk:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -125169,7 +125162,7 @@ L$_16_blocks_ok_ocpzeCAdEaCuwqG:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%xmm29,%xmm19,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -125428,7 +125421,7 @@ L$_16_blocks_ok_tCpEhfGhdbguevv:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%ymm29,%ymm19,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -125697,7 +125690,7 @@ L$_16_blocks_ok_yhnxntsqCvqmnAv:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -125967,7 +125960,7 @@ L$_16_blocks_ok_qhecknjsAigbdvl:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -126258,7 +126251,7 @@ L$_16_blocks_ok_bFfGEAqbwowecqr:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%xmm29,%xmm20,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -126557,7 +126550,7 @@ L$_16_blocks_ok_rvpoAkotkmdfoGD:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%ymm29,%ymm20,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -126866,7 +126859,7 @@ L$_16_blocks_ok_vfjpDwaAwwnfAie:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -127176,7 +127169,7 @@ L$_16_blocks_ok_sxuCEDavBFjsEdv:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -127503,7 +127496,7 @@ L$_16_blocks_ok_qqAerGvEyeduCgs:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%xmm29,%xmm21,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -127834,7 +127827,7 @@ L$_16_blocks_ok_tiwfklfdCbEnvFe:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%ymm29,%ymm21,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -128175,7 +128168,7 @@ L$_16_blocks_ok_BatgsGhBnhqnqnx:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -128517,7 +128510,7 @@ L$_16_blocks_ok_CuxvqEazAfGjsCp:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 L$_small_initial_partial_block_cGvBxlvhpkhxlhv:
 
@@ -128664,7 +128657,7 @@ L$_message_below_32_blocks_keEetjmxflGqBfv:
 	subq	$256,%r8
 	addq	$256,%rax
 	movl	%r8d,%r10d
-	leaq	96(%rsi),%r12
+	leaq	80(%rsi),%r12
 	testq	%r14,%r14
 	jnz	L$_skip_hkeys_precomputation_wDAhpcxxDdecsFn
 	vmovdqu64	640(%rsp),%zmm3
@@ -128945,7 +128938,7 @@ L$_16_blocks_ok_cChwjnmCkfzrqax:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%xmm29,%xmm17,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -129152,7 +129145,7 @@ L$_16_blocks_ok_DqmtBvrcgAqmgdw:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%ymm29,%ymm17,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -129358,7 +129351,7 @@ L$_16_blocks_ok_hfDuCGGGEpbgAAo:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -129565,7 +129558,7 @@ L$_16_blocks_ok_wxaujbwbDrFxuhe:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -129797,7 +129790,7 @@ L$_16_blocks_ok_tEuoxeaCCDdhEFB:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%xmm29,%xmm19,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -130035,7 +130028,7 @@ L$_16_blocks_ok_prosxFkubabgvzg:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%ymm29,%ymm19,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -130279,7 +130272,7 @@ L$_16_blocks_ok_aeeqyBehlbvnfnk:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -130524,7 +130517,7 @@ L$_16_blocks_ok_rboylvBCxohyFxr:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -130794,7 +130787,7 @@ L$_16_blocks_ok_kwzbcrnlszssDoA:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%xmm29,%xmm20,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -131072,7 +131065,7 @@ L$_16_blocks_ok_hrbjfpBdCjiGnfs:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%ymm29,%ymm20,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -131356,7 +131349,7 @@ L$_16_blocks_ok_gffyuiCaEymxbgx:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -131641,7 +131634,7 @@ L$_16_blocks_ok_hAjEfcezvfywBbB:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -131947,7 +131940,7 @@ L$_16_blocks_ok_jsBqmgCzCrGvyyA:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%xmm29,%xmm21,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -132257,7 +132250,7 @@ L$_16_blocks_ok_muGuwhaFlxCtAii:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%ymm29,%ymm21,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -132573,7 +132566,7 @@ L$_16_blocks_ok_EpbiipkiGBkrvEx:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -132890,7 +132883,7 @@ L$_16_blocks_ok_etuAklrEovqCDpq:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 L$_small_initial_partial_block_xGuCpnrvibyoyay:
 
@@ -133131,7 +133124,7 @@ L$_small_initial_num_blocks_is_1_vkDeiBlhaznkthD:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%xmm29,%xmm6,%xmm6
 	vextracti32x4	$0,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -133253,7 +133246,7 @@ L$_small_initial_num_blocks_is_2_vkDeiBlhaznkthD:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%ymm29,%ymm6,%ymm6
 	vextracti32x4	$1,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -133400,7 +133393,7 @@ L$_small_initial_num_blocks_is_3_vkDeiBlhaznkthD:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm6,%zmm6
 	vextracti32x4	$2,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -133548,7 +133541,7 @@ L$_small_initial_num_blocks_is_4_vkDeiBlhaznkthD:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm6,%zmm6
 	vextracti32x4	$3,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -133718,7 +133711,7 @@ L$_small_initial_num_blocks_is_5_vkDeiBlhaznkthD:
 	vpshufb	%zmm29,%zmm6,%zmm6
 	vpshufb	%xmm29,%xmm7,%xmm7
 	vextracti32x4	$0,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -133897,7 +133890,7 @@ L$_small_initial_num_blocks_is_6_vkDeiBlhaznkthD:
 	vpshufb	%zmm29,%zmm6,%zmm6
 	vpshufb	%ymm29,%ymm7,%ymm7
 	vextracti32x4	$1,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -134086,7 +134079,7 @@ L$_small_initial_num_blocks_is_7_vkDeiBlhaznkthD:
 	vpshufb	%zmm29,%zmm6,%zmm6
 	vpshufb	%zmm29,%zmm7,%zmm7
 	vextracti32x4	$2,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -134276,7 +134269,7 @@ L$_small_initial_num_blocks_is_8_vkDeiBlhaznkthD:
 	vpshufb	%zmm29,%zmm6,%zmm6
 	vpshufb	%zmm29,%zmm7,%zmm7
 	vextracti32x4	$3,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -134486,7 +134479,7 @@ L$_small_initial_num_blocks_is_9_vkDeiBlhaznkthD:
 	vpshufb	%zmm29,%zmm7,%zmm7
 	vpshufb	%xmm29,%xmm10,%xmm10
 	vextracti32x4	$0,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -134704,7 +134697,7 @@ L$_small_initial_num_blocks_is_10_vkDeiBlhaznkthD:
 	vpshufb	%zmm29,%zmm7,%zmm7
 	vpshufb	%ymm29,%ymm10,%ymm10
 	vextracti32x4	$1,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -134932,7 +134925,7 @@ L$_small_initial_num_blocks_is_11_vkDeiBlhaznkthD:
 	vpshufb	%zmm29,%zmm7,%zmm7
 	vpshufb	%zmm29,%zmm10,%zmm10
 	vextracti32x4	$2,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -135161,7 +135154,7 @@ L$_small_initial_num_blocks_is_12_vkDeiBlhaznkthD:
 	vpshufb	%zmm29,%zmm7,%zmm7
 	vpshufb	%zmm29,%zmm10,%zmm10
 	vextracti32x4	$3,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -135406,7 +135399,7 @@ L$_small_initial_num_blocks_is_13_vkDeiBlhaznkthD:
 	vpshufb	%zmm29,%zmm10,%zmm10
 	vpshufb	%xmm29,%xmm11,%xmm11
 	vextracti32x4	$0,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -135655,7 +135648,7 @@ L$_small_initial_num_blocks_is_14_vkDeiBlhaznkthD:
 	vpshufb	%zmm29,%zmm10,%zmm10
 	vpshufb	%ymm29,%ymm11,%ymm11
 	vextracti32x4	$1,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -135914,7 +135907,7 @@ L$_small_initial_num_blocks_is_15_vkDeiBlhaznkthD:
 	vpshufb	%zmm29,%zmm10,%zmm10
 	vpshufb	%zmm29,%zmm11,%zmm11
 	vextracti32x4	$2,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -136174,7 +136167,7 @@ L$_small_initial_num_blocks_is_16_vkDeiBlhaznkthD:
 	vpshufb	%zmm29,%zmm10,%zmm10
 	vpshufb	%zmm29,%zmm11,%zmm11
 	vextracti32x4	$3,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 L$_small_initial_partial_block_fpGgFAenBuAyutw:
 
@@ -136421,8 +136414,4 @@ byte64_len_to_mask_table:
 .quad	0x3fffffffffffffff, 0x7fffffffffffffff
 .quad	0xffffffffffffffff
 .text	
-#endif
-#if defined(__ELF__)
-// See https://www.airs.com/blog/archives/518.
-.section .note.GNU-stack,"",%progbits
 #endif

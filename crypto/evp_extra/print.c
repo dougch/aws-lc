@@ -60,8 +60,14 @@
 #include <openssl/mem.h>
 #include <openssl/rsa.h>
 
+#include "internal.h"
 #include "../internal.h"
+#include "../fipsmodule/evp/internal.h"
 #include "../fipsmodule/rsa/internal.h"
+
+#ifdef ENABLE_DILITHIUM
+#include "../dilithium/sig_dilithium.h"
+#endif
 
 
 static int print_hex(BIO *bp, const uint8_t *data, size_t len, int off) {
@@ -194,12 +200,12 @@ static int rsa_priv_print(BIO *bp, const EVP_PKEY *pkey, int indent) {
 static int do_dsa_print(BIO *bp, const DSA *x, int off, int ptype) {
   const BIGNUM *priv_key = NULL;
   if (ptype == 2) {
-    priv_key = x->priv_key;
+    priv_key = DSA_get0_priv_key(x);
   }
 
   const BIGNUM *pub_key = NULL;
   if (ptype > 0) {
-    pub_key = x->pub_key;
+    pub_key = DSA_get0_pub_key(x);
   }
 
   const char *ktype = "DSA-Parameters";
@@ -210,14 +216,15 @@ static int do_dsa_print(BIO *bp, const DSA *x, int off, int ptype) {
   }
 
   if (!BIO_indent(bp, off, 128) ||
-      BIO_printf(bp, "%s: (%u bit)\n", ktype, BN_num_bits(x->p)) <= 0 ||
+      BIO_printf(bp, "%s: (%u bit)\n", ktype, BN_num_bits(DSA_get0_p(x))) <=
+          0 ||
       // |priv_key| and |pub_key| may be NULL, in which case |bn_print| will
       // silently skip them.
       !bn_print(bp, "priv:", priv_key, off) ||
       !bn_print(bp, "pub:", pub_key, off) ||
-      !bn_print(bp, "P:", x->p, off) ||
-      !bn_print(bp, "Q:", x->q, off) ||
-      !bn_print(bp, "G:", x->g, off)) {
+      !bn_print(bp, "P:", DSA_get0_p(x), off) ||
+      !bn_print(bp, "Q:", DSA_get0_q(x), off) ||
+      !bn_print(bp, "G:", DSA_get0_g(x), off)) {
     return 0;
   }
 
@@ -305,6 +312,52 @@ static int eckey_priv_print(BIO *bp, const EVP_PKEY *pkey, int indent) {
   return do_EC_KEY_print(bp, EVP_PKEY_get0_EC_KEY(pkey), indent, 2);
 }
 
+#ifdef ENABLE_DILITHIUM
+
+// Dilithium keys.
+
+static int do_dilithium3_print(BIO *bp, const EVP_PKEY *pkey, int off, int ptype) {
+  if (pkey == NULL) {
+    OPENSSL_PUT_ERROR(EVP, ERR_R_PASSED_NULL_PARAMETER);
+    return 0;
+  }
+
+  if (!BIO_indent(bp, off, 128)) {
+    return 0;
+  }
+
+  const DILITHIUM3_KEY *key = pkey->pkey.ptr;
+  int bit_len = 0;
+
+  if (ptype == 2) {
+    bit_len = DILITHIUM3_PRIVATE_KEY_BYTES;
+    if (BIO_printf(bp, "Private-Key: (%d bit)\n", bit_len) <= 0) {
+      return 0;
+    }
+    print_hex(bp, key->priv, bit_len, off);
+  } else {
+    bit_len = DILITHIUM3_PUBLIC_KEY_BYTES;
+    if (BIO_printf(bp, "Public-Key: (%d bit)\n", bit_len) <= 0) {
+      return 0;
+    }
+    int ret = print_hex(bp, key->pub, bit_len, off);
+    if (!ret) {
+      return 0;
+    }
+  }
+
+  return 1;
+}
+
+static int dilithium3_pub_print(BIO *bp, const EVP_PKEY *pkey, int indent) {
+  return do_dilithium3_print(bp, pkey, indent, 1);
+}
+
+static int dilithium3_priv_print(BIO *bp, const EVP_PKEY *pkey, int indent) {
+  return do_dilithium3_print(bp, pkey, indent, 2);
+}
+
+#endif
 
 typedef struct {
   int type;
@@ -332,6 +385,14 @@ static EVP_PKEY_PRINT_METHOD kPrintMethods[] = {
         eckey_priv_print,
         eckey_param_print,
     },
+#ifdef ENABLE_DILITHIUM
+    {
+        EVP_PKEY_DILITHIUM3,
+        dilithium3_pub_print,
+        dilithium3_priv_print,
+        NULL /* param_print */,
+    },
+#endif
 };
 
 static size_t kPrintMethodsLen = OPENSSL_ARRAY_SIZE(kPrintMethods);

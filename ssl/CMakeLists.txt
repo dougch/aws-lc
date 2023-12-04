@@ -2,6 +2,7 @@ add_library(
   ssl
 
   bio_ssl.cc
+  custom_extensions.cc
   d1_both.cc
   d1_lib.cc
   d1_pkt.cc
@@ -22,12 +23,14 @@ add_library(
   ssl_buffer.cc
   ssl_cert.cc
   ssl_cipher.cc
+  ssl_decrepit.c
   ssl_file.cc
   ssl_key_share.cc
   ssl_lib.cc
   ssl_privkey.cc
   ssl_session.cc
   ssl_stat.cc
+  ssl_text.cc
   ssl_transcript.cc
   ssl_transfer_asn1.cc
   ssl_versions.cc
@@ -39,26 +42,50 @@ add_library(
   tls13_client.cc
   tls13_enc.cc
   tls13_server.cc
-  ssl_decrepit.c
 )
 target_compile_definitions(ssl PRIVATE BORINGSSL_IMPLEMENTATION)
 
 target_link_libraries(ssl crypto)
 
-target_include_directories(ssl SYSTEM PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
+target_include_directories(ssl BEFORE PRIVATE ${PROJECT_BINARY_DIR}/symbol_prefix_include)
+
+target_include_directories(ssl PUBLIC
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
 if(BUILD_TESTING)
+  # ocsp_integration_test.cc does integration tests with the Amazon Trust
+  # Services OCSP responder. This is ran as its own test executable because
+  # internal sandbox builds cannot properly connect with the host.
+  # Since the integration test relies on libssl functionalities to retrieve
+  # the certification chain from a host, this integration test dimension is
+  # built with libssl and libcrypto.
+  add_executable(
+    ${INTEGRATION_TEST_EXEC}
+
+    ../crypto/ocsp/ocsp_integration_test.cc
+    ../tool/transport_common.cc
+    ../tool/fd.cc
+
+    $<TARGET_OBJECTS:crypto_test_data>
+  )
+  target_link_libraries(${INTEGRATION_TEST_EXEC} test_support_lib
+          boringssl_gtest_main ssl crypto)
+  target_include_directories(${INTEGRATION_TEST_EXEC} BEFORE PRIVATE ${PROJECT_BINARY_DIR}/symbol_prefix_include)
+  add_dependencies(all_tests ${INTEGRATION_TEST_EXEC})
+
   add_executable(
     ${SSL_TEST_EXEC}
 
     span_test.cc
     ssl_test.cc
     ssl_c_test.c
- )
+  )
 
   target_link_libraries(${SSL_TEST_EXEC} test_support_lib boringssl_gtest_main ssl crypto)
+
+  target_include_directories(${SSL_TEST_EXEC} BEFORE PRIVATE ${PROJECT_BINARY_DIR}/symbol_prefix_include)
+
   if(WIN32)
     target_link_libraries(${SSL_TEST_EXEC} ws2_32)
   endif()

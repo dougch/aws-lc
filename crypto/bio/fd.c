@@ -56,7 +56,7 @@
 
 #include <openssl/bio.h>
 
-#if !defined(OPENSSL_TRUSTY)
+#if !defined(OPENSSL_NO_POSIX_IO)
 
 #include <errno.h>
 #include <string.h>
@@ -241,20 +241,24 @@ static long fd_ctrl(BIO *b, int cmd, long num, void *ptr) {
 }
 
 static int fd_gets(BIO *bp, char *buf, int size) {
-  char *ptr = buf;
-  char *end = buf + size - 1;
-
   if (size <= 0) {
     return 0;
   }
 
-  while (ptr < end && fd_read(bp, ptr, 1) > 0 && ptr[0] != '\n') {
+  char *ptr = buf;
+  char *end = buf + size - 1;
+  while (ptr < end && fd_read(bp, ptr, 1) > 0) {
+    char c = ptr[0];
     ptr++;
+    if (c == '\n') {
+      break;
+    }
   }
 
   ptr[0] = '\0';
 
-  return ptr - buf;
+  // The output length is bounded by |size|.
+  return (int)(ptr - buf);
 }
 
 static const BIO_METHOD methods_fdp = {
@@ -272,4 +276,4 @@ int BIO_get_fd(BIO *bio, int *out_fd) {
   return (int)BIO_ctrl(bio, BIO_C_GET_FD, 0, (char *) out_fd);
 }
 
-#endif  // OPENSSL_TRUSTY
+#endif  // OPENSSL_NO_POSIX_IO

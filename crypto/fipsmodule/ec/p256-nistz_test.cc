@@ -45,9 +45,11 @@ TEST(P256_NistzTest, SelectW5) {
   P256_POINT *aligned_table = (P256_POINT *) align_pointer(buffer_table, 64);
 
   for (size_t i = 0; i < 16; i++) {
-    OPENSSL_memset(aligned_table[i].X, 3 * i, sizeof(aligned_table[i].X));
-    OPENSSL_memset(aligned_table[i].Y, 3 * i + 1, sizeof(aligned_table[i].Y));
-    OPENSSL_memset(aligned_table[i].Z, 3 * i + 2, sizeof(aligned_table[i].Z));
+    OPENSSL_memset(aligned_table[i].X, static_cast<uint8_t>(3 * i), sizeof(aligned_table[i].X));
+    OPENSSL_memset(aligned_table[i].Y, static_cast<uint8_t>(3 * i + 1),
+                   sizeof(aligned_table[i].Y));
+    OPENSSL_memset(aligned_table[i].Z, static_cast<uint8_t>(3 * i + 2),
+                   sizeof(aligned_table[i].Z));
   }
 
   for (int i = 0; i <= 16; i++) {
@@ -77,8 +79,9 @@ TEST(P256_NistzTest, SelectW7) {
   P256_POINT_AFFINE *aligned_table = (P256_POINT_AFFINE *) align_pointer(buffer_table, 64);
 
   for (size_t i = 0; i < 64; i++) {
-    OPENSSL_memset(aligned_table[i].X, 2 * i, sizeof(aligned_table[i].X));
-    OPENSSL_memset(aligned_table[i].Y, 2 * i + 1, sizeof(aligned_table[i].Y));
+    OPENSSL_memset(aligned_table[i].X, static_cast<uint8_t>(2 * i), sizeof(aligned_table[i].X));
+    OPENSSL_memset(aligned_table[i].Y, static_cast<uint8_t>(2 * i + 1),
+                   sizeof(aligned_table[i].Y));
   }
 
   for (int i = 0; i <= 64; i++) {
@@ -152,8 +155,8 @@ TEST(P256_NistzTest, BEEU) {
     EXPECT_TRUE(bn_less_than_words(out, order_words, P256_LIMBS));
 
     // Calculate out*in and confirm that it equals one, modulo the order.
-    OPENSSL_memcpy(in_scalar.bytes, in, sizeof(in));
-    OPENSSL_memcpy(out_scalar.bytes, out, sizeof(out));
+    OPENSSL_memcpy(in_scalar.words, in, sizeof(in));
+    OPENSSL_memcpy(out_scalar.words, out, sizeof(out));
     ec_scalar_to_montgomery(group.get(), &in_scalar, &in_scalar);
     ec_scalar_to_montgomery(group.get(), &out_scalar, &out_scalar);
     ec_scalar_mul_montgomery(group.get(), &result, &in_scalar, &out_scalar);

@@ -26,6 +26,8 @@
 
 struct TestConfig {
   int port = 0;
+  bool ipv6 = false;
+  uint64_t shim_id = 0;
   bool is_server = false;
   bool is_dtls = false;
   bool is_quic = false;
@@ -119,6 +121,10 @@ struct TestConfig {
   bool use_ticket_callback = false;
   bool renew_ticket = false;
   bool enable_early_data = false;
+  bool enable_client_custom_extension = false;
+  bool enable_server_custom_extension = false;
+  bool custom_extension_skip = false;
+  bool custom_extension_fail_add = false;
   std::string ocsp_response;
   bool check_close_notify = false;
   bool shim_shuts_down = false;
@@ -204,9 +210,14 @@ struct TestConfig {
   std::string ssl_fuzz_seed_path_prefix;
   // When not empty, the value is passed to |SSL_CTX_set_ciphersuites|.
   std::string tls13_ciphersuites;
+  // multiple_certs_slot is used to associate the server with the multiple
+  // certificate/private key slot configuration. The certificate comes first,
+  // then the private key.
+  // When |multiple_certs_slot| is defined, the certificates defined are
+  // prioritized over certs defined with |cert_file| and |key_file|.
+  std::vector<std::pair<std::string, std::string>> multiple_certs_slot;
 
-  int argc;
-  char **argv;
+  std::vector<const char*> handshaker_args;
 
   bssl::UniquePtr<SSL_CTX> SetupCtx(SSL_CTX *old_ctx) const;
 

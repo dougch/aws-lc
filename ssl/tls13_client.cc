@@ -372,7 +372,7 @@ static enum ssl_hs_wait_t do_read_server_hello(SSL_HANDSHAKE *hs) {
   }
 
   // Check the cipher suite, in case this is after HelloRetryRequest.
-  if (SSL_CIPHER_get_value(hs->new_cipher) != server_hello.cipher_suite) {
+  if (SSL_CIPHER_get_protocol_id(hs->new_cipher) != server_hello.cipher_suite) {
     OPENSSL_PUT_ERROR(SSL, SSL_R_WRONG_CIPHER_RETURNED);
     ssl_send_alert(ssl, SSL3_AL_FATAL, SSL_AD_ILLEGAL_PARAMETER);
     return ssl_hs_error;
@@ -589,6 +589,10 @@ static enum ssl_hs_wait_t do_read_encrypted_extensions(SSL_HANDSHAKE *hs) {
         !hs->new_session->peer_application_settings.CopyFrom(
             hs->early_session->peer_application_settings)) {
       ssl_send_alert(ssl, SSL3_AL_FATAL, SSL_AD_INTERNAL_ERROR);
+      return ssl_hs_error;
+    }
+    if (hs->received_custom_extension) {
+      OPENSSL_PUT_ERROR(SSL, SSL_R_UNEXPECTED_EXTENSION_ON_EARLY_DATA);
       return ssl_hs_error;
     }
   }
@@ -866,6 +870,11 @@ static enum ssl_hs_wait_t do_send_client_certificate_verify(SSL_HANDSHAKE *hs) {
   if (!ssl_has_certificate(hs)) {
     hs->tls13_state = state_complete_second_flight;
     return ssl_hs_ok;
+  }
+
+  if (!tls1_choose_signature_algorithm(hs, &hs->signature_algorithm)) {
+    ssl_send_alert(hs->ssl, SSL3_AL_FATAL, SSL_AD_HANDSHAKE_FAILURE);
+    return ssl_hs_error;
   }
 
   switch (tls13_add_certificate_verify(hs)) {

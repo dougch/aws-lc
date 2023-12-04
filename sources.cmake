@@ -49,6 +49,7 @@ set(
   crypto/cipher_extra/test/nist_cavp/tdes_cbc.txt
   crypto/cipher_extra/test/nist_cavp/tdes_ecb.txt
   crypto/curve25519/ed25519_tests.txt
+  crypto/dilithium/kat/dilithium3_r3.txt
   crypto/ecdh_extra/ecdh_tests.txt
   crypto/evp_extra/kbkdf_expand_tests.txt
   crypto/evp_extra/sshkdf_tests.txt
@@ -88,10 +89,17 @@ set(
   crypto/kyber/kat/kyber512r3.txt
   crypto/kyber/kat/kyber768r3.txt
   crypto/kyber/kat/kyber1024r3.txt
+  crypto/ocsp/test/aws/ocsp_request.der
+  crypto/ocsp/test/aws/ocsp_request_attached_cert.der
+  crypto/ocsp/test/aws/ocsp_request_no_nonce.der
+  crypto/ocsp/test/aws/ocsp_request_signed.der
+  crypto/ocsp/test/aws/ocsp_request_signed_sha256.der
   crypto/ocsp/test/aws/ocsp_response.der
   crypto/ocsp/test/aws/ocsp_response_ca_signed.der
+  crypto/ocsp/test/aws/ocsp_response_no_nonce.der
   crypto/ocsp/test/aws/ocsp_response_revoked.der
   crypto/ocsp/test/aws/ocsp_response_unknown.der
+  crypto/ocsp/test/aws/ocsp_response_expired_signer.der
   crypto/ocsp/test/aws/ocsp_response_wrong_signer.der
   crypto/ocsp/test/aws/ocsp_response_sha256.der
   crypto/ocsp/test/aws/ocsp_response_revoked_sha256.der
@@ -103,8 +111,14 @@ set(
   crypto/ocsp/test/aws/ocsp_response_sigrequired.der
   crypto/ocsp/test/aws/ocsp_response_unauthorized.der
   crypto/ocsp/test/aws/ca_cert.pem
+  crypto/ocsp/test/aws/ocsp_expired_cert.pem
   crypto/ocsp/test/aws/server_cert.pem
   crypto/ocsp/test/aws/server_ecdsa_cert.pem
+  crypto/ocsp/test/aws/server_ecdsa_key.pem
+  crypto/ocsp/test/aws/server_key.pem
+  crypto/ocsp/test/integration-tests/AmazonRootCA1.pem
+  crypto/ocsp/test/integration-tests/AmazonRootCA2.pem
+  crypto/ocsp/test/integration-tests/AmazonRootCA3.pem
   crypto/ocsp/test/ND1.ors
   crypto/ocsp/test/ND2.ors
   crypto/ocsp/test/ND3.ors
@@ -259,6 +273,8 @@ set(
   third_party/wycheproof_testvectors/hmac_sha256_test.txt
   third_party/wycheproof_testvectors/hmac_sha384_test.txt
   third_party/wycheproof_testvectors/hmac_sha512_test.txt
+  third_party/wycheproof_testvectors/hmac_sha512_224_test.txt
+  third_party/wycheproof_testvectors/hmac_sha512_256_test.txt
   third_party/wycheproof_testvectors/kwp_test.txt
   third_party/wycheproof_testvectors/kw_test.txt
   third_party/wycheproof_testvectors/primality_test.txt

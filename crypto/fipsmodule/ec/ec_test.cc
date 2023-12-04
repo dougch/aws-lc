@@ -1267,8 +1267,8 @@ TEST(ECTest, SmallGroupOrder) {
   bssl::UniquePtr<EC_KEY> key2(EC_KEY_new());
   ASSERT_TRUE(key2);
   ASSERT_TRUE(EC_KEY_set_group(key2.get(), group.get()));
-  BN_clear(&key2.get()->group->order);
-  ASSERT_TRUE(BN_set_word(&key2.get()->group->order, 7));
+  BN_clear(&key2.get()->group->order.N);
+  ASSERT_TRUE(BN_set_word(&key2.get()->group->order.N, 7));
   ASSERT_FALSE(EC_KEY_generate_key_fips(key2.get()));
 }
 
@@ -1325,8 +1325,8 @@ TEST(ECDeathTest, SmallGroupOrderAndDie) {
   bssl::UniquePtr<EC_KEY> key2(EC_KEY_new());
   ASSERT_TRUE(key2);
   ASSERT_TRUE(EC_KEY_set_group(key2.get(), group.get()));
-  BN_clear(&key2.get()->group->order);
-  ASSERT_TRUE(BN_set_word(&key2.get()->group->order, 7));
+  BN_clear(&key2.get()->group->order.N);
+  ASSERT_TRUE(BN_set_word(&key2.get()->group->order.N, 7));
   ASSERT_DEATH_IF_SUPPORTED(EC_KEY_generate_key_fips(key2.get()), "");
 }
 
@@ -1845,12 +1845,19 @@ static bool HasSuffix(const char *str, const char *suffix) {
   return strcmp(str + str_len - suffix_len, suffix) == 0;
 }
 
-static int has_uint128_and_not_small() {
+// Returns 1 if the curve defined by |nid| is using Montgomery representation
+// for field elements (based on the build configuration). Returns 0 otherwise.
+static int is_curve_using_mont_felem_impl(int nid) {
+  if (nid == NID_secp224r1) {
 #if defined(BORINGSSL_HAS_UINT128) && !defined(OPENSSL_SMALL)
-  return 1;
-#else
-  return 0;
+    return 0;
 #endif
+  } else if (nid == NID_secp521r1) {
+#if !defined(OPENSSL_SMALL)
+    return 0;
+#endif
+  }
+  return 1;
 }
 
 // Test for out-of-range coordinates in public-key validation in
@@ -1879,14 +1886,11 @@ TEST(ECTest, LargeXCoordinateVectors) {
     bssl::UniquePtr<EC_POINT> pub_key(EC_POINT_new(group.get()));
     ASSERT_TRUE(pub_key);
 
-    size_t len = BN_num_bytes(&group.get()->field); // Modulus byte-length
     ASSERT_TRUE(EC_KEY_set_group(key.get(), group.get()));
-    // The following call converts the point to Montgomery form for P-256/384.
-    // For P-224, when the functions from simple.c are used, i.e. when
-    // group->meth = EC_GFp_nistp224_method, the coordinate representation
-    // is not changed. This is determined based on compile flags in ec.c
-    // that are also used below in has_uint128_and_not_small().
-    // For P-521, the plain non-Motgomery representation is always used.
+
+    // |EC_POINT_set_affine_coordinates_GFp| sets given (x, y) according to the
+    // form the curve is using. If the curve is using Montgomery form, |x| and
+    // |y| will be converted to Montgomery form.
     ASSERT_TRUE(EC_POINT_set_affine_coordinates_GFp(
                     group.get(), pub_key.get(), x.get(), y.get(), nullptr));
     ASSERT_TRUE(EC_KEY_set_public_key(key.get(), pub_key.get()));
@@ -1894,22 +1898,19 @@ TEST(ECTest, LargeXCoordinateVectors) {
 
     // Set the raw point directly with the BIGNUM coordinates.
     // Note that both are in little-endian byte order.
-    OPENSSL_memcpy(key.get()->pub_key->raw.X.bytes,
-                   (const uint8_t *)x.get()->d, len);
-    OPENSSL_memcpy(key.get()->pub_key->raw.Y.bytes,
-                   (const uint8_t *)y.get()->d, len);
-    OPENSSL_memset(key.get()->pub_key->raw.Z.bytes, 0, len);
-    key.get()->pub_key->raw.Z.bytes[0] = 1;
+    OPENSSL_memcpy(key.get()->pub_key->raw.X.words,
+                   x.get()->d, BN_BYTES * group->field.N.width);
+    OPENSSL_memcpy(key.get()->pub_key->raw.Y.words,
+                   y.get()->d, BN_BYTES * group->field.N.width);
+    OPENSSL_memset(key.get()->pub_key->raw.Z.words, 0, BN_BYTES * group->field.N.width);
+    key.get()->pub_key->raw.Z.words[0] = 1;
 
-    // As mentioned, for P-224 and P-521, setting the raw point directly
-    // with the coordinates still passes |EC_KEY_check_fips|.
-    // For P-256 and 384, the failure is due to that the coordinates are
-    // not in Montgomery representation, hence the checks fail earlier in
-    // |EC_KEY_check_key| in the point-on-the-curve calculations, which use
-    // Montgomery arithmetic.
+    // |EC_KEY_check_fips| first calls the |EC_KEY_check_key| function that
+    // checks if the key point is on the curve (among other checks). If the
+    // curve uses Montgomery form the point-on-curve check will fail because
+    // we set the raw point coordinates in regular form above.
     int curve_nid = group.get()->curve_name;
-    if ((has_uint128_and_not_small() && (curve_nid == NID_secp224r1)) ||
-        (curve_nid == NID_secp521r1)) {
+    if (!is_curve_using_mont_felem_impl(curve_nid)) {
       ASSERT_TRUE(EC_KEY_check_fips(key.get()));
     } else {
       ASSERT_FALSE(EC_KEY_check_fips(key.get()));
@@ -1919,16 +1920,14 @@ TEST(ECTest, LargeXCoordinateVectors) {
     }
 
     // Now replace the x-coordinate with the larger one, x+p.
-    OPENSSL_memcpy(key.get()->pub_key->raw.X.bytes,
-                   (const uint8_t *)xpp.get()->d, len);
+    OPENSSL_memcpy(key.get()->pub_key->raw.X.words,
+                   xpp.get()->d, BN_BYTES * group->field.N.width);
+    // We expect |EC_KEY_check_fips| to always fail when given key with x > p.
     ASSERT_FALSE(EC_KEY_check_fips(key.get()));
 
-    // |EC_KEY_check_fips| check on coordinate range can only be exercised
-    // for P-224 and P-521 when the coordinates in the raw point are not
-    // in Montgomery representation. For the other curves, they fail
-    // for the same reason as above.
-    if ((has_uint128_and_not_small() && (curve_nid == NID_secp224r1)) ||
-        (curve_nid == NID_secp521r1)) {
+    // But the failure is for different reasons in case of curves using the
+    // Montgomery form versus those that don't, as explained above.
+    if (!is_curve_using_mont_felem_impl(curve_nid)) {
       EXPECT_EQ(EC_R_COORDINATES_OUT_OF_RANGE,
                 ERR_GET_REASON(ERR_peek_last_error_line(&file, &line)));
       EXPECT_PRED2(HasSuffix, file, "ec_key.c"); // within EC_KEY_check_fips
@@ -2047,14 +2046,6 @@ TEST(ECTest, DISABLED_ScalarBaseMultVectorsTwoPoint) {
       check_point(p.get());
     }
   });
-}
-
-static std::vector<uint8_t> HexToBytes(const char *str) {
-  std::vector<uint8_t> ret;
-  if (!DecodeHex(&ret, str)) {
-    abort();
-  }
-  return ret;
 }
 
 TEST(ECTest, DeriveFromSecret) {
@@ -2254,7 +2245,7 @@ TEST(ECTest, HashToCurve) {
   ASSERT_TRUE(p224);
   bssl::UniquePtr<EC_GROUP> p384(EC_GROUP_new_by_curve_name(NID_secp384r1));
   ASSERT_TRUE(p384);
-  EC_RAW_POINT raw;
+  EC_JACOBIAN raw;
   bssl::UniquePtr<EC_POINT> p_p384(EC_POINT_new(p384.get()));
   ASSERT_TRUE(p_p384);
   bssl::UniquePtr<EC_POINT> p_p224(EC_POINT_new(p224.get()));
@@ -2338,4 +2329,29 @@ TEST(ECTest, HashToScalar) {
   static const uint8_t kMessage[] = {4, 5, 6, 7};
   EXPECT_FALSE(ec_hash_to_scalar_p384_xmd_sha512_draft07(
       p224.get(), &scalar, kDST, sizeof(kDST), kMessage, sizeof(kMessage)));
+}
+
+TEST(ECTest, FelemBytes) {
+  std::tuple<int,int, int>  test_cases[2] = {
+          std::make_tuple(NID_secp384r1, P384_EC_FELEM_BYTES, P384_EC_FELEM_WORDS),
+          std::make_tuple(NID_secp521r1, P521_EC_FELEM_BYTES, P521_EC_FELEM_WORDS)
+  };
+
+  for(size_t i = 0; i < sizeof(test_cases)/sizeof(std::tuple<int,int,int>); i++) {
+    int nid = std::get<0>(test_cases[i]);
+    int expected_felem_bytes = std::get<1>(test_cases[i]);
+    int expected_felem_words = std::get<2>(test_cases[i]);
+
+    ASSERT_TRUE(expected_felem_bytes <= EC_MAX_BYTES);
+    ASSERT_TRUE(expected_felem_words <= EC_MAX_WORDS);
+    if( 0 == (expected_felem_bytes % BN_BYTES)) {
+      ASSERT_EQ(expected_felem_words, expected_felem_bytes / BN_BYTES);
+    } else {
+      ASSERT_EQ(expected_felem_words, 1 + (expected_felem_bytes / BN_BYTES));
+    }
+
+    bssl::UniquePtr<EC_GROUP> test_group(EC_GROUP_new_by_curve_name(nid));
+    ASSERT_TRUE(test_group);
+    ASSERT_EQ(test_group.get()->field.N.width, expected_felem_words);
+  }
 }

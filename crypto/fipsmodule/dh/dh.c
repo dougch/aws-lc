@@ -69,8 +69,6 @@
 #include "../bn/internal.h"
 
 
-#define OPENSSL_DH_MAX_MODULUS_BITS 10000
-
 DH *DH_new(void) {
   DH *dh = OPENSSL_malloc(sizeof(DH));
   if (dh == NULL) {
@@ -84,6 +82,18 @@ DH *DH_new(void) {
   dh->references = 1;
 
   return dh;
+}
+
+DH *DH_new_by_nid(int nid) {
+  switch (nid) {
+    case NID_ffdhe2048:
+      return DH_get_rfc7919_2048();
+    case NID_ffdhe4096:
+      return DH_get_rfc7919_4096();
+    default:
+      OPENSSL_PUT_ERROR(DH, DH_R_INVALID_NID);
+      return NULL;
+  }
 }
 
 void DH_free(DH *dh) {
@@ -181,6 +191,9 @@ int DH_set0_pqg(DH *dh, BIGNUM *p, BIGNUM *q, BIGNUM *g) {
     dh->g = g;
   }
 
+  // Invalidate the cached Montgomery parameters.
+  BN_MONT_CTX_free(dh->method_mont_p);
+  dh->method_mont_p = NULL;
   return 1;
 }
 
@@ -192,15 +205,14 @@ int DH_set_length(DH *dh, unsigned priv_length) {
 int DH_generate_key(DH *dh) {
   boringssl_ensure_ffdh_self_test();
 
+  if (!dh_check_params_fast(dh)) {
+    return 0;
+  }
+
   int ok = 0;
   int generate_new_key = 0;
   BN_CTX *ctx = NULL;
-  BIGNUM *pub_key = NULL, *priv_key = NULL;
-
-  if (BN_num_bits(dh->p) > OPENSSL_DH_MAX_MODULUS_BITS) {
-    OPENSSL_PUT_ERROR(DH, DH_R_MODULUS_TOO_LARGE);
-    goto err;
-  }
+  BIGNUM *pub_key = NULL, *priv_key = NULL, *priv_key_limit = NULL;
 
   ctx = BN_CTX_new();
   if (ctx == NULL) {
@@ -237,18 +249,34 @@ int DH_generate_key(DH *dh) {
         goto err;
       }
     } else {
-      // secret exponent length
-      unsigned priv_bits = dh->priv_length;
-      if (priv_bits == 0) {
-        const unsigned p_bits = BN_num_bits(dh->p);
-        if (p_bits == 0) {
+      // If q is unspecified, we expect p to be a safe prime, with g generating
+      // the (p-1)/2 subgroup. So, we use q = (p-1)/2. (If g generates a smaller
+      // prime-order subgroup, q will still divide (p-1)/2.)
+      //
+      // We set N from |dh->priv_length|. Section 5.6.1.1.4 of SP 800-56A Rev3
+      // says to reject N > len(q), or N > num_bits(p) - 1. However, this logic
+      // originally aligned with PKCS#3, which allows num_bits(p). Instead, we
+      // clamp |dh->priv_length| before invoking the algorithm.
+
+      // Compute M = min(2^N, q).
+      priv_key_limit = BN_new();
+      if (priv_key_limit == NULL) {
+        goto err;
+      }
+      if (dh->priv_length == 0 || dh->priv_length >= BN_num_bits(dh->p) - 1) {
+        // M = q = (p - 1) / 2.
+        if (!BN_rshift1(priv_key_limit, dh->p)) {
           goto err;
         }
-
-        priv_bits = p_bits - 1;
+      } else {
+        // M = 2^N.
+        if (!BN_set_bit(priv_key_limit, dh->priv_length)) {
+          goto err;
+        }
       }
 
-      if (!BN_rand(priv_key, priv_bits, BN_RAND_TOP_ONE, BN_RAND_BOTTOM_ANY)) {
+      // Choose a private key uniformly from [1, M-1].
+      if (!BN_rand_range_ex(priv_key, 1, priv_key_limit)) {
         goto err;
       }
     }
@@ -274,14 +302,14 @@ err:
   if (dh->priv_key == NULL) {
     BN_free(priv_key);
   }
+  BN_free(priv_key_limit);
   BN_CTX_free(ctx);
   return ok;
 }
 
 static int dh_compute_key(DH *dh, BIGNUM *out_shared_key,
                           const BIGNUM *peers_key, BN_CTX *ctx) {
-  if (BN_num_bits(dh->p) > OPENSSL_DH_MAX_MODULUS_BITS) {
-    OPENSSL_PUT_ERROR(DH, DH_R_MODULUS_TOO_LARGE);
+  if (!dh_check_params_fast(dh)) {
     return 0;
   }
 
@@ -426,6 +454,38 @@ int DH_up_ref(DH *dh) {
   return 1;
 }
 
+// All the groups in RFC 7919 are of the form:
+// q = (p-1)/2
+// g = 2
+static DH *calculate_rfc7919_DH_from_p(const BN_ULONG data[], size_t data_len) {
+  BIGNUM *const ffdhe_p = BN_new();
+  BIGNUM *const ffdhe_q = BN_new();
+  BIGNUM *const ffdhe_g = BN_new();
+  DH *const dh = DH_new();
+
+  if (!ffdhe_p || !ffdhe_q || !ffdhe_g || !dh) {
+    goto err;
+  }
+
+  bn_set_static_words(ffdhe_p, data, data_len);
+
+  if (!BN_rshift1(ffdhe_q, ffdhe_p) ||
+      !BN_set_word(ffdhe_g, 2) ||
+      !DH_set0_pqg(dh, ffdhe_p, ffdhe_q, ffdhe_g)) {
+    goto err;
+  }
+
+  return dh;
+
+err:
+  BN_free(ffdhe_p);
+  BN_free(ffdhe_q);
+  BN_free(ffdhe_g);
+  DH_free(dh);
+  return NULL;
+
+}
+
 DH *DH_get_rfc7919_2048(void) {
   // This is the prime from https://tools.ietf.org/html/rfc7919#appendix-A.1,
   // which is specifically approved for FIPS in appendix D of SP 800-56Ar3.
@@ -448,30 +508,46 @@ DH *DH_get_rfc7919_2048(void) {
       TOBN(0xadf85458, 0xa2bb4a9a), TOBN(0xffffffff, 0xffffffff),
   };
 
-  BIGNUM *const ffdhe2048_p = BN_new();
-  BIGNUM *const ffdhe2048_q = BN_new();
-  BIGNUM *const ffdhe2048_g = BN_new();
-  DH *const dh = DH_new();
+  return calculate_rfc7919_DH_from_p(kFFDHE2048Data, OPENSSL_ARRAY_SIZE(kFFDHE2048Data));
+}
 
-  if (!ffdhe2048_p || !ffdhe2048_q || !ffdhe2048_g || !dh) {
-    goto err;
-  }
+DH *DH_get_rfc7919_4096(void) {
+    // This is the prime from https://tools.ietf.org/html/rfc7919#appendix-A.3,
+    // which is specifically approved for FIPS in appendix D of SP 800-56Ar3.
+    static const BN_ULONG kFFDHE4096Data[] = {
+        TOBN(0xFFFFFFFF, 0xFFFFFFFF),TOBN(0xC68A007E, 0x5E655F6A),
+        TOBN(0x4DB5A851, 0xF44182E1),TOBN(0x8EC9B55A, 0x7F88A46B),
+        TOBN(0x0A8291CD, 0xCEC97DCF),TOBN(0x2A4ECEA9, 0xF98D0ACC),
+        TOBN(0x1A1DB93D, 0x7140003C),TOBN(0x092999A3, 0x33CB8B7A),
+        TOBN(0x6DC778F9, 0x71AD0038),TOBN(0xA907600A, 0x918130C4),
+        TOBN(0xED6A1E01, 0x2D9E6832),TOBN(0x7135C886, 0xEFB4318A),
+        TOBN(0x87F55BA5, 0x7E31CC7A),TOBN(0x7763CF1D, 0x55034004),
+        TOBN(0xAC7D5F42, 0xD69F6D18),TOBN(0x7930E9E4, 0xE58857B6),
+        TOBN(0x6E6F52C3, 0x164DF4FB),TOBN(0x25E41D2B, 0x669E1EF1),
+        TOBN(0x3C1B20EE, 0x3FD59D7C),TOBN(0x0ABCD06B, 0xFA53DDEF),
+        TOBN(0x1DBF9A42, 0xD5C4484E),TOBN(0xABC52197, 0x9B0DEADA),
+        TOBN(0xE86D2BC5, 0x22363A0D),TOBN(0x5CAE82AB, 0x9C9DF69E),
+        TOBN(0x64F2E21E, 0x71F54BFF),TOBN(0xF4FD4452, 0xE2D74DD3),
+        TOBN(0xB4130C93, 0xBC437944),TOBN(0xAEFE1309, 0x85139270),
+        TOBN(0x598CB0FA, 0xC186D91C),TOBN(0x7AD91D26, 0x91F7F7EE),
+        TOBN(0x61B46FC9, 0xD6E6C907),TOBN(0xBC34F4DE, 0xF99C0238),
+        TOBN(0xDE355B3B, 0x6519035B),TOBN(0x886B4238, 0x611FCFDC),
+        TOBN(0xC6F34A26, 0xC1B2EFFA),TOBN(0xC58EF183, 0x7D1683B2),
+        TOBN(0x3BB5FCBC, 0x2EC22005),TOBN(0xC3FE3B1B, 0x4C6FAD73),
+        TOBN(0x8E4F1232, 0xEEF28183),TOBN(0x9172FE9C, 0xE98583FF),
+        TOBN(0xC03404CD, 0x28342F61),TOBN(0x9E02FCE1, 0xCDF7E2EC),
+        TOBN(0x0B07A7C8, 0xEE0A6D70),TOBN(0xAE56EDE7, 0x6372BB19),
+        TOBN(0x1D4F42A3, 0xDE394DF4),TOBN(0xB96ADAB7, 0x60D7F468),
+        TOBN(0xD108A94B, 0xB2C8E3FB),TOBN(0xBC0AB182, 0xB324FB61),
+        TOBN(0x30ACCA4F, 0x483A797A),TOBN(0x1DF158A1, 0x36ADE735),
+        TOBN(0xE2A689DA, 0xF3EFE872),TOBN(0x984F0C70, 0xE0E68B77),
+        TOBN(0xB557135E, 0x7F57C935),TOBN(0x85636555, 0x3DED1AF3),
+        TOBN(0x2433F51F, 0x5F066ED0),TOBN(0xD3DF1ED5, 0xD5FD6561),
+        TOBN(0xF681B202, 0xAEC4617A),TOBN(0x7D2FE363, 0x630C75D8),
+        TOBN(0xCC939DCE, 0x249B3EF9),TOBN(0xA9E13641, 0x146433FB),
+        TOBN(0xD8B9C583, 0xCE2D3695),TOBN(0xAFDC5620, 0x273D3CF1),
+        TOBN(0xADF85458, 0xA2BB4A9A),TOBN(0xFFFFFFFF, 0xFFFFFFFF)
+    };
 
-  bn_set_static_words(ffdhe2048_p, kFFDHE2048Data,
-                      OPENSSL_ARRAY_SIZE(kFFDHE2048Data));
-
-  if (!BN_rshift1(ffdhe2048_q, ffdhe2048_p) ||
-      !BN_set_word(ffdhe2048_g, 2) ||
-      !DH_set0_pqg(dh, ffdhe2048_p, ffdhe2048_q, ffdhe2048_g)) {
-    goto err;
-  }
-
-  return dh;
-
- err:
-    BN_free(ffdhe2048_p);
-    BN_free(ffdhe2048_q);
-    BN_free(ffdhe2048_g);
-    DH_free(dh);
-    return NULL;
+    return calculate_rfc7919_DH_from_p(kFFDHE4096Data, OPENSSL_ARRAY_SIZE(kFFDHE4096Data));
 }

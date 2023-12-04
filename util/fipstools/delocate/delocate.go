@@ -451,6 +451,15 @@ func (d *delocation) loadAarch64Address(statement *node32, targetReg string, sym
 		// If the target happens to be x0 then restore the link register from the
 		// stack and send the saved value of x0 to the zero register.
 		d.output.WriteString("\tldp xzr, lr, [sp], #16\n")
+	} else if targetReg == "x30" {
+		// If the target is x30, restore x0 only because the lr (just an alias
+		// name for x30) register is used as a general-purpose register.
+		// We assume that if the target register is x30 then the routine handles
+		// returning the correct return address to x30 before the routine
+		// returns. One case requiring handling x30 is gcc 11.4 that emitted:
+		//   adrp x30, :got:__stack_chk_guard
+		d.output.WriteString("\tmov " + targetReg + ", x0\n")
+		d.output.WriteString("\tldp x0, xzr, [sp], #16\n")
 	} else {
 		// Otherwise move the result into place and restore registers.
 		d.output.WriteString("\tmov " + targetReg + ", x0\n")
@@ -2154,9 +2163,6 @@ func main() {
 		// preprocessor, but we don't want the compiler complaining that
 		// "argument unused during compilation".
 		cppCommand = append(cppCommand, "-Wno-unused-command-line-argument")
-		// We are preprocessing for assembly output and need to simulate that
-		// environment for arm_arch.h.
-		cppCommand = append(cppCommand, "-D__ASSEMBLER__=1")
 
 		for includePath := range includePaths {
 			cppCommand = append(cppCommand, "-I"+includePath)

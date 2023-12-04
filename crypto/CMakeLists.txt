@@ -30,6 +30,12 @@ if(NOT OPENSSL_NO_ASM)
     enable_language(ASM)
     set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -Wa,--noexecstack")
 
+    # Since "--Wa,--noexecstack" is not used during the preprocessor step of Android (because assembler is not invoked),
+    # Clang reports that argument as unused. We quiet the unused argument warning for Android as it's expected behavior.
+    if(ANDROID)
+      set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -Qunused-arguments")
+    endif()
+
     # Clang's integerated assembler does not support debug symbols.
     if (CMAKE_ASM_COMPILER_ID MATCHES "Clang" OR CMAKE_ASM_COMPILER MATCHES "clang")
       message(STATUS "Disabling debug symbols for Clang internal assembler")
@@ -134,8 +140,12 @@ else()
   endif()
 
   if(DEFINED ASSEMBLY_SOURCE)
-    message("Copying platform assembly files from ${ASSEMBLY_SOURCE} to ${CMAKE_CURRENT_BINARY_DIR}")
-    file(COPY ${ASSEMBLY_SOURCE}/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+    if(EXISTS ${ASSEMBLY_SOURCE})
+      message("Copying platform assembly files from ${ASSEMBLY_SOURCE} to ${CMAKE_CURRENT_BINARY_DIR}")
+      file(COPY ${ASSEMBLY_SOURCE}/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR} NO_SOURCE_PERMISSIONS)
+    else()
+      message(STATUS "${ASSEMBLY_SOURCE} assembly files do not exist.")
+    endif()
   endif()
 
 endif()
@@ -256,9 +266,16 @@ else()
   file(COPY ${GENERATE_CODE_ROOT}/err_data.c DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)
 endif()
 
-set(CRYPTO_RUST_SOURCES )
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/rust_wrapper.c)
-  list(APPEND CRYPTO_RUST_SOURCES rust_wrapper.c)
+set(DILITHIUM_SOURCES)
+if(ENABLE_DILITHIUM)
+  set(
+    DILITHIUM_SOURCES
+
+    dilithium/dilithium3r3_ref.c
+    dilithium/p_dilithium3.c
+    dilithium/p_dilithium3_asn1.c
+    dilithium/sig_dilithium3.c
+  )
 endif()
 
 add_library(
@@ -335,6 +352,7 @@ add_library(
   dh_extra/params.c
   dh_extra/dh_asn1.c
   digest_extra/digest_extra.c
+  ${DILITHIUM_SOURCES}
   dsa/dsa.c
   dsa/dsa_asn1.c
   ecdh_extra/ecdh_extra.c
@@ -375,7 +393,11 @@ add_library(
   obj/obj_xref.c
   ocsp/ocsp_asn.c
   ocsp/ocsp_client.c
+  ocsp/ocsp_extension.c
+  ocsp/ocsp_http.c
   ocsp/ocsp_lib.c
+  ocsp/ocsp_print.c
+  ocsp/ocsp_server.c
   ocsp/ocsp_verify.c
   pem/pem_all.c
   pem/pem_info.c
@@ -395,6 +417,7 @@ add_library(
   poly1305/poly1305_vec.c
   pool/pool.c
   rand_extra/deterministic.c
+  rand_extra/entropy_passive.c
   rand_extra/forkunsafe.c
   rand_extra/fuchsia.c
   rand_extra/rand_extra.c
@@ -403,6 +426,7 @@ add_library(
   rc4/rc4.c
   refcount_c11.c
   refcount_lock.c
+  refcount_win.c
   rsa_extra/rsa_asn1.c
   rsa_extra/rsassa_pss_asn1.c
   rsa_extra/rsa_print.c
@@ -489,6 +513,7 @@ add_library(
   x509v3/v3_utl.c
   decrepit/bio/base64_bio.c
   decrepit/blowfish/blowfish.c
+  decrepit/cast/cast.c
   decrepit/cast/cast_tables.c
   decrepit/cfb/cfb.c
   decrepit/dh/dh_decrepit.c
@@ -496,19 +521,20 @@ add_library(
   decrepit/ripemd/ripemd.c
   decrepit/rsa/rsa_decrepit.c
   decrepit/x509/x509_decrepit.c
-  ${CRYPTO_RUST_SOURCES}
 
   ${CRYPTO_ARCH_SOURCES}
 )
 
 target_compile_definitions(crypto_objects PRIVATE BORINGSSL_IMPLEMENTATION)
-target_include_directories(crypto_objects PRIVATE ../include)
-
 # For the prefix build, the object files need the prefix header files to build.
 add_dependencies(crypto_objects boringssl_prefix_symbols)
+target_include_directories(crypto_objects BEFORE PRIVATE ${PROJECT_BINARY_DIR}/symbol_prefix_include)
+target_include_directories(crypto_objects PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
 function(build_libcrypto name module_source)
-  if(FIPS)
+  if(FIPS AND ENABLE_FIPS_ENTROPY_CPU_JITTER)
+    # If the jitter cpu entropy source is enabled add an object dependency to
+    # the libcrypto target.
     add_library(${name} $<TARGET_OBJECTS:crypto_objects> ${CRYPTO_FIPS_OBJECTS} ${module_source} $<TARGET_OBJECTS:jitterentropy>)
   else()
     add_library(${name} $<TARGET_OBJECTS:crypto_objects> ${CRYPTO_FIPS_OBJECTS} ${module_source})
@@ -525,8 +551,11 @@ function(build_libcrypto name module_source)
     target_link_libraries(${name} PUBLIC pthread)
   endif()
 
-  target_include_directories(${name} SYSTEM PUBLIC
-          $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
+  add_dependencies(${name} boringssl_prefix_symbols)
+  target_include_directories(${name} BEFORE PRIVATE ${PROJECT_BINARY_DIR}/symbol_prefix_include)
+
+  target_include_directories(${name} PUBLIC
+          $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
           $<INSTALL_INTERFACE:include>)
 endfunction()
 
@@ -539,6 +568,8 @@ if(FIPS_SHARED)
     build_libcrypto(precrypto $<TARGET_OBJECTS:fipsmodule>)
     add_executable(fips_empty_main fipsmodule/fips_empty_main.c)
     target_link_libraries(fips_empty_main PUBLIC precrypto)
+    target_include_directories(fips_empty_main PRIVATE ${PROJECT_SOURCE_DIR}/include)
+    target_include_directories(fips_empty_main BEFORE PRIVATE ${PROJECT_BINARY_DIR}/symbol_prefix_include)
     add_custom_command(OUTPUT generated_fips_shared_support.c
             COMMAND ${GO_EXECUTABLE} run
             ${PROJECT_SOURCE_DIR}/util/fipstools/capture_hash/capture_hash.go
@@ -554,7 +585,9 @@ if(FIPS_SHARED)
       generated_fips_shared_support.c
       ${PROJECT_SOURCE_DIR}/crypto/fipsmodule/cpucap/cpucap.c
     )
-    target_include_directories(generated_fipsmodule PRIVATE ../include)
+    add_dependencies(generated_fipsmodule boringssl_prefix_symbols)
+    target_include_directories(generated_fipsmodule PRIVATE ${PROJECT_SOURCE_DIR}/include)
+    target_include_directories(generated_fipsmodule BEFORE PRIVATE ${PROJECT_BINARY_DIR}/symbol_prefix_include)
 
     build_libcrypto(crypto $<TARGET_OBJECTS:generated_fipsmodule>)
   else()
@@ -629,6 +662,8 @@ if(BUILD_TESTING)
     add_executable(${executable_name} ${test_file})
     target_compile_definitions(${executable_name} PRIVATE BORINGSSL_IMPLEMENTATION)
     target_link_libraries(${executable_name} test_support_lib boringssl_gtest_main crypto)
+    add_dependencies(${executable_name} boringssl_prefix_symbols)
+    target_include_directories(${executable_name} BEFORE PRIVATE ${PROJECT_BINARY_DIR}/symbol_prefix_include)
     add_dependencies(all_tests ${executable_name})
   endmacro()
 
@@ -646,14 +681,9 @@ if(BUILD_TESTING)
     fipsmodule/rand/urandom_test.cc
   )
 
-  # When using CPU Jitter as the entropy source (only in FIPS build)
-  # urandom_test should not be performed so we pass the compilation flag
-  # and handle it in urandom_test.cc
-  if(JITTER_ENTROPY)
-    target_compile_options(${RANDOM_TEST_EXEC} PUBLIC -DJITTER_ENTROPY)
-  endif()
-
+  add_dependencies(${RANDOM_TEST_EXEC} boringssl_prefix_symbols)
   target_link_libraries(${RANDOM_TEST_EXEC} test_support_lib boringssl_gtest crypto)
+  target_include_directories(${RANDOM_TEST_EXEC} BEFORE PRIVATE ${PROJECT_BINARY_DIR}/symbol_prefix_include)
 
   add_dependencies(all_tests ${RANDOM_TEST_EXEC})
 
@@ -680,13 +710,16 @@ if(BUILD_TESTING)
     ecdh_extra/ecdh_test.cc
     dh_extra/dh_test.cc
     digest_extra/digest_test.cc
+    dilithium/p_dilithium_test.cc
     dsa/dsa_test.cc
+    endian_test.cc
     err/err_test.cc
     evp_extra/evp_extra_test.cc
     evp_extra/evp_test.cc
     evp_extra/scrypt_test.cc
     fipsmodule/aes/aes_test.cc
     fipsmodule/bn/bn_test.cc
+    fipsmodule/bn/bn_assert_test.cc
     fipsmodule/cmac/cmac_test.cc
     fipsmodule/ec/ec_test.cc
     fipsmodule/ec/p256-nistz_test.cc
@@ -731,6 +764,7 @@ if(BUILD_TESTING)
     x509/x509_time_test.cc
     x509v3/tab_test.cc
     decrepit/blowfish/blowfish_test.cc
+    decrepit/cast/cast_test.cc
     decrepit/cfb/cfb_test.cc
     decrepit/evp/evp_test.cc
     decrepit/ripemd/ripemd_test.cc
@@ -738,13 +772,35 @@ if(BUILD_TESTING)
     $<TARGET_OBJECTS:crypto_test_data>
   )
 
+  add_dependencies(${CRYPTO_TEST_EXEC} boringssl_prefix_symbols)
   target_link_libraries(${CRYPTO_TEST_EXEC} test_support_lib boringssl_gtest_main crypto)
+  target_include_directories(${CRYPTO_TEST_EXEC} BEFORE PRIVATE ${PROJECT_BINARY_DIR}/symbol_prefix_include)
   if(WIN32)
     target_link_libraries(${CRYPTO_TEST_EXEC} ws2_32)
   else()
     target_compile_options(${CRYPTO_TEST_EXEC} PUBLIC -Wno-deprecated-declarations)
   endif()
   add_dependencies(all_tests ${CRYPTO_TEST_EXEC})
+
+  message(STATUS "Generating test executable ${DYNAMIC_LOADING_TEST_EXEC}.")
+
+  add_executable(${DYNAMIC_LOADING_TEST_EXEC} dynamic_loading_test.c)
+  add_dependencies(${DYNAMIC_LOADING_TEST_EXEC} crypto)
+
+  add_dependencies(${DYNAMIC_LOADING_TEST_EXEC} boringssl_prefix_symbols)
+  target_include_directories(${DYNAMIC_LOADING_TEST_EXEC} BEFORE PRIVATE ${PROJECT_BINARY_DIR}/symbol_prefix_include)
+
+  if (BUILD_SHARED_LIBS AND NOT WIN32)
+    target_compile_options(${DYNAMIC_LOADING_TEST_EXEC} PUBLIC "-DLIBCRYPTO_PATH=$<TARGET_FILE:crypto>")
+    # Do not link to boringssl_gtest_main or any library that might be linked to libcrypto.so.
+    if(ANDROID)
+      target_link_libraries(${DYNAMIC_LOADING_TEST_EXEC} PUBLIC boringssl_gtest dl)
+    else()
+      target_link_libraries(${DYNAMIC_LOADING_TEST_EXEC} PUBLIC boringssl_gtest pthread dl)
+    endif()
+  endif()
+
+  add_dependencies(all_tests ${DYNAMIC_LOADING_TEST_EXEC})
 endif()
 
 install(TARGETS crypto

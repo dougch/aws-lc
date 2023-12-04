@@ -92,6 +92,12 @@ OPENSSL_EXPORT const EVP_CIPHER *EVP_aes_256_ctr(void);
 OPENSSL_EXPORT const EVP_CIPHER *EVP_aes_256_ofb(void);
 OPENSSL_EXPORT const EVP_CIPHER *EVP_aes_256_xts(void);
 
+// EVP_aes_256_wrap implements AES-256 in Key Wrap mode. OpenSSL 1.1.1 required
+// |EVP_CIPHER_CTX_FLAG_WRAP_ALLOW| to be set with |EVP_CIPHER_CTX_set_flags|,
+// in order for |EVP_aes_256_wrap| to work. This is not required in AWS-LC and
+// they are no-op flags maintained for compatibility.
+OPENSSL_EXPORT const EVP_CIPHER *EVP_aes_256_wrap(void);
+
 // EVP_enc_null returns a 'cipher' that passes plaintext through as
 // ciphertext.
 OPENSSL_EXPORT const EVP_CIPHER *EVP_enc_null(void);
@@ -534,8 +540,14 @@ OPENSSL_EXPORT const EVP_CIPHER *EVP_bf_cbc(void);
 // EVP_bf_cfb is Blowfish in 64-bit CFB mode and is deprecated.
 OPENSSL_EXPORT const EVP_CIPHER *EVP_bf_cfb(void);
 
+// EVP_cast5_ecb is CAST5 in ECB mode and is deprecated.
+OPENSSL_EXPORT OPENSSL_DEPRECATED const EVP_CIPHER *EVP_cast5_ecb(void);
+
+// EVP_cast5_cbc is CAST5 in CBC mode and is deprecated.
+OPENSSL_EXPORT OPENSSL_DEPRECATED const EVP_CIPHER *EVP_cast5_cbc(void);
+
 // The following flags do nothing and are included only to make it easier to
-// compile code with BoringSSL.
+// compile code with AWS-LC.
 #define EVP_CIPHER_CTX_FLAG_WRAP_ALLOW 0
 
 // EVP_CIPHER_CTX_set_flags does nothing.
@@ -697,5 +709,6 @@ BSSL_NAMESPACE_END
 #define CIPHER_R_XTS_DATA_UNIT_IS_TOO_LARGE 139
 #define CIPHER_R_CTRL_OPERATION_NOT_PERFORMED 140
 #define CIPHER_R_SERIALIZATION_INVALID_EVP_AEAD_CTX 141
+#define CIPHER_R_ALIGNMENT_CHANGED 142
 
 #endif  // OPENSSL_HEADER_CIPHER_H

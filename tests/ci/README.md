@@ -41,7 +41,15 @@ would look like this:
 $ docker build -t ubuntu-18.04:base -f tests/ci/docker_images/linux-x86/ubuntu-18.04_base/Dockerfile tests/ci/docker_images/dependencies
 ```
 For more examples, see `build_images.sh` script in directories corresponding
-to different platforms (linux-x86, linux-aarch, windows, rust).
+to different platforms (linux-x86, linux-aarch, windows).
+
+### Issues with proxy.golang.org when running images locally
+
+If you are having issues contacting `proxy.golang.org` try running the image
+with the `GOPROXY=direct`. For example:
+```bash
+docker run -e GOPROXY=direct -v `pwd`:`pwd` -w `pwd` -it ubuntu-20.04:clang-9x
+```
 
 ## Test locations
 
@@ -147,9 +155,10 @@ CodeBuild| clang 15.0.6 |aarch64|AL2023
 
 The following Valgrind tests are run for a subset of targets in `utils/all_tests.json` using the debug build of AWS-LC:
 
-CI Tool|Compiler|CPU platform| OS     | memcheck 
+CI Tool|Compiler|CPU platform| OS     | memcheck
 ------------ | -------------| -------------|--------|-------------
 CodeBuild|gcc 11|x86-64| AL2023 | X
+CodeBuild|gcc 11|aarch64| AL2023 | X
 
 ### Fuzz tests
 

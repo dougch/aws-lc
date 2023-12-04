@@ -488,6 +488,17 @@ static int ssl_read_counter(const SSL_CTX *ctx, int counter) {
   return counter;
 }
 
+void SSL_CTX_set_aes_hw_override_for_testing(SSL_CTX *ctx,
+                                             bool override_value) {
+  ctx->aes_hw_override = true;
+  ctx->aes_hw_override_value = override_value;
+}
+
+void SSL_set_aes_hw_override_for_testing(SSL *ssl, bool override_value) {
+  ssl->config->aes_hw_override = true;
+  ssl->config->aes_hw_override_value = override_value;
+}
+
 BSSL_NAMESPACE_END
 
 using namespace bssl;
@@ -528,7 +539,9 @@ ssl_ctx_st::ssl_ctx_st(const SSL_METHOD *ssl_method)
       allow_unknown_alpn_protos(false),
       false_start_allowed_without_alpn(false),
       handoff(false),
-      enable_early_data(false) {
+      enable_early_data(false),
+      aes_hw_override(false),
+      aes_hw_override_value(false) {
   CRYPTO_MUTEX_init(&lock);
   CRYPTO_new_ex_data(&ex_data);
 }
@@ -543,6 +556,10 @@ ssl_ctx_st::~ssl_ctx_st() {
 
   CRYPTO_MUTEX_cleanup(&lock);
   lh_SSL_SESSION_free(sessions);
+  sk_SSL_CUSTOM_EXTENSION_pop_free(client_custom_extensions,
+                                   SSL_CUSTOM_EXTENSION_free);
+  sk_SSL_CUSTOM_EXTENSION_pop_free(server_custom_extensions,
+                                   SSL_CUSTOM_EXTENSION_free);
   x509_method->ssl_ctx_free(this);
 }
 
@@ -573,6 +590,13 @@ SSL_CTX *SSL_CTX_new(const SSL_METHOD *method) {
     OPENSSL_PUT_ERROR(SSL, ERR_R_INTERNAL_ERROR);
     return nullptr;
   }
+
+  // By default, use the method's default min/max version. Make sure to set
+  // this after calls to |SSL_CTX_set_{min,max}_proto_version| because those
+  // calls modify these values if |method->version| is not 0. We should still
+  // defer to the protocol method's default min/max values in that case.
+  ret->conf_max_version_use_default = true;
+  ret->conf_min_version_use_default = true;
 
   return ret.release();
 }
@@ -633,6 +657,8 @@ SSL *SSL_new(SSL_CTX *ctx) {
   }
   ssl->config->conf_min_version = ctx->conf_min_version;
   ssl->config->conf_max_version = ctx->conf_max_version;
+  ssl->config->conf_min_version_use_default = ctx->conf_min_version_use_default;
+  ssl->config->conf_max_version_use_default = ctx->conf_max_version_use_default;
 
   ssl->config->cert = ssl_cert_dup(ctx->cert.get());
   if (ssl->config->cert == nullptr) {
@@ -645,6 +671,8 @@ SSL *SSL_new(SSL_CTX *ctx) {
   ssl->config->retain_only_sha256_of_client_certs =
       ctx->retain_only_sha256_of_client_certs;
   ssl->config->permute_extensions = ctx->permute_extensions;
+  ssl->config->aes_hw_override = ctx->aes_hw_override;
+  ssl->config->aes_hw_override_value = ctx->aes_hw_override_value;
 
   if (!ssl->config->supported_group_list.CopyFrom(ctx->supported_group_list) ||
       !ssl->config->alpn_client_proto_list.CopyFrom(
@@ -1006,6 +1034,17 @@ static int ssl_read_impl(SSL *ssl) {
   return 1;
 }
 
+int SSL_read_ex(SSL *ssl, void *buf, size_t num, size_t *read_bytes) {
+  int ret = SSL_read(ssl, buf, (int)num);
+  if (ret <= 0) {
+    return 0;
+  }
+  if (read_bytes != nullptr) {
+    *read_bytes = ret;
+  }
+  return 1;
+}
+
 int SSL_read(SSL *ssl, void *buf, int num) {
   int ret = SSL_peek(ssl, buf, num);
   if (ret <= 0) {
@@ -1038,6 +1077,15 @@ int SSL_peek(SSL *ssl, void *buf, int num) {
       std::min(ssl->s3->pending_app_data.size(), static_cast<size_t>(num));
   OPENSSL_memcpy(buf, ssl->s3->pending_app_data.data(), todo);
   return static_cast<int>(todo);
+}
+
+int SSL_peek_ex(SSL *ssl, void *buf, size_t num, size_t *read_bytes) {
+  int ret = SSL_peek(ssl, buf, (int)num);
+  if (ret <= 0) {
+    return 0;
+  }
+  *read_bytes = ret;
+  return 1;
 }
 
 int SSL_write(SSL *ssl, const void *buf, int num) {
@@ -1081,6 +1129,17 @@ int SSL_write(SSL *ssl, const void *buf, int num) {
   return ret <= 0 ? ret : static_cast<int>(bytes_written);
 }
 
+int SSL_write_ex(SSL *ssl, const void *buf, size_t num, size_t *written) {
+  int ret = SSL_write(ssl, buf, (int)num);
+  if (ret <= 0) {
+    return 0;
+  }
+  if (written != nullptr) {
+    *written = ret;
+  }
+  return 1;
+}
+
 int SSL_key_update(SSL *ssl, int request_type) {
   ssl_reset_error_state(ssl);
 
@@ -1104,7 +1163,7 @@ int SSL_key_update(SSL *ssl, int request_type) {
     return 0;
   }
 
-  if (!ssl->s3->key_update_pending &&
+  if (ssl->s3->key_update_pending == SSL_KEY_UPDATE_NONE &&
       !tls13_add_key_update(ssl, request_type)) {
     return 0;
   }
@@ -1278,6 +1337,8 @@ const char *SSL_early_data_reason_string(enum ssl_early_data_reason_t reason) {
       return "quic_parameter_mismatch";
     case ssl_early_data_alps_mismatch:
       return "alps_mismatch";
+    case ssl_early_data_unsupported_with_custom_extension:
+      return "custom_extension_not_permitted";
   }
 
   return nullptr;
@@ -1709,20 +1770,33 @@ int SSL_has_pending(const SSL *ssl) {
 }
 
 int SSL_CTX_check_private_key(const SSL_CTX *ctx) {
-  return ssl_cert_check_private_key(ctx->cert.get(),
-                                    ctx->cert->privatekey.get());
+  if (!ssl_cert_check_cert_private_keys_usage(ctx->cert.get())) {
+    return 0;
+  }
+  return ssl_cert_check_private_key(
+      ctx->cert.get(),
+      ctx->cert->cert_private_keys[ctx->cert->cert_private_key_idx]
+          .privatekey.get());
 }
 
 int SSL_check_private_key(const SSL *ssl) {
-  if (!ssl->config) {
+  if (!ssl->config ||
+      !ssl_cert_check_cert_private_keys_usage(ssl->config->cert.get())) {
     return 0;
   }
-  return ssl_cert_check_private_key(ssl->config->cert.get(),
-                                    ssl->config->cert->privatekey.get());
+  return ssl_cert_check_private_key(
+      ssl->config->cert.get(),
+      ssl->config->cert
+          ->cert_private_keys[ssl->config->cert->cert_private_key_idx]
+          .privatekey.get());
 }
 
 long SSL_get_default_timeout(const SSL *ssl) {
   return SSL_DEFAULT_SESSION_TIMEOUT;
+}
+
+int SSL_get_key_update_type(const SSL *ssl) {
+  return ssl->s3->key_update_pending;
 }
 
 int SSL_renegotiate(SSL *ssl) {
@@ -1916,47 +1990,84 @@ int SSL_CTX_set_tlsext_ticket_key_cb(
   return 1;
 }
 
-int SSL_CTX_set1_curves(SSL_CTX *ctx, const int *curves, size_t curves_len) {
-  return tls1_set_curves(&ctx->supported_group_list,
-                         MakeConstSpan(curves, curves_len));
+static bool ssl_nids_to_group_ids(Array<uint16_t> *out_group_ids,
+                                  Span<const int> nids) {
+  Array<uint16_t> group_ids;
+  if (!group_ids.Init(nids.size())) {
+    return false;
+  }
+
+  for (size_t i = 0; i < nids.size(); i++) {
+    if (!ssl_nid_to_group_id(&group_ids[i], nids[i])) {
+      return false;
+    }
+  }
+
+  *out_group_ids = std::move(group_ids);
+  return true;
 }
 
-int SSL_set1_curves(SSL *ssl, const int *curves, size_t curves_len) {
+int SSL_CTX_set1_groups(SSL_CTX *ctx, const int *groups, size_t num_groups) {
+  return ssl_nids_to_group_ids(&ctx->supported_group_list,
+                               MakeConstSpan(groups, num_groups));
+}
+
+int SSL_set1_groups(SSL *ssl, const int *groups, size_t num_groups) {
   if (!ssl->config) {
     return 0;
   }
-  return tls1_set_curves(&ssl->config->supported_group_list,
-                         MakeConstSpan(curves, curves_len));
+  return ssl_nids_to_group_ids(&ssl->config->supported_group_list,
+                               MakeConstSpan(groups, num_groups));
 }
 
-int SSL_CTX_set1_curves_list(SSL_CTX *ctx, const char *curves) {
-  return tls1_set_curves_list(&ctx->supported_group_list, curves);
-}
+static bool ssl_str_to_group_ids(Array<uint16_t> *out_group_ids,
+                                 const char *str) {
+  // Count the number of groups in the list.
+  size_t count = 0;
+  const char *ptr = str, *col;
+  do {
+    col = strchr(ptr, ':');
+    count++;
+    if (col) {
+      ptr = col + 1;
+    }
+  } while (col);
 
-int SSL_set1_curves_list(SSL *ssl, const char *curves) {
-  if (!ssl->config) {
-    return 0;
+  Array<uint16_t> group_ids;
+  if (!group_ids.Init(count)) {
+    return false;
   }
-  return tls1_set_curves_list(&ssl->config->supported_group_list, curves);
-}
 
-int SSL_CTX_set1_groups(SSL_CTX *ctx, const int *groups, size_t groups_len) {
-  return SSL_CTX_set1_curves(ctx, groups, groups_len);
-}
+  size_t i = 0;
+  ptr = str;
+  do {
+    col = strchr(ptr, ':');
+    if (!ssl_name_to_group_id(&group_ids[i++], ptr,
+                              col ? (size_t)(col - ptr) : strlen(ptr))) {
+      return false;
+    }
+    if (col) {
+      ptr = col + 1;
+    }
+  } while (col);
 
-int SSL_set1_groups(SSL *ssl, const int *groups, size_t groups_len) {
-  return SSL_set1_curves(ssl, groups, groups_len);
+  assert(i == count);
+  *out_group_ids = std::move(group_ids);
+  return true;
 }
 
 int SSL_CTX_set1_groups_list(SSL_CTX *ctx, const char *groups) {
-  return SSL_CTX_set1_curves_list(ctx, groups);
+  return ssl_str_to_group_ids(&ctx->supported_group_list, groups);
 }
 
 int SSL_set1_groups_list(SSL *ssl, const char *groups) {
-  return SSL_set1_curves_list(ssl, groups);
+  if (!ssl->config) {
+    return 0;
+  }
+  return ssl_str_to_group_ids(&ssl->config->supported_group_list, groups);
 }
 
-uint16_t SSL_get_curve_id(const SSL *ssl) {
+uint16_t SSL_get_group_id(const SSL *ssl) {
   SSL_SESSION *session = SSL_get_session(ssl);
   if (session == NULL) {
     return 0;
@@ -2012,12 +2123,18 @@ const char *SSL_get_cipher_list(const SSL *ssl, int n) {
 }
 
 int SSL_CTX_set_cipher_list(SSL_CTX *ctx, const char *str) {
-  return ssl_create_cipher_list(&ctx->cipher_list, str, false /* not strict */,
+  const bool has_aes_hw = ctx->aes_hw_override ? ctx->aes_hw_override_value
+                                               : EVP_has_aes_hardware();
+  return ssl_create_cipher_list(&ctx->cipher_list, has_aes_hw, str,
+                                false /* not strict */,
                                 false /* don't configure TLSv1.3 ciphers */);
 }
 
 int SSL_CTX_set_strict_cipher_list(SSL_CTX *ctx, const char *str) {
-  return ssl_create_cipher_list(&ctx->cipher_list, str, true /* strict */,
+  const bool has_aes_hw = ctx->aes_hw_override ? ctx->aes_hw_override_value
+                                               : EVP_has_aes_hardware();
+  return ssl_create_cipher_list(&ctx->cipher_list, has_aes_hw, str,
+                                true /* strict */,
                                 false /* don't configure TLSv1.3 ciphers */);
 }
 
@@ -2025,13 +2142,18 @@ int SSL_set_cipher_list(SSL *ssl, const char *str) {
   if (!ssl->config) {
     return 0;
   }
-  return ssl_create_cipher_list(&ssl->config->cipher_list, str,
+  const bool has_aes_hw = ssl->config->aes_hw_override
+                              ? ssl->config->aes_hw_override_value
+                              : EVP_has_aes_hardware();
+  return ssl_create_cipher_list(&ssl->config->cipher_list, has_aes_hw, str,
                                 false /* not strict */,
                                 false /* don't configure TLSv1.3 ciphers */);
 }
 
 int SSL_CTX_set_ciphersuites(SSL_CTX *ctx, const char *str) {
-  return ssl_create_cipher_list(&ctx->tls13_cipher_list, str,
+  const bool has_aes_hw = ctx->aes_hw_override ? ctx->aes_hw_override_value
+                                               : EVP_has_aes_hardware();
+  return ssl_create_cipher_list(&ctx->tls13_cipher_list, has_aes_hw, str,
                                 false /* not strict */,
                                 true /* only configure TLSv1.3 ciphers */);
 }
@@ -2040,7 +2162,10 @@ int SSL_set_strict_cipher_list(SSL *ssl, const char *str) {
   if (!ssl->config) {
     return 0;
   }
-  return ssl_create_cipher_list(&ssl->config->cipher_list, str,
+  const bool has_aes_hw = ssl->config->aes_hw_override
+                              ? ssl->config->aes_hw_override_value
+                              : EVP_has_aes_hardware();
+  return ssl_create_cipher_list(&ssl->config->cipher_list, has_aes_hw, str,
                                 true /* strict */,
                                 false /* don't configure TLSv1.3 ciphers */);
 }
@@ -2410,16 +2535,19 @@ EVP_PKEY *SSL_get_privatekey(const SSL *ssl) {
     assert(ssl->config);
     return NULL;
   }
-  if (ssl->config->cert != NULL) {
-    return ssl->config->cert->privatekey.get();
+  if (ssl_cert_check_cert_private_keys_usage(ssl->config->cert.get())) {
+    return ssl->config->cert
+        ->cert_private_keys[ssl->config->cert->cert_private_key_idx]
+        .privatekey.get();
   }
 
   return NULL;
 }
 
 EVP_PKEY *SSL_CTX_get0_privatekey(const SSL_CTX *ctx) {
-  if (ctx->cert != NULL) {
-    return ctx->cert->privatekey.get();
+  if (ssl_cert_check_cert_private_keys_usage(ctx->cert.get())) {
+    return ctx->cert->cert_private_keys[ctx->cert->cert_private_key_idx]
+        .privatekey.get();
   }
 
   return NULL;
@@ -2428,6 +2556,13 @@ EVP_PKEY *SSL_CTX_get0_privatekey(const SSL_CTX *ctx) {
 const SSL_CIPHER *SSL_get_current_cipher(const SSL *ssl) {
   const SSL_SESSION *session = SSL_get_session(ssl);
   return session == nullptr ? nullptr : session->cipher;
+}
+
+STACK_OF(SSL_CIPHER) *SSL_get_client_ciphers(const SSL *ssl) {
+  if (ssl == NULL || ssl->s3 == NULL) {
+    return NULL;
+  }
+  return ssl->client_cipher_suites.get();
 }
 
 int SSL_session_reused(const SSL *ssl) {
@@ -2947,6 +3082,8 @@ int SSL_clear(SSL *ssl) {
     return 0;  // SSL_clear may not be used after shedding config.
   }
 
+  ssl->client_cipher_suites.reset();
+
   // In OpenSSL, reusing a client |SSL| with |SSL_clear| causes the previously
   // established session to be offered the next time around. wpa_supplicant
   // depends on this behavior, so emulate it.
@@ -3040,7 +3177,7 @@ int SSL_CTX_set_tmp_ecdh(SSL_CTX *ctx, const EC_KEY *ec_key) {
     return 0;
   }
   int nid = EC_GROUP_get_curve_name(EC_KEY_get0_group(ec_key));
-  return SSL_CTX_set1_curves(ctx, &nid, 1);
+  return SSL_CTX_set1_groups(ctx, &nid, 1);
 }
 
 int SSL_set_tmp_ecdh(SSL *ssl, const EC_KEY *ec_key) {
@@ -3049,7 +3186,7 @@ int SSL_set_tmp_ecdh(SSL *ssl, const EC_KEY *ec_key) {
     return 0;
   }
   int nid = EC_GROUP_get_curve_name(EC_KEY_get0_group(ec_key));
-  return SSL_set1_curves(ssl, &nid, 1);
+  return SSL_set1_groups(ssl, &nid, 1);
 }
 
 void SSL_CTX_set_ticket_aead_method(SSL_CTX *ctx,
@@ -3133,7 +3270,39 @@ int SSL_CTX_set_tlsext_status_cb(SSL_CTX *ctx,
   return 1;
 }
 
+int SSL_CTX_get_tlsext_status_cb(SSL_CTX *ctx,
+                                 int (**callback)(SSL *, void *)) {
+  *callback = ctx->legacy_ocsp_callback;
+  return 1;
+}
+
 int SSL_CTX_set_tlsext_status_arg(SSL_CTX *ctx, void *arg) {
   ctx->legacy_ocsp_callback_arg = arg;
   return 1;
+}
+
+uint16_t SSL_get_curve_id(const SSL *ssl) { return SSL_get_group_id(ssl); }
+
+const char *SSL_get_curve_name(uint16_t curve_id) {
+  return SSL_get_group_name(curve_id);
+}
+
+size_t SSL_get_all_curve_names(const char **out, size_t max_out) {
+  return SSL_get_all_group_names(out, max_out);
+}
+
+int SSL_CTX_set1_curves(SSL_CTX *ctx, const int *curves, size_t num_curves) {
+  return SSL_CTX_set1_groups(ctx, curves, num_curves);
+}
+
+int SSL_set1_curves(SSL *ssl, const int *curves, size_t num_curves) {
+  return SSL_set1_groups(ssl, curves, num_curves);
+}
+
+int SSL_CTX_set1_curves_list(SSL_CTX *ctx, const char *curves) {
+  return SSL_CTX_set1_groups_list(ctx, curves);
+}
+
+int SSL_set1_curves_list(SSL *ssl, const char *curves) {
+  return SSL_set1_groups_list(ssl, curves);
 }

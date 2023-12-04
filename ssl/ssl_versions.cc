@@ -16,8 +16,11 @@
 
 #include <assert.h>
 
+#include <algorithm>
+
 #include <openssl/bytestring.h>
 #include <openssl/err.h>
+#include <openssl/span.h>
 
 #include "internal.h"
 #include "../crypto/internal.h"
@@ -82,29 +85,29 @@ bool ssl_method_supports_version(const SSL_PROTOCOL_METHOD *method,
 // The following functions map between API versions and wire versions. The
 // public API works on wire versions.
 
+static const char* kUnknownVersion = "unknown";
+
+struct VersionInfo {
+  uint16_t version;
+  const char *name;
+};
+
+static const VersionInfo kVersionNames[] = {
+    {TLS1_3_VERSION, "TLSv1.3"},
+    {TLS1_2_VERSION, "TLSv1.2"},
+    {TLS1_1_VERSION, "TLSv1.1"},
+    {TLS1_VERSION, "TLSv1"},
+    {DTLS1_VERSION, "DTLSv1"},
+    {DTLS1_2_VERSION, "DTLSv1.2"},
+};
+
 static const char *ssl_version_to_string(uint16_t version) {
-  switch (version) {
-    case TLS1_3_VERSION:
-      return "TLSv1.3";
-
-    case TLS1_2_VERSION:
-      return "TLSv1.2";
-
-    case TLS1_1_VERSION:
-      return "TLSv1.1";
-
-    case TLS1_VERSION:
-      return "TLSv1";
-
-    case DTLS1_VERSION:
-      return "DTLSv1";
-
-    case DTLS1_2_VERSION:
-      return "DTLSv1.2";
-
-    default:
-      return "unknown";
+  for (const auto &v : kVersionNames) {
+    if (v.version == version) {
+      return v.name;
+    }
   }
+  return kUnknownVersion;
 }
 
 static uint16_t wire_version_to_api(uint16_t version) {
@@ -332,18 +335,26 @@ BSSL_NAMESPACE_END
 using namespace bssl;
 
 int SSL_CTX_set_min_proto_version(SSL_CTX *ctx, uint16_t version) {
+  ctx->conf_min_version_use_default = (version == 0);
   return set_min_version(ctx->method, &ctx->conf_min_version, version);
 }
 
 int SSL_CTX_set_max_proto_version(SSL_CTX *ctx, uint16_t version) {
+  ctx->conf_max_version_use_default = (version == 0);
   return set_max_version(ctx->method, &ctx->conf_max_version, version);
 }
 
 uint16_t SSL_CTX_get_min_proto_version(const SSL_CTX *ctx) {
+  if (ctx->conf_min_version_use_default) {
+    return 0;
+  }
   return ctx->conf_min_version;
 }
 
 uint16_t SSL_CTX_get_max_proto_version(const SSL_CTX *ctx) {
+  if (ctx->conf_max_version_use_default) {
+    return 0;
+  }
   return ctx->conf_max_version;
 }
 
@@ -351,6 +362,7 @@ int SSL_set_min_proto_version(SSL *ssl, uint16_t version) {
   if (!ssl->config) {
     return 0;
   }
+  ssl->config->conf_min_version_use_default = (version == 0);
   return set_min_version(ssl->method, &ssl->config->conf_min_version, version);
 }
 
@@ -358,18 +370,19 @@ int SSL_set_max_proto_version(SSL *ssl, uint16_t version) {
   if (!ssl->config) {
     return 0;
   }
+  ssl->config->conf_max_version_use_default = (version == 0);
   return set_max_version(ssl->method, &ssl->config->conf_max_version, version);
 }
 
 uint16_t SSL_get_min_proto_version(const SSL *ssl) {
-  if (!ssl->config) {
+  if (!ssl->config || ssl->config->conf_min_version_use_default) {
     return 0;
   }
   return ssl->config->conf_min_version;
 }
 
 uint16_t SSL_get_max_proto_version(const SSL *ssl) {
-  if (!ssl->config) {
+  if (!ssl->config || ssl->config->conf_max_version_use_default) {
     return 0;
   }
   return ssl->config->conf_max_version;
@@ -381,6 +394,11 @@ int SSL_version(const SSL *ssl) {
 
 const char *SSL_get_version(const SSL *ssl) {
   return ssl_version_to_string(ssl_version(ssl));
+}
+
+size_t SSL_get_all_version_names(const char **out, size_t max_out) {
+  return GetAllNames(out, max_out, MakeConstSpan(&kUnknownVersion, 1),
+                     &VersionInfo::name, MakeConstSpan(kVersionNames));
 }
 
 const char *SSL_SESSION_get_version(const SSL_SESSION *session) {

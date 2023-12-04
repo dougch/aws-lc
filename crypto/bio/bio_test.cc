@@ -56,9 +56,7 @@ static std::string LastSocketError() {
 class ScopedSocket {
  public:
   explicit ScopedSocket(int sock) : sock_(sock) {}
-  ~ScopedSocket() {
-    closesocket(sock_);
-  }
+  ~ScopedSocket() { closesocket(sock_); }
 
  private:
   const int sock_;
@@ -69,8 +67,8 @@ TEST(BIOTest, SocketConnect) {
   int listening_sock = -1;
   socklen_t len = 0;
   sockaddr_storage ss;
-  struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) &ss;
-  struct sockaddr_in *sin = (struct sockaddr_in *) &ss;
+  struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *)&ss;
+  struct sockaddr_in *sin = (struct sockaddr_in *)&ss;
   OPENSSL_memset(&ss, 0, sizeof(ss));
 
   ss.ss_family = AF_INET6;
@@ -95,7 +93,7 @@ TEST(BIOTest, SocketConnect) {
   ScopedSocket listening_sock_closer(listening_sock);
   ASSERT_EQ(0, listen(listening_sock, 1)) << LastSocketError();
   ASSERT_EQ(0, getsockname(listening_sock, (struct sockaddr *)&ss, &len))
-        << LastSocketError();
+      << LastSocketError();
 
   char hostname[80];
   if (ss.ss_family == AF_INET6) {
@@ -115,7 +113,7 @@ TEST(BIOTest, SocketConnect) {
             BIO_write(bio.get(), kTestMessage, sizeof(kTestMessage)));
 
   // Accept the socket.
-  int sock = accept(listening_sock, (struct sockaddr *) &ss, &len);
+  int sock = accept(listening_sock, (struct sockaddr *)&ss, &len);
   ASSERT_NE(-1, sock) << LastSocketError();
   ScopedSocket sock_closer(sock);
 
@@ -152,6 +150,111 @@ TEST(BIOTest, Printf) {
 
     ASSERT_TRUE(BIO_reset(bio.get()));
   }
+}
+
+TEST(BIOTest, CloseFlags) {
+#if defined(OPENSSL_ANDROID)
+  // On Android, when running from an APK, |tmpfile| does not work. See
+  // b/36991167#comment8.
+  GTEST_SKIP();
+#endif
+
+  // unique_ptr will automatically call fclose on the file descriptior when the
+  // variable goes out of scope, so we need to specify BIO_NOCLOSE close flags
+  // to avoid a double-free condition.
+  struct fclose_deleter {
+    void operator()(FILE *f) const { fclose(f); }
+  };
+  using TempFILE = std::unique_ptr<FILE, fclose_deleter>;
+
+  const char *test_str = "test\ntest\ntest\n";
+
+  // Assert that CRLF line endings get inserted on write and translated back out
+  // on read for text mode.
+  TempFILE text_bio_file(tmpfile());
+  ASSERT_TRUE(text_bio_file);
+  bssl::UniquePtr<BIO> text_bio(
+      BIO_new_fp(text_bio_file.get(), BIO_NOCLOSE | BIO_FP_TEXT));
+  int bytes_written = BIO_write(text_bio.get(), test_str, strlen(test_str));
+  EXPECT_GE(bytes_written, 0);
+  ASSERT_TRUE(BIO_flush(text_bio.get()));
+  ASSERT_EQ(0, BIO_seek(text_bio.get(), 0));  // 0 indicates success here
+  char contents[256];
+  OPENSSL_memset(contents, 0, sizeof(contents));
+  int bytes_read = BIO_read(text_bio.get(), contents, sizeof(contents));
+  EXPECT_GE(bytes_read, bytes_written);
+  EXPECT_EQ(test_str, std::string(contents));
+
+  // Windows should have translated '\n' to '\r\n' on write, so validate that
+  // by opening the file in raw binary mode (i.e. no BIO_FP_TEXT).
+  bssl::UniquePtr<BIO> text_bio_raw(
+      BIO_new_fp(text_bio_file.get(), BIO_NOCLOSE));
+  ASSERT_EQ(0, BIO_seek(text_bio.get(), 0));  // 0 indicates success here
+  OPENSSL_memset(contents, 0, sizeof(contents));
+  bytes_read = BIO_read(text_bio_raw.get(), contents, sizeof(contents));
+  EXPECT_GT(bytes_read, 0);
+#if defined(OPENSSL_WINDOWS)
+  EXPECT_EQ("test\r\ntest\r\ntest\r\n", std::string(contents));
+#else
+  EXPECT_EQ(test_str, std::string(contents));
+#endif
+
+  // Assert that CRLF line endings don't get inserted on write for
+  // (default) binary mode.
+  TempFILE binary_bio_file(tmpfile());
+  ASSERT_TRUE(binary_bio_file);
+  bssl::UniquePtr<BIO> binary_bio(
+      BIO_new_fp(binary_bio_file.get(), BIO_NOCLOSE));
+  bytes_written = BIO_write(binary_bio.get(), test_str, strlen(test_str));
+  EXPECT_EQ((int)strlen(test_str), bytes_written);
+  ASSERT_TRUE(BIO_flush(binary_bio.get()));
+  ASSERT_EQ(0, BIO_seek(binary_bio.get(), 0));  // 0 indicates success here
+  OPENSSL_memset(contents, 0, sizeof(contents));
+  bytes_read = BIO_read(binary_bio.get(), contents, sizeof(contents));
+  EXPECT_GE(bytes_read, bytes_written);
+  EXPECT_EQ(test_str, std::string(contents));
+
+  // This test is meant to ensure that we're correctly handling a ftell/fseek
+  // bug on Windows documented and reproduced here:
+  // https://developercommunity.visualstudio.com/t/fseek-ftell-fail-in-text-mode-for-unix-style-text/425878
+  long pos;
+  char b1[256], b2[256];
+  binary_bio.reset(BIO_new_fp(binary_bio_file.get(), BIO_NOCLOSE));
+  ASSERT_EQ(0, BIO_seek(binary_bio.get(), 0));  // 0 indicates success here
+  BIO_gets(binary_bio.get(), b1, sizeof(b1));
+  pos = BIO_tell(binary_bio.get());
+  ASSERT_GT(BIO_gets(binary_bio.get(), b1, sizeof(b1)), 0);
+  BIO_seek(binary_bio.get(), pos);
+  BIO_gets(binary_bio.get(), b2, sizeof(b2));
+  EXPECT_EQ(std::string(b1), std::string(b2));
+
+  // Assert that BIO_CLOSE causes the underlying file to be closed on BIO free
+  // (ftell will return < 0)
+  FILE *tmp = tmpfile();
+  ASSERT_TRUE(tmp);
+  BIO *bio = BIO_new_fp(tmp, BIO_CLOSE);
+  EXPECT_EQ(0, BIO_tell(bio));
+  // save off fd to avoid referencing |tmp| after free and angering valgrind
+  int tmp_fd = fileno(tmp);
+  EXPECT_LT(0, tmp_fd);
+  EXPECT_TRUE(BIO_free(bio));
+  // Windows CRT hits an assertion error and stack overflow (exception code
+  // 0xc0000409) when calling _tell or lseek on an already-closed file
+  // descriptor, so only consider the non-Windows case here.
+#if !defined(OPENSSL_WINDOWS)
+  EXPECT_EQ(-1, lseek(tmp_fd, 0, SEEK_CUR));
+  EXPECT_EQ(EBADF, errno);  // EBADF indicates that |BIO_free| closed the file
+#endif
+
+  // Assert that BIO_NOCLOSE does not close the underlying file on BIO free
+  tmp = tmpfile();
+  ASSERT_TRUE(tmp);
+  bio = BIO_new_fp(tmp, BIO_NOCLOSE);
+  EXPECT_EQ(0, BIO_tell(bio));
+  EXPECT_TRUE(BIO_free(bio));
+  EXPECT_TRUE(tmp);
+  EXPECT_EQ(0, ftell(tmp));   // 0 indicates file is still open
+  EXPECT_EQ(0, fclose(tmp));  // 0 indicates success for fclose
 }
 
 TEST(BIOTest, ReadASN1) {
@@ -217,6 +320,306 @@ TEST(BIOTest, ReadASN1) {
       EXPECT_EQ(Bytes(input.data(), t.expected_len), Bytes(out, out_len));
     }
   }
+}
+
+TEST(BIOTest, MemReadOnly) {
+  // A memory BIO created from |BIO_new_mem_buf| is a read-only buffer.
+  static const char kData[] = "abcdefghijklmno";
+  bssl::UniquePtr<BIO> bio(BIO_new_mem_buf(kData, strlen(kData)));
+  ASSERT_TRUE(bio);
+
+  // Writing to read-only buffers should fail.
+  EXPECT_EQ(BIO_write(bio.get(), kData, strlen(kData)), -1);
+
+  const uint8_t *contents;
+  size_t len;
+  ASSERT_TRUE(BIO_mem_contents(bio.get(), &contents, &len));
+  EXPECT_EQ(Bytes(contents, len), Bytes(kData));
+  EXPECT_EQ(BIO_eof(bio.get()), 0);
+
+  // Read less than the whole buffer.
+  char buf[6];
+  int ret = BIO_read(bio.get(), buf, sizeof(buf));
+  ASSERT_GT(ret, 0);
+  EXPECT_EQ(Bytes(buf, ret), Bytes("abcdef"));
+
+  ASSERT_TRUE(BIO_mem_contents(bio.get(), &contents, &len));
+  EXPECT_EQ(Bytes(contents, len), Bytes("ghijklmno"));
+  EXPECT_EQ(BIO_eof(bio.get()), 0);
+
+  ret = BIO_read(bio.get(), buf, sizeof(buf));
+  ASSERT_GT(ret, 0);
+  EXPECT_EQ(Bytes(buf, ret), Bytes("ghijkl"));
+
+  ASSERT_TRUE(BIO_mem_contents(bio.get(), &contents, &len));
+  EXPECT_EQ(Bytes(contents, len), Bytes("mno"));
+  EXPECT_EQ(BIO_eof(bio.get()), 0);
+
+  // Read the remainder of the buffer.
+  ret = BIO_read(bio.get(), buf, sizeof(buf));
+  ASSERT_GT(ret, 0);
+  EXPECT_EQ(Bytes(buf, ret), Bytes("mno"));
+
+  ASSERT_TRUE(BIO_mem_contents(bio.get(), &contents, &len));
+  EXPECT_EQ(Bytes(contents, len), Bytes(""));
+  EXPECT_EQ(BIO_eof(bio.get()), 1);
+
+  // By default, reading from a consumed read-only buffer returns EOF.
+  EXPECT_EQ(BIO_read(bio.get(), buf, sizeof(buf)), 0);
+  EXPECT_FALSE(BIO_should_read(bio.get()));
+
+  // A memory BIO can be configured to return an error instead of EOF. This is
+  // error is returned as retryable. (This is not especially useful here. It
+  // makes more sense for a writable BIO.)
+  EXPECT_EQ(BIO_set_mem_eof_return(bio.get(), -1), 1);
+  EXPECT_EQ(BIO_read(bio.get(), buf, sizeof(buf)), -1);
+  EXPECT_TRUE(BIO_should_read(bio.get()));
+
+  // Read exactly the right number of bytes, to test the boundary condition is
+  // correct.
+  bio.reset(BIO_new_mem_buf("abc", 3));
+  ASSERT_TRUE(bio);
+  ret = BIO_read(bio.get(), buf, 3);
+  ASSERT_GT(ret, 0);
+  EXPECT_EQ(Bytes(buf, ret), Bytes("abc"));
+  EXPECT_EQ(BIO_eof(bio.get()), 1);
+}
+
+TEST(BIOTest, MemWritable) {
+  // A memory BIO created from |BIO_new| is writable.
+  bssl::UniquePtr<BIO> bio(BIO_new(BIO_s_mem()));
+  ASSERT_TRUE(bio);
+
+  auto check_bio_contents = [&](Bytes b) {
+    const uint8_t *contents;
+    size_t len;
+    ASSERT_TRUE(BIO_mem_contents(bio.get(), &contents, &len));
+    EXPECT_EQ(Bytes(contents, len), b);
+
+    char *contents_c;
+    long len_l = BIO_get_mem_data(bio.get(), &contents_c);
+    ASSERT_GE(len_l, 0);
+    EXPECT_EQ(Bytes(contents_c, len_l), b);
+
+    BUF_MEM *buf;
+    ASSERT_EQ(BIO_get_mem_ptr(bio.get(), &buf), 1);
+    EXPECT_EQ(Bytes(buf->data, buf->length), b);
+  };
+
+  // It is initially empty.
+  check_bio_contents(Bytes(""));
+  EXPECT_EQ(BIO_eof(bio.get()), 1);
+
+  // Reading from it should default to returning a retryable error.
+  char buf[32];
+  EXPECT_EQ(BIO_read(bio.get(), buf, sizeof(buf)), -1);
+  EXPECT_TRUE(BIO_should_read(bio.get()));
+
+  // This can be configured to return an EOF.
+  EXPECT_EQ(BIO_set_mem_eof_return(bio.get(), 0), 1);
+  EXPECT_EQ(BIO_read(bio.get(), buf, sizeof(buf)), 0);
+  EXPECT_FALSE(BIO_should_read(bio.get()));
+
+  // Restore the default. A writable memory |BIO| is typically used in this mode
+  // so additional data can be written when exhausted.
+  EXPECT_EQ(BIO_set_mem_eof_return(bio.get(), -1), 1);
+
+  // Writes append to the buffer.
+  ASSERT_EQ(BIO_write(bio.get(), "abcdef", 6), 6);
+  check_bio_contents(Bytes("abcdef"));
+  EXPECT_EQ(BIO_eof(bio.get()), 0);
+
+  // Writes can include embedded NULs.
+  ASSERT_EQ(BIO_write(bio.get(), "\0ghijk", 6), 6);
+  check_bio_contents(Bytes("abcdef\0ghijk", 12));
+  EXPECT_EQ(BIO_eof(bio.get()), 0);
+
+  // Do a partial read.
+  int ret = BIO_read(bio.get(), buf, 4);
+  ASSERT_GT(ret, 0);
+  EXPECT_EQ(Bytes(buf, ret), Bytes("abcd"));
+  check_bio_contents(Bytes("ef\0ghijk", 8));
+  EXPECT_EQ(BIO_eof(bio.get()), 0);
+
+  // Reads and writes may alternate.
+  ASSERT_EQ(BIO_write(bio.get(), "lmnopq", 6), 6);
+  check_bio_contents(Bytes("ef\0ghijklmnopq", 14));
+  EXPECT_EQ(BIO_eof(bio.get()), 0);
+
+  // Reads may consume embedded NULs.
+  ret = BIO_read(bio.get(), buf, 4);
+  ASSERT_GT(ret, 0);
+  EXPECT_EQ(Bytes(buf, ret), Bytes("ef\0g", 4));
+  check_bio_contents(Bytes("hijklmnopq"));
+  EXPECT_EQ(BIO_eof(bio.get()), 0);
+
+  // The read buffer exceeds the |BIO|, so we consume everything.
+  ret = BIO_read(bio.get(), buf, sizeof(buf));
+  ASSERT_GT(ret, 0);
+  EXPECT_EQ(Bytes(buf, ret), Bytes("hijklmnopq"));
+  check_bio_contents(Bytes(""));
+  EXPECT_EQ(BIO_eof(bio.get()), 1);
+
+  // The |BIO| is now empty.
+  EXPECT_EQ(BIO_read(bio.get(), buf, sizeof(buf)), -1);
+  EXPECT_TRUE(BIO_should_read(bio.get()));
+
+  // Repeat the above, reading exactly the right number of bytes, to test the
+  // boundary condition is correct.
+  ASSERT_EQ(BIO_write(bio.get(), "abc", 3), 3);
+  ret = BIO_read(bio.get(), buf, 3);
+  EXPECT_EQ(Bytes(buf, ret), Bytes("abc"));
+  EXPECT_EQ(BIO_read(bio.get(), buf, sizeof(buf)), -1);
+  EXPECT_TRUE(BIO_should_read(bio.get()));
+  EXPECT_EQ(BIO_eof(bio.get()), 1);
+}
+
+TEST(BIOTest, Gets) {
+  const struct {
+    std::string bio;
+    int gets_len;
+    std::string gets_result;
+  } kGetsTests[] = {
+      // BIO_gets should stop at the first newline. If the buffer is too small,
+      // stop there instead. Note the buffer size
+      // includes a trailing NUL.
+      {"123456789\n123456789", 5, "1234"},
+      {"123456789\n123456789", 9, "12345678"},
+      {"123456789\n123456789", 10, "123456789"},
+      {"123456789\n123456789", 11, "123456789\n"},
+      {"123456789\n123456789", 12, "123456789\n"},
+      {"123456789\n123456789", 256, "123456789\n"},
+
+      // If we run out of buffer, read the whole buffer.
+      {"12345", 5, "1234"},
+      {"12345", 6, "12345"},
+      {"12345", 10, "12345"},
+
+      // NUL bytes do not terminate gets.
+      {std::string("abc\0def\nghi", 11), 256, std::string("abc\0def\n", 8)},
+
+      // An output size of one means we cannot read any bytes. Only the trailing
+      // NUL is included.
+      {"12345", 1, ""},
+
+      // Empty line.
+      {"\nabcdef", 256, "\n"},
+      // Empty BIO.
+      {"", 256, ""},
+  };
+  for (const auto &t : kGetsTests) {
+    SCOPED_TRACE(t.bio);
+    SCOPED_TRACE(t.gets_len);
+
+    auto check_bio_gets = [&](BIO *bio) {
+      std::vector<char> buf(t.gets_len, 'a');
+      int ret = BIO_gets(bio, buf.data(), t.gets_len);
+      ASSERT_GE(ret, 0);
+      // |BIO_gets| should write a NUL terminator, not counted in the return
+      // value.
+      EXPECT_EQ(Bytes(buf.data(), ret + 1),
+                Bytes(t.gets_result.data(), t.gets_result.size() + 1));
+
+      // The remaining data should still be in the BIO.
+      buf.resize(t.bio.size() + 1);
+      ret = BIO_read(bio, buf.data(), static_cast<int>(buf.size()));
+      ASSERT_GE(ret, 0);
+      EXPECT_EQ(Bytes(buf.data(), ret),
+                Bytes(t.bio.substr(t.gets_result.size())));
+    };
+
+    {
+      SCOPED_TRACE("memory");
+      bssl::UniquePtr<BIO> bio(BIO_new_mem_buf(t.bio.data(), t.bio.size()));
+      ASSERT_TRUE(bio);
+      check_bio_gets(bio.get());
+    }
+
+    struct fclose_deleter {
+      void operator()(FILE *f) const { fclose(f); }
+    };
+
+    using ScopedFILE = std::unique_ptr<FILE, fclose_deleter>;
+    ScopedFILE file(tmpfile());
+#if defined(OPENSSL_ANDROID)
+    // On Android, when running from an APK, |tmpfile| does not work. See
+    // b/36991167#comment8.
+    if (!file) {
+      fprintf(stderr, "tmpfile failed: %s (%d). Skipping file-based tests.\n",
+              strerror(errno), errno);
+      continue;
+    }
+#else
+    ASSERT_TRUE(file);
+#endif
+
+    if (!t.bio.empty()) {
+      ASSERT_EQ(1u,
+                fwrite(t.bio.data(), t.bio.size(), /*nitems=*/1, file.get()));
+      ASSERT_EQ(0, fseek(file.get(), 0, SEEK_SET));
+    }
+
+    // TODO(crbug.com/boringssl/585): If the line has an embedded NUL, file
+    // BIOs do not currently report the answer correctly.
+    if (t.bio.find('\0') == std::string::npos) {
+      SCOPED_TRACE("file");
+      bssl::UniquePtr<BIO> bio(BIO_new_fp(file.get(), BIO_NOCLOSE));
+      ASSERT_TRUE(bio);
+      check_bio_gets(bio.get());
+    }
+
+    ASSERT_EQ(0, fseek(file.get(), 0, SEEK_SET));
+
+    {
+      SCOPED_TRACE("fd");
+#if defined(OPENSSL_WINDOWS)
+      int fd = _fileno(file.get());
+#else
+      int fd = fileno(file.get());
+#endif
+      bssl::UniquePtr<BIO> bio(BIO_new_fd(fd, BIO_NOCLOSE));
+      ASSERT_TRUE(bio);
+      check_bio_gets(bio.get());
+    }
+  }
+
+  // Negative and zero lengths should not output anything, even a trailing NUL.
+  bssl::UniquePtr<BIO> bio(BIO_new_mem_buf("12345", -1));
+  ASSERT_TRUE(bio);
+  char c = 'a';
+  EXPECT_EQ(0, BIO_gets(bio.get(), &c, -1));
+  EXPECT_EQ(0, BIO_gets(bio.get(), &c, 0));
+  EXPECT_EQ(c, 'a');
+}
+
+typedef struct {
+  int custom_data;
+} CustomData;
+
+static void CustomDataFree(void *parent, void *ptr, CRYPTO_EX_DATA *ad,
+                           int index, long argl, void *argp) {
+  free(ptr);
+}
+
+TEST(BIOTest, ExternalData) {
+  // Create a |BIO| object
+  bssl::UniquePtr<BIO> bio(BIO_new(BIO_s_mem()));
+  int bio_index =
+      BIO_get_ex_new_index(0, nullptr, nullptr, nullptr, CustomDataFree);
+  ASSERT_GT(bio_index, 0);
+
+  // Associate custom data with the |BIO| using |BIO_set_ex_data| and set an
+  // arbitrary number.
+  auto *custom_data = static_cast<CustomData *>(malloc(sizeof(CustomData)));
+  ASSERT_TRUE(custom_data);
+  custom_data->custom_data = 123;
+  ASSERT_TRUE(BIO_set_ex_data(bio.get(), bio_index, custom_data));
+
+  // Retrieve the custom data using |BIO_get_ex_data|.
+  auto *retrieved_data =
+      static_cast<CustomData *>(BIO_get_ex_data(bio.get(), bio_index));
+  ASSERT_TRUE(retrieved_data);
+  EXPECT_EQ(retrieved_data->custom_data, 123);
 }
 
 // Run through the tests twice, swapping |bio1| and |bio2|, for symmetry.
@@ -331,8 +734,8 @@ static long param_ret_ex[CB_TEST_COUNT];
 static size_t param_len_ex[CB_TEST_COUNT];
 static size_t param_processed_ex[CB_TEST_COUNT];
 
-static long bio_cb_ex(BIO *b, int oper, const char *argp, size_t len,
-                         int argi, long argl, int ret, size_t *processed) {
+static long bio_cb_ex(BIO *b, int oper, const char *argp, size_t len, int argi,
+                      long argl, int ret, size_t *processed) {
   if (test_count_ex >= CB_TEST_COUNT) {
     return CALL_BACK_FAILURE;
   }
@@ -381,7 +784,8 @@ TEST_P(BIOPairTest, TestCallbacks) {
   ASSERT_EQ(TEST_DATA_WRITTEN, BIO_read(bio2, buf, sizeof(buf)));
   EXPECT_EQ(Bytes("12345"), Bytes(buf, TEST_DATA_WRITTEN));
 
-  // Check that read or write was called first, then the combo with BIO_CB_RETURN
+  // Check that read or write was called first, then the combo with
+  // BIO_CB_RETURN
   ASSERT_EQ(param_oper_ex[0], BIO_CB_READ);
   ASSERT_EQ(param_oper_ex[1], BIO_CB_READ | BIO_CB_RETURN);
 
@@ -392,13 +796,14 @@ TEST_P(BIOPairTest, TestCallbacks) {
   // The calls before the BIO operation use 1 for the BIO's return value
   ASSERT_EQ(param_ret_ex[0], 1);
 
-  // The calls after the BIO call use the return value from the BIO, which is the
-  // length of data read/written
+  // The calls after the BIO call use the return value from the BIO, which is
+  // the length of data read/written
   ASSERT_EQ(param_ret_ex[1], TEST_DATA_WRITTEN);
 
-  // For callback_ex the |len| param is the requested number of bytes to read/write
-  ASSERT_EQ(param_len_ex[0], (size_t) TEST_BUF_LEN);
-  ASSERT_EQ(param_len_ex[0], (size_t) TEST_BUF_LEN);
+  // For callback_ex the |len| param is the requested number of bytes to
+  // read/write
+  ASSERT_EQ(param_len_ex[0], (size_t)TEST_BUF_LEN);
+  ASSERT_EQ(param_len_ex[0], (size_t)TEST_BUF_LEN);
 
   // For callback_ex argi and arl are unused
   ASSERT_EQ(param_argi_ex[0], 0);
@@ -406,7 +811,8 @@ TEST_P(BIOPairTest, TestCallbacks) {
   ASSERT_EQ(param_argl_ex[0], 0);
   ASSERT_EQ(param_argl_ex[1], 0);
 
-  // processed is null (0 in the array) the first call and the actual data the second time
+  // processed is null (0 in the array) the first call and the actual data the
+  // second time
   ASSERT_EQ(param_processed_ex[0], 0u);
   ASSERT_EQ(param_processed_ex[1], 5u);
 
@@ -417,9 +823,9 @@ TEST_P(BIOPairTest, TestCallbacks) {
   // and the callback return value is returned to the caller
   ASSERT_EQ(CALL_BACK_FAILURE, BIO_read(bio2, buf, sizeof(buf)));
 
-  // Run bio_callback_cleanup to reset the mock, without this when BIO_free calls
-  // the callback it would fail before freeing the memory and be detected as a
-  // memory leak.
+  // Run bio_callback_cleanup to reset the mock, without this when BIO_free
+  // calls the callback it would fail before freeing the memory and be detected
+  // as a memory leak.
   bio_callback_cleanup();
   ASSERT_EQ(BIO_free(bio1), 1);
   ASSERT_EQ(BIO_free(bio2), 1);
@@ -432,5 +838,31 @@ TEST_P(BIOPairTest, TestCallbacks) {
   ASSERT_EQ(param_ret_ex[0], 1);
   ASSERT_EQ(param_len_ex[0], 0u);
 }
+
+namespace {
+static int callback_invoked = 0;
+
+static long callback(BIO *b, int state, int res) {
+  callback_invoked = 1;
+  EXPECT_EQ(state, 0);
+  EXPECT_EQ(res, -1);
+  return 0;
+}
+
+TEST(BIOTest, InvokeConnectCallback) {
+  ASSERT_EQ(callback_invoked, 0);
+  BIO *bio = BIO_new(BIO_s_connect());
+  ASSERT_NE(bio, nullptr);
+
+  ASSERT_TRUE(BIO_set_conn_hostname(bio, "localhost"));
+  ASSERT_TRUE(BIO_set_conn_port(bio, "8080"));
+  ASSERT_TRUE(BIO_callback_ctrl(bio, BIO_CTRL_SET_CALLBACK, callback));
+
+  ASSERT_EQ(BIO_do_connect(bio), 0);
+  ASSERT_EQ(callback_invoked, 1);
+
+  ASSERT_TRUE(BIO_free(bio));
+}
+}  // namespace
 
 INSTANTIATE_TEST_SUITE_P(All, BIOPairTest, testing::Values(false, true));

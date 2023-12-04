@@ -103,6 +103,22 @@ static const EVP_MD *GetDigest(FileTest *t, const std::string &name) {
     return EVP_sha384();
   } else if (name == "SHA512") {
     return EVP_sha512();
+  } else if (name == "SHA512/224") {
+    return EVP_sha512_224();
+  } else if (name == "SHA512/256") {
+    return EVP_sha512_256();
+  } else if (name == "SHA3-224") {
+    return EVP_sha3_224();
+  } else if (name == "SHA3-256") {
+    return EVP_sha3_256();
+  } else if (name == "SHA3-384") {
+    return EVP_sha3_384();
+  } else if (name == "SHA3-512") {
+    return EVP_sha3_512();
+  } else if (name == "SHAKE128") {
+    return EVP_shake128();
+  } else if (name == "SHAKE256") {
+    return EVP_shake256();
   }
   ADD_FAILURE() << "Unknown digest: " << name;
   return nullptr;
@@ -128,7 +144,7 @@ static int GetKeyType(FileTest *t, const std::string &name) {
   return EVP_PKEY_NONE;
 }
 
-static int GetRSAPadding(FileTest *t, int *out, const std::string &name) {
+static bool GetRSAPadding(FileTest *t, int *out, const std::string &name) {
   if (name == "PKCS1") {
     *out = RSA_PKCS1_PADDING;
     return true;
@@ -139,6 +155,10 @@ static int GetRSAPadding(FileTest *t, int *out, const std::string &name) {
   }
   if (name == "OAEP") {
     *out = RSA_PKCS1_OAEP_PADDING;
+    return true;
+  }
+  if (name == "None") {
+    *out = RSA_NO_PADDING;
     return true;
   }
   ADD_FAILURE() << "Unknown RSA padding mode: " << name;
@@ -369,6 +389,19 @@ static int EVP_marshal_private_key_version_two(CBB *cbb, const EVP_PKEY *key) {
   return EVP_marshal_private_key_v2(cbb, key);
 }
 
+static void VerifyEVPSignOut(std::string key_name, std::vector<uint8_t> input,
+                            std::vector<uint8_t> actual, std::vector<uint8_t> output,
+                            EVP_MD_CTX *ctx, size_t len) {
+
+  // Unless not compatible, verify EVP_DigestSign() with EVP_DigestVerify instead of comparing outputs
+  // This allows us to test the correctness of non-deterministic outputs (e.g. for ECDSA).
+  if (key_name.find("Ed25519") != std::string::npos) {
+    EXPECT_EQ(Bytes(output), Bytes(actual));
+  } else {
+    EXPECT_TRUE(!EVP_DigestVerify(ctx, actual.data(), len, input.data(), input.size()));
+  }
+}
+
 static bool TestEVP(FileTest *t, KeyMap *key_map) {
   if (t->GetType() == "PrivateKey") {
     int (*marshal_func)(CBB * cbb, const EVP_PKEY *key) =
@@ -472,7 +505,7 @@ static bool TestEVP(FileTest *t, KeyMap *key_map) {
       return false;
     }
     actual.resize(len);
-    EXPECT_EQ(Bytes(output), Bytes(actual));
+    VerifyEVPSignOut(key_name, input, actual, output, ctx.get(), len);
 
     // Repeat the test with |copy|, to check |EVP_MD_CTX_copy_ex| duplicated
     // everything.
@@ -487,7 +520,7 @@ static bool TestEVP(FileTest *t, KeyMap *key_map) {
       return false;
     }
     actual.resize(len);
-    EXPECT_EQ(Bytes(output), Bytes(actual));
+    VerifyEVPSignOut(key_name, input, actual, output, ctx.get(), len);
     return true;
   }
 

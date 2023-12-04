@@ -16,6 +16,8 @@
 #include <string>
 #include <vector>
 
+#include <sstream>
+
 #include <assert.h>
 #include <errno.h>
 #include <limits.h>
@@ -44,10 +46,10 @@
 #include <openssl/span.h>
 #include <openssl/hkdf.h>
 #include <openssl/sshkdf.h>
+#include <openssl/kdf.h>
 
 #include "../../../../crypto/fipsmodule/ec/internal.h"
 #include "../../../../crypto/fipsmodule/rand/internal.h"
-#include "../../../../crypto/fipsmodule/tls/internal.h"
 #include "modulewrapper.h"
 
 
@@ -189,70 +191,104 @@ static bool GetConfig(const Span<const uint8_t> args[], ReplyCallback write_repl
         "revision": "1.0",
         "messageLength": [{
           "min": 0, "max": 65528, "increment": 8
-        }]
+        }],
+        "performLargeDataTest": [1, 2, 4, 8]
       },
       {
         "algorithm": "SHA2-256",
         "revision": "1.0",
         "messageLength": [{
           "min": 0, "max": 65528, "increment": 8
-        }]
+        }],
+        "performLargeDataTest": [1, 2, 4, 8]
       },
       {
         "algorithm": "SHA2-384",
         "revision": "1.0",
         "messageLength": [{
           "min": 0, "max": 65528, "increment": 8
-        }]
+        }],
+        "performLargeDataTest": [1, 2, 4, 8]
       },
       {
         "algorithm": "SHA2-512",
         "revision": "1.0",
         "messageLength": [{
           "min": 0, "max": 65528, "increment": 8
-        }]
+        }],
+        "performLargeDataTest": [1, 2, 4, 8]
+      },
+      {
+        "algorithm": "SHA2-512/224",
+        "revision": "1.0",
+        "messageLength": [{
+          "min": 0, "max": 65528, "increment": 8
+        }],
+        "performLargeDataTest": [1, 2, 4, 8]
       },
       {
         "algorithm": "SHA2-512/256",
         "revision": "1.0",
         "messageLength": [{
           "min": 0, "max": 65528, "increment": 8
-        }]
+        }],
+        "performLargeDataTest": [1, 2, 4, 8]
       },
       {
         "algorithm": "SHA3-224",
         "revision": "2.0",
         "messageLength": [{
           "min": 0, "max": 65536, "increment": 8
-        }]
+        }],
+        "performLargeDataTest": [1, 2, 4, 8]
       },
       {
         "algorithm": "SHA3-256",
         "revision": "2.0",
         "messageLength": [{
           "min": 0, "max": 65536, "increment": 8
-          }]
+          }],
+        "performLargeDataTest": [1, 2, 4, 8]
       },
       {
         "algorithm": "SHA3-384",
         "revision": "2.0",
         "messageLength": [{
           "min": 0, "max": 65536, "increment": 8
-        }]
+        }],
+        "performLargeDataTest": [1, 2, 4, 8]
       },
       {
         "algorithm": "SHA3-512",
         "revision": "2.0",
         "messageLength": [{
           "min": 0, "max": 65536, "increment": 8
-          }]
+          }],
+        "performLargeDataTest": [1, 2, 4, 8]
+      },
+      {
+        "algorithm": "SHAKE-128",
+        "revision": "2.0",
+        "messageLength": [{
+          "min": 0, "max": 65536, "increment": 8
+          }],
+        "performLargeDataTest": [1, 2, 4, 8]
+      },
+      {
+        "algorithm": "SHAKE-256",
+        "revision": "2.0",
+        "messageLength": [{
+          "min": 0, "max": 65536, "increment": 8
+          }],
+        "performLargeDataTest": [1, 2, 4, 8]
       },
       {
         "algorithm": "SHA-1",
         "revision": "1.0",
         "messageLength": [{
           "min": 0, "max": 65528, "increment": 8
-        }]
+        }],
+        "performLargeDataTest": [1, 2, 4, 8]
       },
       {
         "algorithm": "ACVP-AES-XTS",
@@ -414,6 +450,16 @@ static bool GetConfig(const Span<const uint8_t> args[], ReplyCallback write_repl
         }]
       },
       {
+        "algorithm": "HMAC-SHA2-512/224",
+        "revision": "1.0",
+        "keyLen": [{
+          "min": 8, "max": 524288, "increment": 8
+        }],
+        "macLen": [{
+          "min": 32, "max": 224, "increment": 8
+        }]
+      },
+      {
         "algorithm": "HMAC-SHA2-512/256",
         "revision": "1.0",
         "keyLen": [{
@@ -525,6 +571,7 @@ static bool GetConfig(const Span<const uint8_t> args[], ReplyCallback write_repl
             "SHA2-256",
             "SHA2-384",
             "SHA2-512",
+            "SHA2-512/224",
             "SHA2-512/256"
           ]
         }]
@@ -546,6 +593,7 @@ static bool GetConfig(const Span<const uint8_t> args[], ReplyCallback write_repl
             "SHA2-256",
             "SHA2-384",
             "SHA2-512",
+            "SHA2-512/224",
             "SHA2-512/256"
           ]
         }]
@@ -594,6 +642,10 @@ static bool GetConfig(const Span<const uint8_t> args[], ReplyCallback write_repl
               "hashAlg": "SHA2-384"
             }, {
               "hashAlg": "SHA2-512"
+            }, {
+              "hashAlg": "SHA2-512/224"
+            }, {
+              "hashAlg": "SHA2-512/256"
             }]
           }]
         },{
@@ -608,6 +660,10 @@ static bool GetConfig(const Span<const uint8_t> args[], ReplyCallback write_repl
               "hashAlg": "SHA2-384"
             }, {
               "hashAlg": "SHA2-512"
+            }, {
+              "hashAlg": "SHA2-512/224"
+            }, {
+              "hashAlg": "SHA2-512/256"
             }]
           }]
         },{
@@ -622,6 +678,10 @@ static bool GetConfig(const Span<const uint8_t> args[], ReplyCallback write_repl
               "hashAlg": "SHA2-384"
             }, {
               "hashAlg": "SHA2-512"
+            }, {
+              "hashAlg": "SHA2-512/224"
+            }, {
+              "hashAlg": "SHA2-512/256"
             }]
           }]
         },{
@@ -641,6 +701,9 @@ static bool GetConfig(const Span<const uint8_t> args[], ReplyCallback write_repl
               "hashAlg": "SHA2-512",
               "saltLen": 64
             }, {
+              "hashAlg": "SHA2-512/224",
+              "saltLen": 28
+            }, {
               "hashAlg": "SHA2-512/256",
               "saltLen": 32
             }]
@@ -662,6 +725,9 @@ static bool GetConfig(const Span<const uint8_t> args[], ReplyCallback write_repl
               "hashAlg": "SHA2-512",
               "saltLen": 64
             }, {
+              "hashAlg": "SHA2-512/224",
+              "saltLen": 28
+            }, {
               "hashAlg": "SHA2-512/256",
               "saltLen": 32
             }]
@@ -682,6 +748,9 @@ static bool GetConfig(const Span<const uint8_t> args[], ReplyCallback write_repl
             }, {
               "hashAlg": "SHA2-512",
               "saltLen": 64
+            }, {
+              "hashAlg": "SHA2-512/224",
+              "saltLen": 28
             }, {
               "hashAlg": "SHA2-512/256",
               "saltLen": 32
@@ -708,6 +777,10 @@ static bool GetConfig(const Span<const uint8_t> args[], ReplyCallback write_repl
             }, {
               "hashAlg": "SHA2-512"
             }, {
+              "hashAlg": "SHA2-512/224"
+            }, {
+              "hashAlg": "SHA2-512/256"
+            }, {
               "hashAlg": "SHA-1"
             }]
           }]
@@ -723,6 +796,10 @@ static bool GetConfig(const Span<const uint8_t> args[], ReplyCallback write_repl
               "hashAlg": "SHA2-384"
             }, {
               "hashAlg": "SHA2-512"
+            }, {
+              "hashAlg": "SHA2-512/224"
+            }, {
+              "hashAlg": "SHA2-512/256"
             }, {
               "hashAlg": "SHA-1"
             }]
@@ -740,6 +817,10 @@ static bool GetConfig(const Span<const uint8_t> args[], ReplyCallback write_repl
             }, {
               "hashAlg": "SHA2-512"
             }, {
+              "hashAlg": "SHA2-512/224"
+            }, {
+              "hashAlg": "SHA2-512/256"
+            }, {
               "hashAlg": "SHA-1"
             }]
           }]
@@ -755,6 +836,10 @@ static bool GetConfig(const Span<const uint8_t> args[], ReplyCallback write_repl
               "hashAlg": "SHA2-384"
             }, {
               "hashAlg": "SHA2-512"
+            }, {
+              "hashAlg": "SHA2-512/224"
+            }, {
+              "hashAlg": "SHA2-512/256"
             }, {
               "hashAlg": "SHA-1"
             }]
@@ -773,6 +858,9 @@ static bool GetConfig(const Span<const uint8_t> args[], ReplyCallback write_repl
               "hashAlg": "SHA2-384",
               "saltLen": 48
             }, {
+              "hashAlg": "SHA2-512/224",
+              "saltLen": 28
+            }, {
               "hashAlg": "SHA2-512/256",
               "saltLen": 32
             }, {
@@ -796,6 +884,9 @@ static bool GetConfig(const Span<const uint8_t> args[], ReplyCallback write_repl
             }, {
               "hashAlg": "SHA2-512",
               "saltLen": 64
+            }, {
+              "hashAlg": "SHA2-512/224",
+              "saltLen": 28
             }, {
               "hashAlg": "SHA2-512/256",
               "saltLen": 32
@@ -821,6 +912,9 @@ static bool GetConfig(const Span<const uint8_t> args[], ReplyCallback write_repl
               "hashAlg": "SHA2-512",
               "saltLen": 64
             }, {
+              "hashAlg": "SHA2-512/224",
+              "saltLen": 28
+            }, {
               "hashAlg": "SHA2-512/256",
               "saltLen": 32
             }, {
@@ -844,6 +938,9 @@ static bool GetConfig(const Span<const uint8_t> args[], ReplyCallback write_repl
             }, {
               "hashAlg": "SHA2-512",
               "saltLen": 64
+            }, {
+              "hashAlg": "SHA2-512/224",
+              "saltLen": 28
             }, {
               "hashAlg": "SHA2-512/256",
               "saltLen": 32
@@ -884,6 +981,7 @@ static bool GetConfig(const Span<const uint8_t> args[], ReplyCallback write_repl
             "HMAC-SHA2-256",
             "HMAC-SHA2-384",
             "HMAC-SHA2-512",
+            "HMAC-SHA2-512/224",
             "HMAC-SHA2-512/256"
           ],
           "customKeyInLength": 0,
@@ -1036,6 +1134,26 @@ static bool HashSha3(const Span<const uint8_t> args[], ReplyCallback write_reply
   return write_reply({Span<const uint8_t>(digest)});
 }
 
+template <const EVP_MD *(MDFunc)()>
+static bool HashXof(const Span<const uint8_t> args[], ReplyCallback write_reply) {
+  // NOTE: Max outLen in the test vectors is 1024 bits (128 bytes). If that
+  //       changes, we'll need to use a bigger stack-allocated array size here.
+  uint8_t digest[128];
+  const EVP_MD *md = MDFunc();
+  const uint8_t *outlen_bytes = args[1].data();
+  // MD outLen is passed to modulewrapper as a length-4 byte array representing
+  // a little-endian unsigned 32-bit integer.
+  uint32_t md_out_size = 0;
+  md_out_size |= outlen_bytes[3] << 24;
+  md_out_size |= outlen_bytes[2] << 16;
+  md_out_size |= outlen_bytes[1] << 8;
+  md_out_size |= outlen_bytes[0] << 0;
+
+  EVP_Digest(args[0].data(), args[0].size(), digest, &md_out_size, md, NULL);
+
+  return write_reply({Span<const uint8_t>(digest, md_out_size)});
+}
+
 template <uint8_t *(*OneShotHash)(const uint8_t *, size_t, uint8_t *),
           size_t DigestLength>
 static bool HashMCT(const Span<const uint8_t> args[],
@@ -1069,7 +1187,6 @@ static bool HashMCTSha3(const Span<const uint8_t> args[],
   const EVP_MD *evp_md = MDFunc();
   unsigned int md_out_size = DigestLength;
 
-
   // The following logic conforms to the Monte Carlo tests described in
   // https://pages.nist.gov/ACVP/draft-celi-acvp-sha3.html#name-monte-carlo-tests-for-sha3-
   unsigned char md[1001][DigestLength];
@@ -1084,6 +1201,82 @@ static bool HashMCTSha3(const Span<const uint8_t> args[],
 
   return write_reply(
       {Span<const uint8_t>(md[1000])});
+}
+
+template <const EVP_MD *(MDFunc)()>
+static bool HashMCTXof(const Span<const uint8_t> args[], ReplyCallback write_reply) {
+  // The spec for SHAKE monte carlo tests is written to be generic between a
+  // minimum and maximum output length, but the vectors obtained from ACVP
+  // allow only 1024 bits. Supporting dynamically sized MCTs would require
+  // passing the min/max output lengths to the modulewrapper, parsing ibid.,
+  // and dynamically allocating and freeing appropriately sized bufffers. To
+  // keep things simple, we defer that complexity until/if needed.
+  //
+  // https://pages.nist.gov/ACVP/draft-celi-acvp-sha3.html#name-shake-monte-carlo-test
+  const unsigned output_len = 1024/8;
+  const unsigned msg_size = 128/8;
+  const size_t array_len = 1001;
+  unsigned char md[array_len][output_len];
+  unsigned char msg[array_len][msg_size];
+
+  // Zero out |md| and |msg| to clear any residual stack garbage before XOF computation
+  for (size_t i = 0; i < array_len; i++) {
+    OPENSSL_cleanse(md[i], sizeof(md[0]) * sizeof(unsigned char));
+    OPENSSL_cleanse(msg[i], sizeof(msg[0]) * sizeof(unsigned char));
+  }
+
+  memcpy(md[0], args[0].data(), msg_size);
+
+  unsigned output_len_mut = output_len;
+  for (size_t i = 1; i < array_len; i++) {
+    memcpy(msg[i], md[i-1], msg_size);
+    EVP_Digest(msg[i], sizeof(msg[i]), md[i], &output_len_mut, MDFunc(), NULL);
+  }
+
+  return write_reply({Span<const uint8_t>(md[1000])});
+}
+
+// The following logic conforms to the Large Data Tests described in
+// https://pages.nist.gov/ACVP/draft-celi-acvp-sha.html#name-large-data-tests-for-sha-1-
+// Which are the same for SHA-1, SHA2, and SHA3
+static unsigned char* BuildLDTMessage(const bssl::Span<const uint8_t> part_msg, int times) {
+  size_t full_msg_size = part_msg.size() * times;
+  unsigned char* full_msg = (unsigned char*) malloc (full_msg_size);
+  for(int i = 0; i < times; i++) {
+    memcpy(full_msg + i * part_msg.size(), part_msg.data(), part_msg.size());
+  }
+
+  return full_msg;
+}
+
+template <uint8_t *(*OneShotHash)(const uint8_t *, size_t, uint8_t *),
+          size_t DigestLength>
+static bool HashLDT(const Span<const uint8_t> args[], ReplyCallback write_reply) {
+  uint8_t digest[DigestLength];
+  int times;
+  memcpy(&times, args[1].data(), sizeof(int));
+
+  unsigned char *msg = BuildLDTMessage(args[0], times);
+
+  OneShotHash(msg, args[0].size() * times, digest);
+  free(msg);
+  return write_reply({Span<const uint8_t>(digest)});
+}
+
+template <const EVP_MD *(MDFunc)(), size_t DigestLength>
+static bool HashLDTSha3(const Span<const uint8_t> args[], ReplyCallback write_reply) {
+  uint8_t digest[DigestLength];
+  const EVP_MD *md = MDFunc();
+  unsigned int md_out_size = DigestLength;
+
+  int times;
+  memcpy(&times, args[1].data(), sizeof(int));
+
+  unsigned char *msg = BuildLDTMessage(args[0], times);
+
+  EVP_Digest(msg, args[0].size() * times, digest, &md_out_size, md, nullptr);
+  free(msg);
+  return write_reply({Span<const uint8_t>(digest)});
 }
 
 static uint32_t GetIterations(const Span<const uint8_t> iterations_bytes) {
@@ -1824,8 +2017,14 @@ static const EVP_MD *HashFromName(Span<const uint8_t> name) {
     return EVP_sha384();
   } else if (StringEq(name, "SHA2-512")) {
     return EVP_sha512();
+  } else if (StringEq(name, "SHA2-512/224")) {
+    return EVP_sha512_224();
   } else if (StringEq(name, "SHA2-512/256")) {
     return EVP_sha512_256();
+  } else if  (StringEq(name, "SHAKE-128")) {
+    return EVP_shake128();
+  } else if  (StringEq(name, "SHAKE-256")) {
+    return EVP_shake256();
   } else {
     return nullptr;
   }
@@ -2321,21 +2520,38 @@ static struct {
     {"SHA2-256", 1, Hash<SHA256, SHA256_DIGEST_LENGTH>},
     {"SHA2-384", 1, Hash<SHA384, SHA384_DIGEST_LENGTH>},
     {"SHA2-512", 1, Hash<SHA512, SHA512_DIGEST_LENGTH>},
+    {"SHA2-512/224", 1, Hash<SHA512_224, SHA512_224_DIGEST_LENGTH>},
     {"SHA2-512/256", 1, Hash<SHA512_256, SHA512_256_DIGEST_LENGTH>},
     {"SHA3-224", 1, HashSha3<EVP_sha3_224, SHA224_DIGEST_LENGTH>},
     {"SHA3-256", 1, HashSha3<EVP_sha3_256, SHA256_DIGEST_LENGTH>},
     {"SHA3-384", 1, HashSha3<EVP_sha3_384, SHA384_DIGEST_LENGTH>},
     {"SHA3-512", 1, HashSha3<EVP_sha3_512, SHA512_DIGEST_LENGTH>},
+    {"SHAKE-128", 2, HashXof<EVP_shake128>},
+    {"SHAKE-256", 2, HashXof<EVP_shake256>},
     {"SHA-1/MCT", 1, HashMCT<SHA1, SHA_DIGEST_LENGTH>},
     {"SHA2-224/MCT", 1, HashMCT<SHA224, SHA224_DIGEST_LENGTH>},
     {"SHA2-256/MCT", 1, HashMCT<SHA256, SHA256_DIGEST_LENGTH>},
     {"SHA2-384/MCT", 1, HashMCT<SHA384, SHA384_DIGEST_LENGTH>},
     {"SHA2-512/MCT", 1, HashMCT<SHA512, SHA512_DIGEST_LENGTH>},
+    {"SHA2-512/224/MCT", 1, HashMCT<SHA512_224, SHA512_224_DIGEST_LENGTH>},
     {"SHA2-512/256/MCT", 1, HashMCT<SHA512_256, SHA512_256_DIGEST_LENGTH>},
     {"SHA3-224/MCT", 1, HashMCTSha3<EVP_sha3_224, SHA224_DIGEST_LENGTH>},
     {"SHA3-256/MCT", 1, HashMCTSha3<EVP_sha3_256, SHA256_DIGEST_LENGTH>},
     {"SHA3-384/MCT", 1, HashMCTSha3<EVP_sha3_384, SHA384_DIGEST_LENGTH>},
     {"SHA3-512/MCT", 1, HashMCTSha3<EVP_sha3_512, SHA512_DIGEST_LENGTH>},
+    {"SHAKE-128/MCT", 1, HashMCTXof<EVP_shake128>},
+    {"SHAKE-256/MCT", 1, HashMCTXof<EVP_shake256>},
+    {"SHA-1/LDT", 2, HashLDT<SHA1, SHA_DIGEST_LENGTH>},
+    {"SHA2-224/LDT", 2, HashLDT<SHA224, SHA224_DIGEST_LENGTH>},
+    {"SHA2-256/LDT", 2, HashLDT<SHA256, SHA256_DIGEST_LENGTH>},
+    {"SHA2-384/LDT", 2, HashLDT<SHA384, SHA384_DIGEST_LENGTH>},
+    {"SHA2-512/LDT", 2, HashLDT<SHA512, SHA512_DIGEST_LENGTH>},
+    {"SHA2-512/224/LDT", 2, HashLDT<SHA512_224, SHA512_224_DIGEST_LENGTH>},
+    {"SHA2-512/256/LDT", 2, HashLDT<SHA512_256, SHA512_256_DIGEST_LENGTH>},
+    {"SHA3-224/LDT", 2, HashLDTSha3<EVP_sha3_224, SHA224_DIGEST_LENGTH>},
+    {"SHA3-256/LDT", 2, HashLDTSha3<EVP_sha3_256, SHA256_DIGEST_LENGTH>},
+    {"SHA3-384/LDT", 2, HashLDTSha3<EVP_sha3_384, SHA384_DIGEST_LENGTH>},
+    {"SHA3-512/LDT", 2, HashLDTSha3<EVP_sha3_512, SHA512_DIGEST_LENGTH>},
     {"AES/encrypt", 3, AES<AES_set_encrypt_key, AES_encrypt>},
     {"AES/decrypt", 3, AES<AES_set_decrypt_key, AES_decrypt>},
     {"AES-XTS/encrypt", 3, AES_XTS<true>},
@@ -2361,6 +2577,7 @@ static struct {
     {"HMAC-SHA2-256", 2, HMAC<EVP_sha256>},
     {"HMAC-SHA2-384", 2, HMAC<EVP_sha384>},
     {"HMAC-SHA2-512", 2, HMAC<EVP_sha512>},
+    {"HMAC-SHA2-512/224", 2, HMAC<EVP_sha512_224>},
     {"HMAC-SHA2-512/256", 2, HMAC<EVP_sha512_256>},
     {"ctrDRBG/AES-256", 6, DRBG<false>},
     {"ctrDRBG-reseed/AES-256", 8, DRBG<true>},
@@ -2375,22 +2592,28 @@ static struct {
     {"RSA/sigGen/SHA2-256/pkcs1v1.5", 2, RSASigGen<EVP_sha256, false>},
     {"RSA/sigGen/SHA2-384/pkcs1v1.5", 2, RSASigGen<EVP_sha384, false>},
     {"RSA/sigGen/SHA2-512/pkcs1v1.5", 2, RSASigGen<EVP_sha512, false>},
+    {"RSA/sigGen/SHA2-512/224/pkcs1v1.5", 2, RSASigGen<EVP_sha512_224, false>},
+    {"RSA/sigGen/SHA2-512/256/pkcs1v1.5", 2, RSASigGen<EVP_sha512_256, false>},
     {"RSA/sigGen/SHA-1/pkcs1v1.5", 2, RSASigGen<EVP_sha1, false>},
     {"RSA/sigGen/SHA2-224/pss", 2, RSASigGen<EVP_sha224, true>},
     {"RSA/sigGen/SHA2-256/pss", 2, RSASigGen<EVP_sha256, true>},
     {"RSA/sigGen/SHA2-384/pss", 2, RSASigGen<EVP_sha384, true>},
     {"RSA/sigGen/SHA2-512/pss", 2, RSASigGen<EVP_sha512, true>},
+    {"RSA/sigGen/SHA2-512/224/pss", 2, RSASigGen<EVP_sha512_224, true>},
     {"RSA/sigGen/SHA2-512/256/pss", 2, RSASigGen<EVP_sha512_256, true>},
     {"RSA/sigGen/SHA-1/pss", 2, RSASigGen<EVP_sha1, true>},
     {"RSA/sigVer/SHA2-224/pkcs1v1.5", 4, RSASigVer<EVP_sha224, false>},
     {"RSA/sigVer/SHA2-256/pkcs1v1.5", 4, RSASigVer<EVP_sha256, false>},
     {"RSA/sigVer/SHA2-384/pkcs1v1.5", 4, RSASigVer<EVP_sha384, false>},
     {"RSA/sigVer/SHA2-512/pkcs1v1.5", 4, RSASigVer<EVP_sha512, false>},
+    {"RSA/sigVer/SHA2-512/224/pkcs1v1.5", 4, RSASigVer<EVP_sha512_224, false>},
+    {"RSA/sigVer/SHA2-512/256/pkcs1v1.5", 4, RSASigVer<EVP_sha512_256, false>},
     {"RSA/sigVer/SHA-1/pkcs1v1.5", 4, RSASigVer<EVP_sha1, false>},
     {"RSA/sigVer/SHA2-224/pss", 4, RSASigVer<EVP_sha224, true>},
     {"RSA/sigVer/SHA2-256/pss", 4, RSASigVer<EVP_sha256, true>},
     {"RSA/sigVer/SHA2-384/pss", 4, RSASigVer<EVP_sha384, true>},
     {"RSA/sigVer/SHA2-512/pss", 4, RSASigVer<EVP_sha512, true>},
+    {"RSA/sigVer/SHA2-512/224/pss", 4, RSASigVer<EVP_sha512_224, true>},
     {"RSA/sigVer/SHA2-512/256/pss", 4, RSASigVer<EVP_sha512_256, true>},
     {"RSA/sigVer/SHA-1/pss", 4, RSASigVer<EVP_sha1, true>},
     {"TLSKDF/1.0/SHA-1", 5, TLSKDF<EVP_md5_sha1>},
@@ -2443,6 +2666,7 @@ static struct {
     {"KDF/Feedback/HMAC-SHA2-256", 3, HKDF_expand<EVP_sha256>},
     {"KDF/Feedback/HMAC-SHA2-384", 3, HKDF_expand<EVP_sha384>},
     {"KDF/Feedback/HMAC-SHA2-512", 3, HKDF_expand<EVP_sha512>},
+    {"KDF/Feedback/HMAC-SHA2-512/224", 3, HKDF_expand<EVP_sha512_224>},
     {"KDF/Feedback/HMAC-SHA2-512/256", 3, HKDF_expand<EVP_sha512_256>},
 };
 

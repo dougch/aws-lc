@@ -74,10 +74,9 @@
 // opensslconf.h.
 #include <openssl/is_awslc.h>
 #include <openssl/opensslconf.h>
+#include <openssl/target.h>  // IWYU pragma: export
 
-#if defined(BORINGSSL_PREFIX)
-#include <boringssl_prefix_symbols.h>
-#endif
+#include <openssl/boringssl_prefix_symbols.h>
 
 #if defined(__cplusplus)
 extern "C" {
@@ -87,51 +86,7 @@ extern "C" {
 #define AWSLC_FIPS
 #endif
 
-#if defined(__x86_64) || defined(_M_AMD64) || defined(_M_X64)
-#define OPENSSL_64_BIT
-#define OPENSSL_X86_64
-#elif defined(__x86) || defined(__i386) || defined(__i386__) || defined(_M_IX86)
-#define OPENSSL_32_BIT
-#define OPENSSL_X86
-#elif defined(__AARCH64EL__) || defined(_M_ARM64)
-#define OPENSSL_64_BIT
-#define OPENSSL_AARCH64
-#elif defined(__ARMEL__) || defined(_M_ARM)
-#define OPENSSL_32_BIT
-#define OPENSSL_ARM
-#elif (defined(__PPC64__) || defined(__powerpc64__)) && defined(_LITTLE_ENDIAN)
-#define OPENSSL_64_BIT
-#define OPENSSL_PPC64LE
-#elif defined(__MIPSEL__) && !defined(__LP64__)
-#define OPENSSL_32_BIT
-#define OPENSSL_MIPS
-#elif defined(__MIPSEL__) && defined(__LP64__)
-#define OPENSSL_64_BIT
-#define OPENSSL_MIPS64
-#elif defined(__riscv) && __SIZEOF_POINTER__ == 8
-#define OPENSSL_64_BIT
-#define OPENSSL_RISCV64
-#elif defined(__riscv) && __SIZEOF_POINTER__ == 4
-#define OPENSSL_32_BIT
-#elif defined(__pnacl__)
-#define OPENSSL_32_BIT
-#define OPENSSL_PNACL
-#elif defined(__wasm__)
-#define OPENSSL_32_BIT
-#elif defined(__asmjs__)
-#define OPENSSL_32_BIT
-#elif defined(__myriad2__)
-#define OPENSSL_32_BIT
-#else
-// Note BoringSSL only supports standard 32-bit and 64-bit two's-complement,
-// little-endian architectures. Functions will not produce the correct answer
-// on other systems. Run the crypto_test binary, notably
-// crypto/compiler_test.cc, before adding a new architecture.
-#error "Unknown target CPU"
-#endif
-
 #if defined(__APPLE__)
-#define OPENSSL_APPLE
 // Note |TARGET_OS_MAC| is set for all Apple OS variants. |TARGET_OS_OSX|
 // targets macOS specifically.
 #if defined(TARGET_OS_OSX) && TARGET_OS_OSX
@@ -140,55 +95,6 @@ extern "C" {
 #if defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
 #define OPENSSL_IOS
 #endif
-#endif
-
-#if defined(_WIN32)
-#define OPENSSL_WINDOWS
-#endif
-
-// Trusty isn't Linux but currently defines __linux__. As a workaround, we
-// exclude it here.
-// TODO(b/169780122): Remove this workaround once Trusty no longer defines it.
-#if defined(__linux__) && !defined(__TRUSTY__)
-#define OPENSSL_LINUX
-#endif
-
-#if defined(__Fuchsia__)
-#define OPENSSL_FUCHSIA
-#endif
-
-#if defined(__TRUSTY__)
-#define OPENSSL_TRUSTY
-#define OPENSSL_NO_THREADS_CORRUPT_MEMORY_AND_LEAK_SECRETS_IF_THREADED
-#endif
-
-#if defined(__ANDROID_API__)
-#define OPENSSL_ANDROID
-#endif
-
-#if defined(__FreeBSD__)
-#define OPENSSL_FREEBSD
-#endif
-
-#if defined(__OpenBSD__)
-#define OPENSSL_OPENBSD
-#endif
-
-// BoringSSL requires platform's locking APIs to make internal global state
-// thread-safe, including the PRNG. On some single-threaded embedded platforms,
-// locking APIs may not exist, so this dependency may be disabled with the
-// following build flag.
-//
-// IMPORTANT: Doing so means the consumer promises the library will never be
-// used in any multi-threaded context. It causes BoringSSL to be globally
-// thread-unsafe. Setting it inappropriately will subtly and unpredictably
-// corrupt memory and leak secret keys.
-//
-// Do not set this flag on any platform where threads are possible. BoringSSL
-// maintainers will not provide support for any consumers that do so. Changes
-// which break such unsupported configurations will not be reverted.
-#if !defined(OPENSSL_NO_THREADS_CORRUPT_MEMORY_AND_LEAK_SECRETS_IF_THREADED)
-#define OPENSSL_THREADS
 #endif
 
 #define AWSLC_VERSION_NAME "AWS-LC"
@@ -208,7 +114,7 @@ extern "C" {
 // against multiple revisions of BoringSSL at the same time. It is not
 // recommended to do so for longer than is necessary.
 
-#define AWSLC_API_VERSION 21
+#define AWSLC_API_VERSION 23
 
 // This string tracks the most current production release version on Github
 // https://github.com/aws/aws-lc/releases.
@@ -216,7 +122,7 @@ extern "C" {
 // ServiceIndicatorTest.AWSLCVersionString
 // Note: there are two versions of this test. Only one test is compiled
 // depending on FIPS mode.
-#define AWSLC_VERSION_NUMBER_STRING "1.9.0"
+#define AWSLC_VERSION_NUMBER_STRING "1.17.4"
 
 #if defined(BORINGSSL_SHARED_LIBRARY)
 
@@ -247,6 +153,34 @@ extern "C" {
 #endif
 
 #endif  // defined(BORINGSSL_SHARED_LIBRARY)
+
+#if defined(_MSC_VER)
+
+// OPENSSL_DEPRECATED is used to mark a function as deprecated. Use
+// of any functions so marked in caller code will produce a warning.
+// OPENSSL_BEGIN_ALLOW_DEPRECATED and OPENSSL_END_ALLOW_DEPRECATED
+// can be used to suppress the warning in regions of caller code.
+#define OPENSSL_DEPRECATED __declspec(deprecated)
+#define OPENSSL_BEGIN_ALLOW_DEPRECATED \
+  __pragma(warning(push)) __pragma(warning(disable : 4996))
+#define OPENSSL_END_ALLOW_DEPRECATED __pragma(warning(pop))
+
+#elif (defined(__GNUC__) && ((__GNUC__ > 4) ||  (__GNUC_MINOR__ >= 6))) || defined(__clang__)
+// `_Pragma("GCC diagnostic push")` was added in GCC 4.6
+// http://gcc.gnu.org/gcc-4.6/changes.html
+#define OPENSSL_DEPRECATED __attribute__((__deprecated__))
+#define OPENSSL_BEGIN_ALLOW_DEPRECATED \
+  _Pragma("GCC diagnostic push")       \
+      _Pragma("GCC diagnostic ignored \"-Wdeprecated-declarations\"")
+#define OPENSSL_END_ALLOW_DEPRECATED _Pragma("GCC diagnostic pop")
+
+#else
+
+#define OPENSSL_DEPRECATED
+#define OPENSSL_BEGIN_ALLOW_DEPRECATED
+#define OPENSSL_END_ALLOW_DEPRECATED
+
+#endif
 
 
 #if defined(__GNUC__) || defined(__clang__)
@@ -306,31 +240,6 @@ extern "C" {
 // clang's -Wunused-function.
 #define OPENSSL_INLINE static inline OPENSSL_UNUSED
 #endif
-
-#if defined(BORINGSSL_UNSAFE_FUZZER_MODE) && \
-    !defined(BORINGSSL_UNSAFE_DETERMINISTIC_MODE)
-#define BORINGSSL_UNSAFE_DETERMINISTIC_MODE
-#endif
-
-#if defined(__has_feature)
-#if __has_feature(address_sanitizer)
-#define OPENSSL_ASAN
-#endif
-#if __has_feature(thread_sanitizer)
-#define OPENSSL_TSAN
-#endif
-#if __has_feature(memory_sanitizer)
-#define OPENSSL_MSAN
-#define OPENSSL_ASM_INCOMPATIBLE
-#endif
-#endif
-
-#if defined(OPENSSL_ASM_INCOMPATIBLE)
-#undef OPENSSL_ASM_INCOMPATIBLE
-#if !defined(OPENSSL_NO_ASM)
-#define OPENSSL_NO_ASM
-#endif
-#endif  // OPENSSL_ASM_INCOMPATIBLE
 
 // ossl_ssize_t is a signed type which is large enough to fit the size of any
 // valid memory allocation. We prefer using |size_t|, but sometimes we need a
@@ -400,6 +309,7 @@ typedef struct blake2b_state_st BLAKE2B_CTX;
 typedef struct bn_gencb_st BN_GENCB;
 typedef struct bn_mont_ctx_st BN_MONT_CTX;
 typedef struct buf_mem_st BUF_MEM;
+typedef struct cast_key_st CAST_KEY;
 typedef struct cbb_st CBB;
 typedef struct cbs_st CBS;
 typedef struct cmac_ctx_st CMAC_CTX;
@@ -430,9 +340,7 @@ typedef struct evp_hpke_kem_st EVP_HPKE_KEM;
 typedef struct evp_hpke_key_st EVP_HPKE_KEY;
 typedef struct evp_kem_st EVP_KEM;
 typedef struct kem_key_st KEM_KEY;
-typedef struct evp_pkey_asn1_method_st EVP_PKEY_ASN1_METHOD;
 typedef struct evp_pkey_ctx_st EVP_PKEY_CTX;
-typedef struct evp_pkey_method_st EVP_PKEY_METHOD;
 typedef struct evp_pkey_st EVP_PKEY;
 typedef struct hmac_ctx_st HMAC_CTX;
 typedef struct md4_state_st MD4_CTX;
@@ -479,17 +387,6 @@ typedef struct x509_store_st X509_STORE;
 typedef struct x509_trust_st X509_TRUST;
 
 typedef void *OPENSSL_BLOCK;
-
-#ifndef __has_attribute
-#define __has_attribute(x) 0
-#endif
-#if __STDC_VERSION__ > 202300L
-#define AWS_LC_DEPRECATED [[deprecated]]
-#elif __has_attribute(deprecated)
-#define AWS_LC_DEPRECATED __attribute__((deprecated))
-#else
-#define AWS_LC_DEPRECATED /* deprecated */
-#endif
 
 #if defined(__cplusplus)
 }  // extern C

@@ -7,9 +7,7 @@ default	rel
 %define YMMWORD
 %define ZMMWORD
 
-%ifdef BORINGSSL_PREFIX
-%include "boringssl_prefix_symbols_nasm.inc"
-%endif
+%include "openssl/boringssl_prefix_symbols_nasm.inc"
 section	.text code align=64
 
 
@@ -443,7 +441,7 @@ $L$reverse_bytes:
 
 $L$low4_mask:
 	DQ	0x0f0f0f0f0f0f0f0f,0x0f0f0f0f0f0f0f0f
-section	.text code align=64
+section	.text
 
 section	.pdata rdata align=4
 ALIGN	4

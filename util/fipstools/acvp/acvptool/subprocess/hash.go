@@ -15,9 +15,11 @@
 package subprocess
 
 import (
+	"encoding/binary"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"strings"
 )
 
 // The following structures reflect the JSON of ACVP hash tests. See
@@ -28,13 +30,24 @@ type hashTestVectorSet struct {
 }
 
 type hashTestGroup struct {
-	ID    uint64 `json:"tgId"`
-	Type  string `json:"testType"`
-	Tests []struct {
-		ID        uint64 `json:"tcId"`
-		BitLength uint64 `json:"len"`
-		MsgHex    string `json:"msg"`
+	ID        uint64  `json:"tgId"`
+	Type      string  `json:"testType"`
+	MaxOutLen *uint64 `json:"maxOutLen,omitempty"`
+	MinOutLen *uint64 `json:"minxOutLen,omitempty"`
+	Tests     []struct {
+		ID           uint64       `json:"tcId"`
+		BitLength    uint64       `json:"len"`
+		MsgHex       string       `json:"msg"`
+		OutputLength *uint64      `json:"outLen,omitempty"`
+		LargeMsg     hashLargeMsg `json:"largeMsg"`
 	} `json:"tests"`
+}
+
+type hashLargeMsg struct {
+	ContentHex    string `json:"content"`
+	ContentLength uint64 `json:"contentLength"`
+	FullLength    uint64 `json:"fullLength"`
+	ExpansionTech string `json:"expansionTechnique"`
 }
 
 type hashTestGroupResponse struct {
@@ -62,7 +75,7 @@ type hashPrimitive struct {
 	size int
 }
 
-func (h *hashPrimitive) Process(vectorSet []byte, m Transactable) (interface{}, error) {
+func (h *hashPrimitive) Process(vectorSet []byte, m Transactable) (any, error) {
 	var parsed hashTestVectorSet
 	if err := json.Unmarshal(vectorSet, &parsed); err != nil {
 		return nil, err
@@ -88,8 +101,16 @@ func (h *hashPrimitive) Process(vectorSet []byte, m Transactable) (interface{}, 
 
 			// http://usnistgov.github.io/ACVP/artifacts/draft-celi-acvp-sha-00.html#rfc.section.3
 			switch group.Type {
+			case "VOT":
+				fallthrough
 			case "AFT":
-				result, err := m.Transact(h.algo, 1, msg)
+				args := [][]byte{}
+				args = append(args, msg)
+				if test.OutputLength != nil {
+					outLenBytes := *test.OutputLength / 8
+					args = append(args, uint32le(uint32(outLenBytes)))
+				}
+				result, err := m.Transact(h.algo, 1, args...)
 				if err != nil {
 					panic(h.algo + " hash operation failed: " + err.Error())
 				}
@@ -100,7 +121,10 @@ func (h *hashPrimitive) Process(vectorSet []byte, m Transactable) (interface{}, 
 				})
 
 			case "MCT":
-				if len(msg) != h.size {
+				// MCT tests for conventional digest functions expect message
+				// and digest output lengths to be equivalent, however SHAKE
+				// does not have a predefined output length.
+				if len(msg) != h.size && !strings.HasPrefix(h.algo, "SHAKE") {
 					return nil, fmt.Errorf("MCT test case %d/%d contains message of length %d but the digest length is %d", group.ID, test.ID, len(msg), h.size)
 				}
 
@@ -118,6 +142,31 @@ func (h *hashPrimitive) Process(vectorSet []byte, m Transactable) (interface{}, 
 				}
 
 				response.Tests = append(response.Tests, testResponse)
+
+			case "LDT":
+				if test.LargeMsg.ExpansionTech != "repeating" {
+					return nil, fmt.Errorf("test case %d has invalid expantion technique", test.ID)
+				}
+
+				// We will send this information over to the modulewrapper for handling b/c of the limit on argument lengths in the buffer.
+				times := test.LargeMsg.FullLength / test.LargeMsg.ContentLength
+
+				content, err := hex.DecodeString(test.LargeMsg.ContentHex)
+				if err != nil {
+					return nil, fmt.Errorf("failed to decode hex in test case %d/%d: %s", group.ID, test.ID, err)
+				}
+
+				timesByteArr := make([]byte, 8)
+				binary.LittleEndian.PutUint64(timesByteArr, times)
+				result, err := m.Transact(h.algo+"/LDT", 1, content, timesByteArr)
+				if err != nil {
+					panic(h.algo + " LDT hash operation failed: " + err.Error())
+				}
+
+				response.Tests = append(response.Tests, hashTestResponse{
+					ID:        test.ID,
+					DigestHex: hex.EncodeToString(result[0]),
+				})
 
 			default:
 				return nil, fmt.Errorf("test group %d has unknown type %q", group.ID, group.Type)

@@ -104,9 +104,20 @@ typedef void *(*X509V3_EXT_R2I)(const X509V3_EXT_METHOD *method,
 struct v3_ext_method {
   int ext_nid;
   int ext_flags;
-  // If this is set the following four fields are ignored
+
+  // it determines how values of this extension are allocated, released, parsed,
+  // and marshalled. This must be non-NULL.
   ASN1_ITEM_EXP *it;
-  // Old style ASN1 calls
+
+  // The following functions are ignored in favor of |it|. They are retained in
+  // the struct only for source compatibility with existing struct definitions.
+  //
+  // Only OCSP nonce extensions currently rely on these functions with AWS-LC.
+  // This is to maintain backwards compatibility with how OCSP nonce extensions
+  // are handled in OpenSSL. This can't be easily removed because OpenSSL
+  // considers the OCSP nonce to be "special".
+  // |X509V3_EXT_add| enforces |it| to be non-NULL, so external users are not
+  // allowed to use the following functions.
   X509V3_EXT_NEW ext_new;
   X509V3_EXT_FREE ext_free;
   X509V3_EXT_D2I d2i;
@@ -130,7 +141,6 @@ struct v3_ext_method {
 DEFINE_STACK_OF(X509V3_EXT_METHOD)
 
 // ext_flags values
-#define X509V3_EXT_DYNAMIC 0x1
 #define X509V3_EXT_CTX_DEP 0x2
 #define X509V3_EXT_MULTILINE 0x4
 
@@ -421,9 +431,15 @@ OPENSSL_EXPORT GENERAL_NAME *GENERAL_NAME_dup(GENERAL_NAME *a);
 // human-readable print functions. If extracting a SAN list from a certificate,
 // look at |gen| directly.
 OPENSSL_EXPORT STACK_OF(CONF_VALUE) *i2v_GENERAL_NAME(
-    const X509V3_EXT_METHOD *method, GENERAL_NAME *gen,
+    const X509V3_EXT_METHOD *method, const GENERAL_NAME *gen,
     STACK_OF(CONF_VALUE) *ret);
-OPENSSL_EXPORT int GENERAL_NAME_print(BIO *out, GENERAL_NAME *gen);
+
+// GENERAL_NAME_print prints a human-readable representation of |gen| to |out|.
+// It returns one on success and zero on error.
+//
+// TODO(davidben): Actually, it just returns one and doesn't check for I/O or
+// allocation errors. But it should return zero on error.
+OPENSSL_EXPORT int GENERAL_NAME_print(BIO *out, const GENERAL_NAME *gen);
 
 // TODO(https://crbug.com/boringssl/407): This is not const because it contains
 // an |X509_NAME|.
@@ -439,7 +455,7 @@ DECLARE_ASN1_FUNCTIONS(GENERAL_NAMES)
 // human-readable print functions. If extracting a SAN list from a certificate,
 // look at |gen| directly.
 OPENSSL_EXPORT STACK_OF(CONF_VALUE) *i2v_GENERAL_NAMES(
-    const X509V3_EXT_METHOD *method, GENERAL_NAMES *gen,
+    const X509V3_EXT_METHOD *method, const GENERAL_NAMES *gen,
     STACK_OF(CONF_VALUE) *extlist);
 OPENSSL_EXPORT GENERAL_NAMES *v2i_GENERAL_NAMES(
     const X509V3_EXT_METHOD *method, const X509V3_CTX *ctx,
@@ -457,8 +473,12 @@ OPENSSL_EXPORT int GENERAL_NAME_get0_otherName(const GENERAL_NAME *gen,
                                                ASN1_OBJECT **poid,
                                                ASN1_TYPE **pvalue);
 
+// i2s_ASN1_OCTET_STRING returns a human-readable representation of |oct| as a
+// newly-allocated, NUL-terminated string, or NULL on error. |method| is
+// ignored. The caller must release the result with |OPENSSL_free| when done.
 OPENSSL_EXPORT char *i2s_ASN1_OCTET_STRING(const X509V3_EXT_METHOD *method,
-                                           const ASN1_OCTET_STRING *ia5);
+                                           const ASN1_OCTET_STRING *oct);
+
 OPENSSL_EXPORT ASN1_OCTET_STRING *s2i_ASN1_OCTET_STRING(
     const X509V3_EXT_METHOD *method, const X509V3_CTX *ctx, const char *str);
 
@@ -536,9 +556,11 @@ OPENSSL_EXPORT void X509V3_conf_free(CONF_VALUE *val);
 //
 // These functions are not safe to use with untrusted inputs. The string formats
 // may implicitly reference context information and, in OpenSSL (though not
-// BoringSSL), one even allows reading arbitrary files. They additionally see
-// much less testing and review than most of the library and may have bugs
-// including memory leaks or crashes.
+// BoringSSL), one even allows reading arbitrary files. Many formats can also
+// produce far larger outputs than their inputs, so untrusted inputs may lead to
+// denial-of-service attacks. Finally, the parsers see much less testing and
+// review than most of the library and may have bugs including memory leaks or
+// crashes.
 
 // v3_ext_ctx, aka |X509V3_CTX|, contains additional context information for
 // constructing extensions. Some string formats reference additional values in
@@ -610,13 +632,23 @@ OPENSSL_EXPORT X509_EXTENSION *X509V3_EXT_nconf_nid(const CONF *conf,
 
 // X509V3_EXT_conf_nid calls |X509V3_EXT_nconf_nid|. |conf| must be NULL.
 //
-// TODO(davidben): This is the only exposed instance of an LHASH in our public
-// headers. cryptography.io wraps this function so we cannot, yet, replace the
-// type with a dummy struct.
+// TODO(davidben): This and |X509V3_EXT_conf| are the only exposed instance of
+// |LHASH| in our public headers. cryptography.io wraps this function so we
+// cannot replace the type with a dummy struct.
 OPENSSL_EXPORT X509_EXTENSION *X509V3_EXT_conf_nid(LHASH_OF(CONF_VALUE) *conf,
                                                    const X509V3_CTX *ctx,
                                                    int ext_nid,
                                                    const char *value);
+
+// X509V3_EXT_conf calls |X509V3_EXT_nconf|. |conf| must be NULL.
+//
+// NOTE: This is only provided for compatibility. See |X509V3_EXT_nconf|
+// instead.
+OPENSSL_EXPORT X509_EXTENSION *X509V3_EXT_conf(LHASH_OF(CONF_VALUE) *conf,
+                                               X509V3_CTX *ctx,
+                                               const char *name,
+                                               const char *value);
+
 
 // X509V3_EXT_add_nconf_sk looks up the section named |section| in |conf|. For
 // each |CONF_VALUE| in the section, it constructs an extension as in
@@ -653,9 +685,55 @@ OPENSSL_EXPORT ASN1_INTEGER *s2i_ASN1_INTEGER(const X509V3_EXT_METHOD *meth,
                                               const char *value);
 OPENSSL_EXPORT char *i2s_ASN1_ENUMERATED(const X509V3_EXT_METHOD *meth,
                                          const ASN1_ENUMERATED *aint);
-OPENSSL_EXPORT int X509V3_EXT_add(X509V3_EXT_METHOD *ext);
+
+// X509V3_EXT_add registers |ext| as a custom extension for the extension type
+// |ext->ext_nid|. |ext| must be valid for the remainder of the address space's
+// lifetime. It returns one on success and zero on error.
+//
+// WARNING: This function modifies global state. If other code in the same
+// address space also registers an extension with type |ext->ext_nid|, the two
+// registrations will conflict. Which registration takes effect is undefined. If
+// the two registrations use incompatible in-memory representations, code
+// expecting the other registration will then cast a type to the wrong type,
+// resulting in a potentially exploitable memory error. This conflict can also
+// occur if BoringSSL later adds support for |ext->ext_nid|, with a different
+// in-memory representation than the one expected by |ext|.
+//
+// This function, additionally, is not thread-safe and cannot be called
+// concurrently with any other BoringSSL function.
+//
+// As a result, it is impossible to safely use this function. Registering a
+// custom extension has no impact on certificate verification so, instead,
+// callers should simply handle the custom extension with the byte-based
+// |X509_EXTENSION| APIs directly. Registering |ext| with the library has little
+// practical value.
+OPENSSL_EXPORT OPENSSL_DEPRECATED int X509V3_EXT_add(X509V3_EXT_METHOD *ext);
+
+// X509V3_EXT_add_list calls |X509V3_EXT_add| on |&extlist[0]|, |&extlist[1]|,
+// and so on, until some |extlist[i]->ext_nid| is -1. It returns one on success
+// and zero on error.
+//
+// WARNING: Do not use this function. See |X509V3_EXT_add|.
 OPENSSL_EXPORT int X509V3_EXT_add_list(X509V3_EXT_METHOD *extlist);
-OPENSSL_EXPORT int X509V3_EXT_add_alias(int nid_to, int nid_from);
+
+// X509V3_EXT_add_alias registers a custom extension with NID |nid_to|. The
+// corresponding ASN.1 type is copied from |nid_from|. It returns one on success
+// and zero on error.
+//
+// WARNING: Do not use this function. See |X509V3_EXT_add|.
+OPENSSL_EXPORT OPENSSL_DEPRECATED int X509V3_EXT_add_alias(int nid_to,
+                                                           int nid_from);
+
+// X509V3_EXT_cleanup removes all custom extensions registered with
+// |X509V3_EXT_add*|.
+//
+// WARNING: This function modifies global state and will impact custom
+// extensions registered by any code in the same address space. It,
+// additionally, is not thread-safe and cannot be called concurrently with any
+// other BoringSSL function.
+//
+// Instead of calling this function, allow memory from custom extensions to be
+// released on process exit, along with other global program state.
 OPENSSL_EXPORT void X509V3_EXT_cleanup(void);
 
 OPENSSL_EXPORT const X509V3_EXT_METHOD *X509V3_EXT_get(
@@ -865,12 +943,13 @@ OPENSSL_EXPORT const ASN1_INTEGER *X509_get0_authority_serial(X509 *x509);
 
 OPENSSL_EXPORT int X509_PURPOSE_get_count(void);
 OPENSSL_EXPORT X509_PURPOSE *X509_PURPOSE_get0(int idx);
-OPENSSL_EXPORT int X509_PURPOSE_get_by_sname(char *sname);
+OPENSSL_EXPORT int X509_PURPOSE_get_by_sname(const char *sname);
 OPENSSL_EXPORT int X509_PURPOSE_get_by_id(int id);
 OPENSSL_EXPORT int X509_PURPOSE_add(int id, int trust, int flags,
                                     int (*ck)(const X509_PURPOSE *,
                                               const X509 *, int),
-                                    char *name, char *sname, void *arg);
+                                    const char *name, const char *sname,
+                                    void *arg);
 OPENSSL_EXPORT char *X509_PURPOSE_get0_name(const X509_PURPOSE *xp);
 OPENSSL_EXPORT char *X509_PURPOSE_get0_sname(const X509_PURPOSE *xp);
 OPENSSL_EXPORT int X509_PURPOSE_get_trust(const X509_PURPOSE *xp);

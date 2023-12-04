@@ -108,14 +108,7 @@ static int ssl_ext_supported_versions_add_serverhello(SSL_HANDSHAKE *hs,
   return 1;
 }
 
-static const SSL_CIPHER *choose_tls13_cipher(
-    const SSL *ssl, const SSL_CLIENT_HELLO *client_hello, uint16_t group_id) {
-  CBS cipher_suites;
-  CBS_init(&cipher_suites, client_hello->cipher_suites,
-           client_hello->cipher_suites_len);
-
-  const uint16_t version = ssl_protocol_version(ssl);
-
+static const SSL_CIPHER *choose_tls13_cipher(const SSL *ssl, uint16_t group_id) {
   STACK_OF(SSL_CIPHER) *tls13_ciphers = nullptr;
   if (ssl->ctx->tls13_cipher_list &&
       ssl->ctx->tls13_cipher_list.get()->ciphers &&
@@ -123,7 +116,11 @@ static const SSL_CIPHER *choose_tls13_cipher(
     tls13_ciphers = ssl->ctx->tls13_cipher_list.get()->ciphers.get();
   }
 
-  return ssl_choose_tls13_cipher(cipher_suites, version, group_id, tls13_ciphers);
+  return ssl_choose_tls13_cipher(ssl->client_cipher_suites.get(),
+                                 ssl->config->aes_hw_override
+                                     ? ssl->config->aes_hw_override_value
+                                     : EVP_has_aes_hardware(),
+                                 ssl_protocol_version(ssl), group_id, tls13_ciphers);
 }
 
 static bool add_new_session_tickets(SSL_HANDSHAKE *hs, bool *out_sent_tickets) {
@@ -235,11 +232,31 @@ static enum ssl_hs_wait_t do_select_parameters(SSL_HANDSHAKE *hs) {
     return ssl_hs_error;
   }
 
+  if (!ssl_parse_client_cipher_list(&client_hello, &ssl->client_cipher_suites)) {
+    OPENSSL_PUT_ERROR(SSL, SSL_R_NO_SHARED_CIPHER);
+    ssl_send_alert(ssl, SSL3_AL_FATAL, SSL_AD_HANDSHAKE_FAILURE);
+    return ssl_hs_error;
+  }
+
   // Negotiate the cipher suite.
-  hs->new_cipher = choose_tls13_cipher(ssl, &client_hello, group_id);
+  hs->new_cipher = choose_tls13_cipher(ssl, group_id);
   if (hs->new_cipher == NULL) {
     OPENSSL_PUT_ERROR(SSL, SSL_R_NO_SHARED_CIPHER);
     ssl_send_alert(ssl, SSL3_AL_FATAL, SSL_AD_HANDSHAKE_FAILURE);
+    return ssl_hs_error;
+  }
+
+  // Negotiate the signature algorithms.
+  if (!tls1_choose_signature_algorithm(hs, &hs->signature_algorithm)) {
+    ssl_send_alert(ssl, SSL3_AL_FATAL, SSL_AD_HANDSHAKE_FAILURE);
+    return ssl_hs_error;
+  }
+
+  if (!ssl_on_certificate_selected(hs)) {
+    return ssl_hs_error;
+  }
+
+  if (!tls1_call_ocsp_stapling_callback(hs)) {
     return ssl_hs_error;
   }
 
@@ -467,6 +484,8 @@ static enum ssl_hs_wait_t do_select_session(SSL_HANDSHAKE *hs) {
     ssl->s3->early_data_reason = ssl_early_data_quic_parameter_mismatch;
   } else if (!found_key_share) {
     ssl->s3->early_data_reason = ssl_early_data_hello_retry_request;
+  } else if (hs->custom_extensions.received) {
+    ssl->s3->early_data_reason = ssl_early_data_unsupported_with_custom_extension;
   } else {
     // |ssl_session_is_resumable| forbids cross-cipher resumptions even if the
     // PRF hashes match.

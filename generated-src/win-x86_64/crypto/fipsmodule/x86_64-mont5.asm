@@ -7,9 +7,7 @@ default	rel
 %define YMMWORD
 %define ZMMWORD
 
-%ifdef BORINGSSL_PREFIX
-%include "boringssl_prefix_symbols_nasm.inc"
-%endif
+%include "openssl/boringssl_prefix_symbols_nasm.inc"
 section	.text code align=64
 
 
@@ -3690,7 +3688,7 @@ $L$inc:
 	DB	114,32,120,56,54,95,54,52,44,32,67,82,89,80,84,79
 	DB	71,65,77,83,32,98,121,32,60,97,112,112,114,111,64,111
 	DB	112,101,110,115,115,108,46,111,114,103,62,0
-section	.text code align=64
+section	.text
 
 EXTERN	__imp_RtlVirtualUnwind
 

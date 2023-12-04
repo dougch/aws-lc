@@ -120,8 +120,6 @@ RSA *RSA_new_method(const ENGINE *engine) {
 }
 
 void RSA_free(RSA *rsa) {
-  unsigned u;
-
   if (rsa == NULL) {
     return;
   }
@@ -146,18 +144,7 @@ void RSA_free(RSA *rsa) {
   BN_free(rsa->dmq1);
   BN_free(rsa->iqmp);
   RSASSA_PSS_PARAMS_free(rsa->pss);
-  BN_MONT_CTX_free(rsa->mont_n);
-  BN_MONT_CTX_free(rsa->mont_p);
-  BN_MONT_CTX_free(rsa->mont_q);
-  BN_free(rsa->d_fixed);
-  BN_free(rsa->dmp1_fixed);
-  BN_free(rsa->dmq1_fixed);
-  BN_free(rsa->inv_small_mod_large_mont);
-  for (u = 0; u < rsa->num_blindings; u++) {
-    BN_BLINDING_free(rsa->blindings[u]);
-  }
-  OPENSSL_free(rsa->blindings);
-  OPENSSL_free(rsa->blindings_inuse);
+  rsa_invalidate_key(rsa);
   CRYPTO_MUTEX_cleanup(&rsa->lock);
   OPENSSL_free(rsa);
 }
@@ -246,6 +233,7 @@ int RSA_set0_key(RSA *rsa, BIGNUM *n, BIGNUM *e, BIGNUM *d) {
     rsa->d = d;
   }
 
+  rsa_invalidate_key(rsa);
   return 1;
 }
 
@@ -264,6 +252,7 @@ int RSA_set0_factors(RSA *rsa, BIGNUM *p, BIGNUM *q) {
     rsa->q = q;
   }
 
+  rsa_invalidate_key(rsa);
   return 1;
 }
 
@@ -287,6 +276,7 @@ int RSA_set0_crt_params(RSA *rsa, BIGNUM *dmp1, BIGNUM *dmq1, BIGNUM *iqmp) {
     rsa->iqmp = iqmp;
   }
 
+  rsa_invalidate_key(rsa);
   return 1;
 }
 
@@ -423,7 +413,8 @@ struct pkcs1_sig_prefix {
 };
 
 // kPKCS1SigPrefixes contains the ASN.1 prefixes for PKCS#1 signatures with
-// different hash functions.
+// different hash functions. These are defined in RFC-8017 Section 9.2
+// https://datatracker.ietf.org/doc/html/rfc8017#section-9.2
 static const struct pkcs1_sig_prefix kPKCS1SigPrefixes[] = {
     {
      NID_md5,
@@ -466,6 +457,20 @@ static const struct pkcs1_sig_prefix kPKCS1SigPrefixes[] = {
      19,
      {0x30, 0x51, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03,
       0x04, 0x02, 0x03, 0x05, 0x00, 0x04, 0x40},
+    },
+    {
+     NID_sha512_224,
+     SHA512_224_DIGEST_LENGTH,
+     19,
+     {0x30, 0x2d, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03,
+      0x04, 0x02, 0x05, 0x05, 0x00, 0x04, 0x1c},
+    },
+    {
+     NID_sha512_256,
+     SHA512_256_DIGEST_LENGTH,
+     19,
+     {0x30, 0x31, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03,
+      0x04, 0x02, 0x06, 0x05, 0x00, 0x04, 0x20},
     },
     {
      NID_undef, 0, 0, {0},

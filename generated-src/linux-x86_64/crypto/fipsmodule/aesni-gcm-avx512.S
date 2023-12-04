@@ -1,16 +1,9 @@
 // This file is generated from a similarly-named Perl script in the BoringSSL
 // source tree. Do not edit by hand.
 
-#if defined(__has_feature)
-#if __has_feature(memory_sanitizer) && !defined(OPENSSL_NO_ASM)
-#define OPENSSL_NO_ASM
-#endif
-#endif
+#include <openssl/asm_base.h>
 
-#if defined(__x86_64__) && !defined(OPENSSL_NO_ASM) && defined(__ELF__)
-#if defined(BORINGSSL_PREFIX)
-#include <boringssl_prefix_symbols_asm.h>
-#endif
+#if !defined(OPENSSL_NO_ASM) && defined(OPENSSL_X86_64) && defined(__ELF__)
 .text	
 .globl	gcm_init_avx512
 .hidden gcm_init_avx512
@@ -2066,7 +2059,7 @@ gcm_setiv_avx512:
 	cmpq	$12,%rcx
 	je	iv_len_12_init_IV
 	vpxor	%xmm2,%xmm2,%xmm2
-	leaq	96(%rsi),%r13
+	leaq	80(%rsi),%r13
 	movq	%rdx,%r10
 	movq	%rcx,%r11
 	orq	%r11,%r11
@@ -4009,7 +4002,7 @@ aes_gcm_encrypt_avx512:
 
 	vmovdqu64	16(%rsi),%xmm3
 
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	vmovdqu64	240(%r10),%xmm4
 
 
@@ -4215,7 +4208,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqa64	%zmm10,832(%rsp)
 	vmovdqa64	%zmm11,896(%rsp)
 	vmovdqa64	%zmm12,960(%rsp)
-	leaq	96(%rsi),%r12
+	leaq	80(%rsi),%r12
 	testq	%r14,%r14
 	jnz	.L_skip_hkeys_precomputation_achfkmnqFwjgbDD
 
@@ -5365,7 +5358,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%xmm29,%xmm0,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -5564,7 +5557,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%ymm29,%ymm0,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -5762,7 +5755,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -5961,7 +5954,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -6181,7 +6174,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%xmm29,%xmm3,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -6407,7 +6400,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%ymm29,%ymm3,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -6639,7 +6632,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -6872,7 +6865,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -7126,7 +7119,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%xmm29,%xmm4,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -7388,7 +7381,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%ymm29,%ymm4,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -7656,7 +7649,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -7925,7 +7918,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -8211,7 +8204,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%xmm29,%xmm5,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -8501,7 +8494,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%ymm29,%ymm5,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -8797,7 +8790,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -9094,7 +9087,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 .L_small_initial_partial_block_aGAffhBljtiFsea:
 
@@ -9802,7 +9795,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%xmm29,%xmm0,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -10001,7 +9994,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%ymm29,%ymm0,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -10199,7 +10192,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -10398,7 +10391,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -10618,7 +10611,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%xmm29,%xmm3,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -10844,7 +10837,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%ymm29,%ymm3,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -11076,7 +11069,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -11309,7 +11302,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -11563,7 +11556,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%xmm29,%xmm4,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -11825,7 +11818,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%ymm29,%ymm4,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -12093,7 +12086,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -12362,7 +12355,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -12648,7 +12641,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%xmm29,%xmm5,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -12938,7 +12931,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%ymm29,%ymm5,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -13234,7 +13227,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -13531,7 +13524,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 .L_small_initial_partial_block_erAoEayjDqpuhEu:
 
@@ -14050,7 +14043,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%xmm29,%xmm0,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -14242,7 +14235,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%ymm29,%ymm0,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -14459,7 +14452,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -14677,7 +14670,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -14915,7 +14908,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%xmm29,%xmm3,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -15162,7 +15155,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%ymm29,%ymm3,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -15419,7 +15412,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -15677,7 +15670,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -15952,7 +15945,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%xmm29,%xmm4,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -16235,7 +16228,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%ymm29,%ymm4,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -16528,7 +16521,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -16822,7 +16815,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -17129,7 +17122,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%xmm29,%xmm5,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -17440,7 +17433,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%ymm29,%ymm5,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -17761,7 +17754,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -18083,7 +18076,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 .L_small_initial_partial_block_ifytbdtuElzEqkG:
 
@@ -18230,7 +18223,7 @@ aes_gcm_encrypt_avx512:
 	subq	$256,%r8
 	addq	$256,%rax
 	movl	%r8d,%r10d
-	leaq	96(%rsi),%r12
+	leaq	80(%rsi),%r12
 	testq	%r14,%r14
 	jnz	.L_skip_hkeys_precomputation_mgjxphyGhnqeEta
 	vmovdqu64	640(%rsp),%zmm3
@@ -18503,7 +18496,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%xmm29,%xmm0,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -18702,7 +18695,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%ymm29,%ymm0,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -18900,7 +18893,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -19099,7 +19092,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -19319,7 +19312,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%xmm29,%xmm3,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -19545,7 +19538,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%ymm29,%ymm3,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -19777,7 +19770,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -20010,7 +20003,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -20264,7 +20257,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%xmm29,%xmm4,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -20526,7 +20519,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%ymm29,%ymm4,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -20794,7 +20787,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -21063,7 +21056,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -21349,7 +21342,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%xmm29,%xmm5,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -21639,7 +21632,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%ymm29,%ymm5,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -21935,7 +21928,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -22232,7 +22225,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 .L_small_initial_partial_block_eruDeitqttsEEhG:
 
@@ -22465,7 +22458,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%xmm29,%xmm0,%xmm6
 	vextracti32x4	$0,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -22579,7 +22572,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%ymm29,%ymm0,%ymm6
 	vextracti32x4	$1,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -22718,7 +22711,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm6
 	vextracti32x4	$2,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -22858,7 +22851,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm6
 	vextracti32x4	$3,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -23016,7 +23009,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm6
 	vpshufb	%xmm29,%xmm3,%xmm7
 	vextracti32x4	$0,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -23183,7 +23176,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm6
 	vpshufb	%ymm29,%ymm3,%ymm7
 	vextracti32x4	$1,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -23360,7 +23353,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm6
 	vpshufb	%zmm29,%zmm3,%zmm7
 	vextracti32x4	$2,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -23538,7 +23531,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm6
 	vpshufb	%zmm29,%zmm3,%zmm7
 	vextracti32x4	$3,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -23732,7 +23725,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm7
 	vpshufb	%xmm29,%xmm4,%xmm10
 	vextracti32x4	$0,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -23934,7 +23927,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm7
 	vpshufb	%ymm29,%ymm4,%ymm10
 	vextracti32x4	$1,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -24146,7 +24139,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm7
 	vpshufb	%zmm29,%zmm4,%zmm10
 	vextracti32x4	$2,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -24359,7 +24352,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm7
 	vpshufb	%zmm29,%zmm4,%zmm10
 	vextracti32x4	$3,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -24584,7 +24577,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm10
 	vpshufb	%xmm29,%xmm5,%xmm11
 	vextracti32x4	$0,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -24813,7 +24806,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm10
 	vpshufb	%ymm29,%ymm5,%ymm11
 	vextracti32x4	$1,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -25052,7 +25045,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm10
 	vpshufb	%zmm29,%zmm5,%zmm11
 	vextracti32x4	$2,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -25292,7 +25285,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm10
 	vpshufb	%zmm29,%zmm5,%zmm11
 	vextracti32x4	$3,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 .L_small_initial_partial_block_icDnnqvChyBsuli:
 
@@ -25396,7 +25389,7 @@ aes_gcm_encrypt_avx512:
 
 	vmovdqu64	16(%rsi),%xmm3
 
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	vmovdqu64	240(%r10),%xmm4
 
 
@@ -25612,7 +25605,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqa64	%zmm10,832(%rsp)
 	vmovdqa64	%zmm11,896(%rsp)
 	vmovdqa64	%zmm12,960(%rsp)
-	leaq	96(%rsi),%r12
+	leaq	80(%rsi),%r12
 	testq	%r14,%r14
 	jnz	.L_skip_hkeys_precomputation_EclAduckuFhozAl
 
@@ -26809,7 +26802,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%xmm29,%xmm0,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -27012,7 +27005,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%ymm29,%ymm0,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -27214,7 +27207,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -27417,7 +27410,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -27643,7 +27636,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%xmm29,%xmm3,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -27875,7 +27868,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%ymm29,%ymm3,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -28113,7 +28106,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -28352,7 +28345,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -28614,7 +28607,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%xmm29,%xmm4,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -28884,7 +28877,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%ymm29,%ymm4,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -29160,7 +29153,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -29437,7 +29430,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -29733,7 +29726,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%xmm29,%xmm5,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -30033,7 +30026,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%ymm29,%ymm5,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -30339,7 +30332,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -30646,7 +30639,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 .L_small_initial_partial_block_bCffyflcoaBxCzy:
 
@@ -31380,7 +31373,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%xmm29,%xmm0,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -31583,7 +31576,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%ymm29,%ymm0,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -31785,7 +31778,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -31988,7 +31981,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -32214,7 +32207,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%xmm29,%xmm3,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -32446,7 +32439,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%ymm29,%ymm3,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -32684,7 +32677,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -32923,7 +32916,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -33185,7 +33178,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%xmm29,%xmm4,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -33455,7 +33448,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%ymm29,%ymm4,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -33731,7 +33724,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -34008,7 +34001,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -34304,7 +34297,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%xmm29,%xmm5,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -34604,7 +34597,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%ymm29,%ymm5,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -34910,7 +34903,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -35217,7 +35210,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 .L_small_initial_partial_block_ECtspjaqpoxwhnx:
 
@@ -35751,7 +35744,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%xmm29,%xmm0,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -35947,7 +35940,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%ymm29,%ymm0,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -36168,7 +36161,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -36390,7 +36383,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -36634,7 +36627,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%xmm29,%xmm3,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -36887,7 +36880,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%ymm29,%ymm3,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -37150,7 +37143,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -37414,7 +37407,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -37697,7 +37690,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%xmm29,%xmm4,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -37988,7 +37981,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%ymm29,%ymm4,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -38289,7 +38282,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -38591,7 +38584,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -38908,7 +38901,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%xmm29,%xmm5,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -39229,7 +39222,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%ymm29,%ymm5,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -39560,7 +39553,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -39892,7 +39885,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 .L_small_initial_partial_block_pybhdxzahdqcprl:
 
@@ -40039,7 +40032,7 @@ aes_gcm_encrypt_avx512:
 	subq	$256,%r8
 	addq	$256,%rax
 	movl	%r8d,%r10d
-	leaq	96(%rsi),%r12
+	leaq	80(%rsi),%r12
 	testq	%r14,%r14
 	jnz	.L_skip_hkeys_precomputation_dzmCrsBiciGnliE
 	vmovdqu64	640(%rsp),%zmm3
@@ -40316,7 +40309,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%xmm29,%xmm0,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -40519,7 +40512,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%ymm29,%ymm0,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -40721,7 +40714,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -40924,7 +40917,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -41150,7 +41143,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%xmm29,%xmm3,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -41382,7 +41375,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%ymm29,%ymm3,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -41620,7 +41613,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -41859,7 +41852,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -42121,7 +42114,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%xmm29,%xmm4,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -42391,7 +42384,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%ymm29,%ymm4,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -42667,7 +42660,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -42944,7 +42937,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -43240,7 +43233,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%xmm29,%xmm5,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -43540,7 +43533,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%ymm29,%ymm5,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -43846,7 +43839,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -44153,7 +44146,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 .L_small_initial_partial_block_ayefrejzGqbkfya:
 
@@ -44390,7 +44383,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%xmm29,%xmm0,%xmm6
 	vextracti32x4	$0,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -44508,7 +44501,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%ymm29,%ymm0,%ymm6
 	vextracti32x4	$1,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -44651,7 +44644,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm6
 	vextracti32x4	$2,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -44795,7 +44788,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm6
 	vextracti32x4	$3,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -44959,7 +44952,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm6
 	vpshufb	%xmm29,%xmm3,%xmm7
 	vextracti32x4	$0,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -45132,7 +45125,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm6
 	vpshufb	%ymm29,%ymm3,%ymm7
 	vextracti32x4	$1,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -45315,7 +45308,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm6
 	vpshufb	%zmm29,%zmm3,%zmm7
 	vextracti32x4	$2,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -45499,7 +45492,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm6
 	vpshufb	%zmm29,%zmm3,%zmm7
 	vextracti32x4	$3,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -45701,7 +45694,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm7
 	vpshufb	%xmm29,%xmm4,%xmm10
 	vextracti32x4	$0,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -45911,7 +45904,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm7
 	vpshufb	%ymm29,%ymm4,%ymm10
 	vextracti32x4	$1,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -46131,7 +46124,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm7
 	vpshufb	%zmm29,%zmm4,%zmm10
 	vextracti32x4	$2,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -46352,7 +46345,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm7
 	vpshufb	%zmm29,%zmm4,%zmm10
 	vextracti32x4	$3,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -46587,7 +46580,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm10
 	vpshufb	%xmm29,%xmm5,%xmm11
 	vextracti32x4	$0,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -46826,7 +46819,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm10
 	vpshufb	%ymm29,%ymm5,%ymm11
 	vextracti32x4	$1,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -47075,7 +47068,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm10
 	vpshufb	%zmm29,%zmm5,%zmm11
 	vextracti32x4	$2,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -47325,7 +47318,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm10
 	vpshufb	%zmm29,%zmm5,%zmm11
 	vextracti32x4	$3,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 .L_small_initial_partial_block_qxCpdapFxyCuqwj:
 
@@ -47429,7 +47422,7 @@ aes_gcm_encrypt_avx512:
 
 	vmovdqu64	16(%rsi),%xmm3
 
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	vmovdqu64	240(%r10),%xmm4
 
 
@@ -47655,7 +47648,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqa64	%zmm10,832(%rsp)
 	vmovdqa64	%zmm11,896(%rsp)
 	vmovdqa64	%zmm12,960(%rsp)
-	leaq	96(%rsi),%r12
+	leaq	80(%rsi),%r12
 	testq	%r14,%r14
 	jnz	.L_skip_hkeys_precomputation_slhsqgEufGclFec
 
@@ -48902,7 +48895,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%xmm29,%xmm0,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -49109,7 +49102,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%ymm29,%ymm0,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -49315,7 +49308,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -49522,7 +49515,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -49754,7 +49747,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%xmm29,%xmm3,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -49992,7 +49985,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%ymm29,%ymm3,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -50236,7 +50229,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -50481,7 +50474,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -50751,7 +50744,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%xmm29,%xmm4,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -51029,7 +51022,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%ymm29,%ymm4,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -51313,7 +51306,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -51598,7 +51591,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -51904,7 +51897,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%xmm29,%xmm5,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -52214,7 +52207,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%ymm29,%ymm5,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -52530,7 +52523,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -52847,7 +52840,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 .L_small_initial_partial_block_CFywctAlrBmkufB:
 
@@ -53609,7 +53602,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%xmm29,%xmm0,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -53816,7 +53809,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%ymm29,%ymm0,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -54022,7 +54015,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -54229,7 +54222,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -54461,7 +54454,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%xmm29,%xmm3,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -54699,7 +54692,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%ymm29,%ymm3,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -54943,7 +54936,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -55188,7 +55181,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -55458,7 +55451,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%xmm29,%xmm4,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -55736,7 +55729,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%ymm29,%ymm4,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -56020,7 +56013,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -56305,7 +56298,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -56611,7 +56604,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%xmm29,%xmm5,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -56921,7 +56914,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%ymm29,%ymm5,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -57237,7 +57230,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -57554,7 +57547,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 .L_small_initial_partial_block_iuDhkykBcvvzBFb:
 
@@ -58104,7 +58097,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%xmm29,%xmm0,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -58304,7 +58297,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%ymm29,%ymm0,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -58529,7 +58522,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -58755,7 +58748,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -59005,7 +58998,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%xmm29,%xmm3,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -59264,7 +59257,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%ymm29,%ymm3,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -59533,7 +59526,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -59803,7 +59796,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -60094,7 +60087,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%xmm29,%xmm4,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -60393,7 +60386,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%ymm29,%ymm4,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -60702,7 +60695,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -61012,7 +61005,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -61339,7 +61332,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%xmm29,%xmm5,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -61670,7 +61663,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%ymm29,%ymm5,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -62011,7 +62004,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -62353,7 +62346,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 .L_small_initial_partial_block_niAfluBnEgrukbj:
 
@@ -62500,7 +62493,7 @@ aes_gcm_encrypt_avx512:
 	subq	$256,%r8
 	addq	$256,%rax
 	movl	%r8d,%r10d
-	leaq	96(%rsi),%r12
+	leaq	80(%rsi),%r12
 	testq	%r14,%r14
 	jnz	.L_skip_hkeys_precomputation_BiAvfDwrflaDzBx
 	vmovdqu64	640(%rsp),%zmm3
@@ -62781,7 +62774,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%xmm29,%xmm0,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -62988,7 +62981,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%ymm29,%ymm0,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -63194,7 +63187,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -63401,7 +63394,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -63633,7 +63626,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%xmm29,%xmm3,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -63871,7 +63864,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%ymm29,%ymm3,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -64115,7 +64108,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -64360,7 +64353,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm17
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -64630,7 +64623,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%xmm29,%xmm4,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -64908,7 +64901,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%ymm29,%ymm4,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -65192,7 +65185,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -65477,7 +65470,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm19
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -65783,7 +65776,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%xmm29,%xmm5,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -66093,7 +66086,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%ymm29,%ymm5,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -66409,7 +66402,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -66726,7 +66719,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm20
 	vpshufb	%zmm29,%zmm5,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 .L_small_initial_partial_block_uqdvluxFgGqdFqv:
 
@@ -66967,7 +66960,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%xmm29,%xmm0,%xmm6
 	vextracti32x4	$0,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -67089,7 +67082,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%ymm29,%ymm0,%ymm6
 	vextracti32x4	$1,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -67236,7 +67229,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm6
 	vextracti32x4	$2,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -67384,7 +67377,7 @@ aes_gcm_encrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm0,%zmm6
 	vextracti32x4	$3,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -67554,7 +67547,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm6
 	vpshufb	%xmm29,%xmm3,%xmm7
 	vextracti32x4	$0,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -67733,7 +67726,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm6
 	vpshufb	%ymm29,%ymm3,%ymm7
 	vextracti32x4	$1,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -67922,7 +67915,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm6
 	vpshufb	%zmm29,%zmm3,%zmm7
 	vextracti32x4	$2,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -68112,7 +68105,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm0,%zmm6
 	vpshufb	%zmm29,%zmm3,%zmm7
 	vextracti32x4	$3,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -68322,7 +68315,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm7
 	vpshufb	%xmm29,%xmm4,%xmm10
 	vextracti32x4	$0,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -68540,7 +68533,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm7
 	vpshufb	%ymm29,%ymm4,%ymm10
 	vextracti32x4	$1,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -68768,7 +68761,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm7
 	vpshufb	%zmm29,%zmm4,%zmm10
 	vextracti32x4	$2,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -68997,7 +68990,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm3,%zmm7
 	vpshufb	%zmm29,%zmm4,%zmm10
 	vextracti32x4	$3,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -69242,7 +69235,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm10
 	vpshufb	%xmm29,%xmm5,%xmm11
 	vextracti32x4	$0,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -69491,7 +69484,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm10
 	vpshufb	%ymm29,%ymm5,%ymm11
 	vextracti32x4	$1,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -69750,7 +69743,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm10
 	vpshufb	%zmm29,%zmm5,%zmm11
 	vextracti32x4	$2,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -70010,7 +70003,7 @@ aes_gcm_encrypt_avx512:
 	vpshufb	%zmm29,%zmm4,%zmm10
 	vpshufb	%zmm29,%zmm5,%zmm11
 	vextracti32x4	$3,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 .L_small_initial_partial_block_mlladecCGcaEame:
 
@@ -70216,7 +70209,7 @@ aes_gcm_decrypt_avx512:
 
 	vmovdqu64	16(%rsi),%xmm3
 
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	vmovdqu64	240(%r10),%xmm4
 
 
@@ -70422,7 +70415,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqa64	%zmm10,832(%rsp)
 	vmovdqa64	%zmm11,896(%rsp)
 	vmovdqa64	%zmm12,960(%rsp)
-	leaq	96(%rsi),%r12
+	leaq	80(%rsi),%r12
 	testq	%r14,%r14
 	jnz	.L_skip_hkeys_precomputation_yDAnEECuuGxfwvr
 
@@ -71572,7 +71565,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%xmm29,%xmm17,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -71771,7 +71764,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%ymm29,%ymm17,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -71969,7 +71962,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -72168,7 +72161,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -72388,7 +72381,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%xmm29,%xmm19,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -72614,7 +72607,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%ymm29,%ymm19,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -72846,7 +72839,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -73079,7 +73072,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -73333,7 +73326,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%xmm29,%xmm20,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -73595,7 +73588,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%ymm29,%ymm20,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -73863,7 +73856,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -74132,7 +74125,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -74418,7 +74411,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%xmm29,%xmm21,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -74708,7 +74701,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%ymm29,%ymm21,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -75004,7 +74997,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -75301,7 +75294,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 .L_small_initial_partial_block_vqjlBldpifEzCAi:
 
@@ -76009,7 +76002,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%xmm29,%xmm17,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -76208,7 +76201,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%ymm29,%ymm17,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -76406,7 +76399,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -76605,7 +76598,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -76825,7 +76818,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%xmm29,%xmm19,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -77051,7 +77044,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%ymm29,%ymm19,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -77283,7 +77276,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -77516,7 +77509,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -77770,7 +77763,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%xmm29,%xmm20,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -78032,7 +78025,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%ymm29,%ymm20,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -78300,7 +78293,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -78569,7 +78562,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -78855,7 +78848,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%xmm29,%xmm21,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -79145,7 +79138,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%ymm29,%ymm21,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -79441,7 +79434,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -79738,7 +79731,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 .L_small_initial_partial_block_usEFihDgqghhogg:
 
@@ -80257,7 +80250,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%xmm29,%xmm17,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -80449,7 +80442,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%ymm29,%ymm17,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -80666,7 +80659,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -80884,7 +80877,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -81122,7 +81115,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%xmm29,%xmm19,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -81369,7 +81362,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%ymm29,%ymm19,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -81626,7 +81619,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -81884,7 +81877,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -82159,7 +82152,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%xmm29,%xmm20,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -82442,7 +82435,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%ymm29,%ymm20,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -82735,7 +82728,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -83029,7 +83022,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -83336,7 +83329,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%xmm29,%xmm21,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -83647,7 +83640,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%ymm29,%ymm21,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -83968,7 +83961,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -84290,7 +84283,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 .L_small_initial_partial_block_pCDjmBApGDgFGhw:
 
@@ -84437,7 +84430,7 @@ aes_gcm_decrypt_avx512:
 	subq	$256,%r8
 	addq	$256,%rax
 	movl	%r8d,%r10d
-	leaq	96(%rsi),%r12
+	leaq	80(%rsi),%r12
 	testq	%r14,%r14
 	jnz	.L_skip_hkeys_precomputation_lurmstfAeByrDpz
 	vmovdqu64	640(%rsp),%zmm3
@@ -84710,7 +84703,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%xmm29,%xmm17,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -84909,7 +84902,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%ymm29,%ymm17,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -85107,7 +85100,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -85306,7 +85299,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -85526,7 +85519,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%xmm29,%xmm19,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -85752,7 +85745,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%ymm29,%ymm19,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -85984,7 +85977,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -86217,7 +86210,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -86471,7 +86464,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%xmm29,%xmm20,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -86733,7 +86726,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%ymm29,%ymm20,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -87001,7 +86994,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -87270,7 +87263,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -87556,7 +87549,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%xmm29,%xmm21,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -87846,7 +87839,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%ymm29,%ymm21,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -88142,7 +88135,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -88439,7 +88432,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 .L_small_initial_partial_block_qbevliloqkkkFsD:
 
@@ -88672,7 +88665,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%xmm29,%xmm6,%xmm6
 	vextracti32x4	$0,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -88786,7 +88779,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%ymm29,%ymm6,%ymm6
 	vextracti32x4	$1,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -88925,7 +88918,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm6,%zmm6
 	vextracti32x4	$2,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -89065,7 +89058,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm6,%zmm6
 	vextracti32x4	$3,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -89223,7 +89216,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm6,%zmm6
 	vpshufb	%xmm29,%xmm7,%xmm7
 	vextracti32x4	$0,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -89390,7 +89383,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm6,%zmm6
 	vpshufb	%ymm29,%ymm7,%ymm7
 	vextracti32x4	$1,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -89567,7 +89560,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm6,%zmm6
 	vpshufb	%zmm29,%zmm7,%zmm7
 	vextracti32x4	$2,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -89745,7 +89738,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm6,%zmm6
 	vpshufb	%zmm29,%zmm7,%zmm7
 	vextracti32x4	$3,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -89939,7 +89932,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm7,%zmm7
 	vpshufb	%xmm29,%xmm10,%xmm10
 	vextracti32x4	$0,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -90141,7 +90134,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm7,%zmm7
 	vpshufb	%ymm29,%ymm10,%ymm10
 	vextracti32x4	$1,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -90353,7 +90346,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm7,%zmm7
 	vpshufb	%zmm29,%zmm10,%zmm10
 	vextracti32x4	$2,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -90566,7 +90559,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm7,%zmm7
 	vpshufb	%zmm29,%zmm10,%zmm10
 	vextracti32x4	$3,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -90791,7 +90784,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm10,%zmm10
 	vpshufb	%xmm29,%xmm11,%xmm11
 	vextracti32x4	$0,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -91020,7 +91013,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm10,%zmm10
 	vpshufb	%ymm29,%ymm11,%ymm11
 	vextracti32x4	$1,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -91259,7 +91252,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm10,%zmm10
 	vpshufb	%zmm29,%zmm11,%zmm11
 	vextracti32x4	$2,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -91499,7 +91492,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm10,%zmm10
 	vpshufb	%zmm29,%zmm11,%zmm11
 	vextracti32x4	$3,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 .L_small_initial_partial_block_fvqkmnelfBwdflt:
 
@@ -91603,7 +91596,7 @@ aes_gcm_decrypt_avx512:
 
 	vmovdqu64	16(%rsi),%xmm3
 
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	vmovdqu64	240(%r10),%xmm4
 
 
@@ -91819,7 +91812,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqa64	%zmm10,832(%rsp)
 	vmovdqa64	%zmm11,896(%rsp)
 	vmovdqa64	%zmm12,960(%rsp)
-	leaq	96(%rsi),%r12
+	leaq	80(%rsi),%r12
 	testq	%r14,%r14
 	jnz	.L_skip_hkeys_precomputation_mbihlziFEFsDoGE
 
@@ -93016,7 +93009,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%xmm29,%xmm17,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -93219,7 +93212,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%ymm29,%ymm17,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -93421,7 +93414,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -93624,7 +93617,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -93850,7 +93843,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%xmm29,%xmm19,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -94082,7 +94075,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%ymm29,%ymm19,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -94320,7 +94313,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -94559,7 +94552,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -94821,7 +94814,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%xmm29,%xmm20,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -95091,7 +95084,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%ymm29,%ymm20,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -95367,7 +95360,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -95644,7 +95637,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -95940,7 +95933,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%xmm29,%xmm21,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -96240,7 +96233,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%ymm29,%ymm21,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -96546,7 +96539,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -96853,7 +96846,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 .L_small_initial_partial_block_rerkgBbyampldto:
 
@@ -97587,7 +97580,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%xmm29,%xmm17,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -97790,7 +97783,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%ymm29,%ymm17,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -97992,7 +97985,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -98195,7 +98188,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -98421,7 +98414,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%xmm29,%xmm19,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -98653,7 +98646,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%ymm29,%ymm19,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -98891,7 +98884,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -99130,7 +99123,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -99392,7 +99385,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%xmm29,%xmm20,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -99662,7 +99655,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%ymm29,%ymm20,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -99938,7 +99931,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -100215,7 +100208,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -100511,7 +100504,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%xmm29,%xmm21,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -100811,7 +100804,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%ymm29,%ymm21,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -101117,7 +101110,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -101424,7 +101417,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 .L_small_initial_partial_block_emEtFnwcsvbsGee:
 
@@ -101958,7 +101951,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%xmm29,%xmm17,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -102154,7 +102147,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%ymm29,%ymm17,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -102375,7 +102368,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -102597,7 +102590,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -102841,7 +102834,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%xmm29,%xmm19,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -103094,7 +103087,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%ymm29,%ymm19,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -103357,7 +103350,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -103621,7 +103614,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -103904,7 +103897,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%xmm29,%xmm20,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -104195,7 +104188,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%ymm29,%ymm20,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -104496,7 +104489,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -104798,7 +104791,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -105115,7 +105108,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%xmm29,%xmm21,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -105436,7 +105429,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%ymm29,%ymm21,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -105767,7 +105760,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -106099,7 +106092,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 .L_small_initial_partial_block_ciyykzjryphtjAc:
 
@@ -106246,7 +106239,7 @@ aes_gcm_decrypt_avx512:
 	subq	$256,%r8
 	addq	$256,%rax
 	movl	%r8d,%r10d
-	leaq	96(%rsi),%r12
+	leaq	80(%rsi),%r12
 	testq	%r14,%r14
 	jnz	.L_skip_hkeys_precomputation_yBFabBiEpjEBBsr
 	vmovdqu64	640(%rsp),%zmm3
@@ -106523,7 +106516,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%xmm29,%xmm17,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -106726,7 +106719,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%ymm29,%ymm17,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -106928,7 +106921,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -107131,7 +107124,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -107357,7 +107350,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%xmm29,%xmm19,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -107589,7 +107582,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%ymm29,%ymm19,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -107827,7 +107820,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -108066,7 +108059,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -108328,7 +108321,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%xmm29,%xmm20,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -108598,7 +108591,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%ymm29,%ymm20,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -108874,7 +108867,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -109151,7 +109144,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -109447,7 +109440,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%xmm29,%xmm21,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -109747,7 +109740,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%ymm29,%ymm21,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -110053,7 +110046,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -110360,7 +110353,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 .L_small_initial_partial_block_EFFoGallwwbomEy:
 
@@ -110597,7 +110590,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%xmm29,%xmm6,%xmm6
 	vextracti32x4	$0,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -110715,7 +110708,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%ymm29,%ymm6,%ymm6
 	vextracti32x4	$1,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -110858,7 +110851,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm6,%zmm6
 	vextracti32x4	$2,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -111002,7 +110995,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm6,%zmm6
 	vextracti32x4	$3,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -111166,7 +111159,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm6,%zmm6
 	vpshufb	%xmm29,%xmm7,%xmm7
 	vextracti32x4	$0,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -111339,7 +111332,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm6,%zmm6
 	vpshufb	%ymm29,%ymm7,%ymm7
 	vextracti32x4	$1,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -111522,7 +111515,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm6,%zmm6
 	vpshufb	%zmm29,%zmm7,%zmm7
 	vextracti32x4	$2,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -111706,7 +111699,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm6,%zmm6
 	vpshufb	%zmm29,%zmm7,%zmm7
 	vextracti32x4	$3,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -111908,7 +111901,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm7,%zmm7
 	vpshufb	%xmm29,%xmm10,%xmm10
 	vextracti32x4	$0,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -112118,7 +112111,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm7,%zmm7
 	vpshufb	%ymm29,%ymm10,%ymm10
 	vextracti32x4	$1,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -112338,7 +112331,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm7,%zmm7
 	vpshufb	%zmm29,%zmm10,%zmm10
 	vextracti32x4	$2,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -112559,7 +112552,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm7,%zmm7
 	vpshufb	%zmm29,%zmm10,%zmm10
 	vextracti32x4	$3,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -112794,7 +112787,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm10,%zmm10
 	vpshufb	%xmm29,%xmm11,%xmm11
 	vextracti32x4	$0,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -113033,7 +113026,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm10,%zmm10
 	vpshufb	%ymm29,%ymm11,%ymm11
 	vextracti32x4	$1,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -113282,7 +113275,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm10,%zmm10
 	vpshufb	%zmm29,%zmm11,%zmm11
 	vextracti32x4	$2,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -113532,7 +113525,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm10,%zmm10
 	vpshufb	%zmm29,%zmm11,%zmm11
 	vextracti32x4	$3,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 .L_small_initial_partial_block_pGqEmoznEqGhujq:
 
@@ -113636,7 +113629,7 @@ aes_gcm_decrypt_avx512:
 
 	vmovdqu64	16(%rsi),%xmm3
 
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	vmovdqu64	240(%r10),%xmm4
 
 
@@ -113862,7 +113855,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqa64	%zmm10,832(%rsp)
 	vmovdqa64	%zmm11,896(%rsp)
 	vmovdqa64	%zmm12,960(%rsp)
-	leaq	96(%rsi),%r12
+	leaq	80(%rsi),%r12
 	testq	%r14,%r14
 	jnz	.L_skip_hkeys_precomputation_iDAhziwpjqoADaj
 
@@ -115109,7 +115102,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%xmm29,%xmm17,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -115316,7 +115309,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%ymm29,%ymm17,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -115522,7 +115515,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -115729,7 +115722,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -115961,7 +115954,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%xmm29,%xmm19,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -116199,7 +116192,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%ymm29,%ymm19,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -116443,7 +116436,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -116688,7 +116681,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -116958,7 +116951,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%xmm29,%xmm20,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -117236,7 +117229,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%ymm29,%ymm20,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -117520,7 +117513,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -117805,7 +117798,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -118111,7 +118104,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%xmm29,%xmm21,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -118421,7 +118414,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%ymm29,%ymm21,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -118737,7 +118730,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -119054,7 +119047,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 .L_small_initial_partial_block_fdoxuvdoEsDrnFi:
 
@@ -119816,7 +119809,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%xmm29,%xmm17,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -120023,7 +120016,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%ymm29,%ymm17,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -120229,7 +120222,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -120436,7 +120429,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -120668,7 +120661,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%xmm29,%xmm19,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -120906,7 +120899,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%ymm29,%ymm19,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -121150,7 +121143,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -121395,7 +121388,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -121665,7 +121658,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%xmm29,%xmm20,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -121943,7 +121936,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%ymm29,%ymm20,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -122227,7 +122220,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -122512,7 +122505,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -122818,7 +122811,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%xmm29,%xmm21,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -123128,7 +123121,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%ymm29,%ymm21,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -123444,7 +123437,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -123761,7 +123754,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 .L_small_initial_partial_block_pBmCpEpokBigCud:
 
@@ -124311,7 +124304,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%xmm29,%xmm17,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -124511,7 +124504,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%ymm29,%ymm17,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -124736,7 +124729,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -124962,7 +124955,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -125212,7 +125205,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%xmm29,%xmm19,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -125471,7 +125464,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%ymm29,%ymm19,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -125740,7 +125733,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -126010,7 +126003,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -126301,7 +126294,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%xmm29,%xmm20,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -126600,7 +126593,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%ymm29,%ymm20,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -126909,7 +126902,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -127219,7 +127212,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -127546,7 +127539,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%xmm29,%xmm21,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -127877,7 +127870,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%ymm29,%ymm21,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -128218,7 +128211,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -128560,7 +128553,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 .L_small_initial_partial_block_cGvBxlvhpkhxlhv:
 
@@ -128707,7 +128700,7 @@ aes_gcm_decrypt_avx512:
 	subq	$256,%r8
 	addq	$256,%rax
 	movl	%r8d,%r10d
-	leaq	96(%rsi),%r12
+	leaq	80(%rsi),%r12
 	testq	%r14,%r14
 	jnz	.L_skip_hkeys_precomputation_wDAhpcxxDdecsFn
 	vmovdqu64	640(%rsp),%zmm3
@@ -128988,7 +128981,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%xmm29,%xmm17,%xmm17
 	vextracti32x4	$0,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -129195,7 +129188,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%ymm29,%ymm17,%ymm17
 	vextracti32x4	$1,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -129401,7 +129394,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$2,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -129608,7 +129601,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm17,%zmm17{%k1}{z}
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vextracti32x4	$3,%zmm17,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -129840,7 +129833,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%xmm29,%xmm19,%xmm19
 	vextracti32x4	$0,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -130078,7 +130071,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%ymm29,%ymm19,%ymm19
 	vextracti32x4	$1,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -130322,7 +130315,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$2,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -130567,7 +130560,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm17,%zmm17
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vextracti32x4	$3,%zmm19,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -130837,7 +130830,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%xmm29,%xmm20,%xmm20
 	vextracti32x4	$0,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -131115,7 +131108,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%ymm29,%ymm20,%ymm20
 	vextracti32x4	$1,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -131399,7 +131392,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$2,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -131684,7 +131677,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm19,%zmm19
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vextracti32x4	$3,%zmm20,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -131990,7 +131983,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%xmm29,%xmm21,%xmm21
 	vextracti32x4	$0,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -132300,7 +132293,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%ymm29,%ymm21,%ymm21
 	vextracti32x4	$1,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -132616,7 +132609,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$2,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -132933,7 +132926,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm20,%zmm20
 	vpshufb	%zmm29,%zmm21,%zmm21
 	vextracti32x4	$3,%zmm21,%xmm7
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 .L_small_initial_partial_block_xGuCpnrvibyoyay:
 
@@ -133174,7 +133167,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%xmm29,%xmm6,%xmm6
 	vextracti32x4	$0,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 
 
 	cmpq	$16,%r8
@@ -133296,7 +133289,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%ymm29,%ymm6,%ymm6
 	vextracti32x4	$1,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (2 - 1),%r8
 
 
@@ -133443,7 +133436,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm6,%zmm6
 	vextracti32x4	$2,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (3 - 1),%r8
 
 
@@ -133591,7 +133584,7 @@ aes_gcm_decrypt_avx512:
 	vmovdqu8	%zmm0,%zmm0{%k1}{z}
 	vpshufb	%zmm29,%zmm6,%zmm6
 	vextracti32x4	$3,%zmm6,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (4 - 1),%r8
 
 
@@ -133761,7 +133754,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm6,%zmm6
 	vpshufb	%xmm29,%xmm7,%xmm7
 	vextracti32x4	$0,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (5 - 1),%r8
 
 
@@ -133940,7 +133933,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm6,%zmm6
 	vpshufb	%ymm29,%ymm7,%ymm7
 	vextracti32x4	$1,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (6 - 1),%r8
 
 
@@ -134129,7 +134122,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm6,%zmm6
 	vpshufb	%zmm29,%zmm7,%zmm7
 	vextracti32x4	$2,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (7 - 1),%r8
 
 
@@ -134319,7 +134312,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm6,%zmm6
 	vpshufb	%zmm29,%zmm7,%zmm7
 	vextracti32x4	$3,%zmm7,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (8 - 1),%r8
 
 
@@ -134529,7 +134522,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm7,%zmm7
 	vpshufb	%xmm29,%xmm10,%xmm10
 	vextracti32x4	$0,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (9 - 1),%r8
 
 
@@ -134747,7 +134740,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm7,%zmm7
 	vpshufb	%ymm29,%ymm10,%ymm10
 	vextracti32x4	$1,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (10 - 1),%r8
 
 
@@ -134975,7 +134968,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm7,%zmm7
 	vpshufb	%zmm29,%zmm10,%zmm10
 	vextracti32x4	$2,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (11 - 1),%r8
 
 
@@ -135204,7 +135197,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm7,%zmm7
 	vpshufb	%zmm29,%zmm10,%zmm10
 	vextracti32x4	$3,%zmm10,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (12 - 1),%r8
 
 
@@ -135449,7 +135442,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm10,%zmm10
 	vpshufb	%xmm29,%xmm11,%xmm11
 	vextracti32x4	$0,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (13 - 1),%r8
 
 
@@ -135698,7 +135691,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm10,%zmm10
 	vpshufb	%ymm29,%ymm11,%ymm11
 	vextracti32x4	$1,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (14 - 1),%r8
 
 
@@ -135957,7 +135950,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm10,%zmm10
 	vpshufb	%zmm29,%zmm11,%zmm11
 	vextracti32x4	$2,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (15 - 1),%r8
 
 
@@ -136217,7 +136210,7 @@ aes_gcm_decrypt_avx512:
 	vpshufb	%zmm29,%zmm10,%zmm10
 	vpshufb	%zmm29,%zmm11,%zmm11
 	vextracti32x4	$3,%zmm11,%xmm13
-	leaq	96(%rsi),%r10
+	leaq	80(%rsi),%r10
 	subq	$16 * (16 - 1),%r8
 .L_small_initial_partial_block_fpGgFAenBuAyutw:
 
@@ -136470,8 +136463,4 @@ byte64_len_to_mask_table:
 .quad	0x3fffffffffffffff, 0x7fffffffffffffff
 .quad	0xffffffffffffffff
 .text	
-#endif
-#if defined(__ELF__)
-// See https://www.airs.com/blog/archives/518.
-.section .note.GNU-stack,"",%progbits
 #endif

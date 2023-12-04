@@ -7,9 +7,7 @@ default	rel
 %define YMMWORD
 %define ZMMWORD
 
-%ifdef BORINGSSL_PREFIX
-%include "boringssl_prefix_symbols_nasm.inc"
-%endif
+%include "openssl/boringssl_prefix_symbols_nasm.inc"
 section	.text code align=64
 
 EXTERN	OPENSSL_ia32cap_P
@@ -1307,6 +1305,8 @@ $L$ctr32_enc_done:
 	pxor	xmm13,xmm0
 	movdqu	xmm15,XMMWORD[80+rdi]
 	pxor	xmm14,xmm0
+	prefetcht0	[448+rdi]
+	prefetcht0	[512+rdi]
 	pxor	xmm15,xmm0
 	DB	102,15,56,220,209
 	DB	102,15,56,220,217
@@ -3648,7 +3648,7 @@ $L$key_rcon1b:
 	DB	32,98,121,32,60,97,112,112,114,111,64,111,112,101,110,115
 	DB	115,108,46,111,114,103,62,0
 ALIGN	64
-section	.text code align=64
+section	.text
 
 EXTERN	__imp_RtlVirtualUnwind
 

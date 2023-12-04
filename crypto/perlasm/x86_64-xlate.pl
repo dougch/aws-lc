@@ -1029,6 +1029,27 @@ ____
     }
 }
 { package directive;	# pick up directives, which start with .
+    my %sections;
+    sub nasm_section {
+	my ($name, $qualifiers) = @_;
+	my $ret = "section\t$name";
+	if (exists $sections{$name}) {
+	    # Work around https://bugzilla.nasm.us/show_bug.cgi?id=3392701. Only
+	    # emit section qualifiers the first time a section is referenced.
+	    # For all subsequent references, require the qualifiers match and
+	    # omit them.
+	    #
+	    # See also https://crbug.com/1422018 and b/270643835.
+	    my $old = $sections{$name};
+	    die "Inconsistent qualifiers: $qualifiers vs $old" if ($qualifiers ne "" && $qualifiers ne $old);
+	} else {
+	    $sections{$name} = $qualifiers;
+	    if ($qualifiers ne "") {
+		$ret .= " $qualifiers";
+	    }
+	}
+	return $ret;
+    }
     sub re {
 	my	($class, $line) = @_;
 	my	$self = {};
@@ -1137,7 +1158,7 @@ ____
 	    SWITCH: for ($dir) {
 		/\.text/    && do { my $v=undef;
 				    if ($nasm) {
-					$v="section	.text code align=64\n";
+					$v=nasm_section(".text", "code align=64")."\n";
 				    } else {
 					$v="$current_segment\tENDS\n" if ($current_segment);
 					$current_segment = ".text\$";
@@ -1150,7 +1171,7 @@ ____
 				  };
 		/\.data/    && do { my $v=undef;
 				    if ($nasm) {
-					$v="section	.data data align=8\n";
+					$v=nasm_section(".data", "data align=8")."\n";
 				    } else {
 					$v="$current_segment\tENDS\n" if ($current_segment);
 					$current_segment = "_DATA";
@@ -1164,13 +1185,14 @@ ____
 				    $$line = ".CRT\$XCU" if ($$line eq ".init");
 				    $$line = ".rdata" if ($$line eq ".rodata");
 				    if ($nasm) {
-					$v="section	$$line";
+					my $qualifiers = "";
 					if ($$line=~/\.([prx])data/) {
-					    $v.=" rdata align=";
-					    $v.=$1 eq "p"? 4 : 8;
+					    $qualifiers = "rdata align=";
+					    $qualifiers .= $1 eq "p"? 4 : 8;
 					} elsif ($$line=~/\.CRT\$/i) {
-					    $v.=" rdata align=8";
+					    $qualifiers = "rdata align=8";
 					}
+					$v = nasm_section($$line, $qualifiers);
 				    } else {
 					$v="$current_segment\tENDS\n" if ($current_segment);
 					$v.="$$line\tSEGMENT";
@@ -1478,9 +1500,7 @@ default	rel
 \%define YMMWORD
 \%define ZMMWORD
 
-\%ifdef BORINGSSL_PREFIX
-\%include "boringssl_prefix_symbols_nasm.inc"
-\%endif
+\%include "openssl/boringssl_prefix_symbols_nasm.inc"
 ___
 } elsif ($masm) {
     print <<___;
@@ -1500,16 +1520,9 @@ if ($gas) {
         die "unknown target: $flavour";
     }
     print <<___;
-#if defined(__has_feature)
-#if __has_feature(memory_sanitizer) && !defined(OPENSSL_NO_ASM)
-#define OPENSSL_NO_ASM
-#endif
-#endif
+#include <openssl/asm_base.h>
 
-#if defined(__x86_64__) && !defined(OPENSSL_NO_ASM) && $target
-#if defined(BORINGSSL_PREFIX)
-#include <boringssl_prefix_symbols_asm.h>
-#endif
+#if !defined(OPENSSL_NO_ASM) && defined(OPENSSL_X86_64) && $target
 ___
 }
 
@@ -1605,13 +1618,7 @@ print "\n$current_segment\tENDS\n"	if ($current_segment && $masm);
 if ($masm) {
     print "END\n";
 } elsif ($gas) {
-    print <<___;
-#endif
-#if defined(__ELF__)
-// See https://www.airs.com/blog/archives/518.
-.section .note.GNU-stack,"",\%progbits
-#endif
-___
+    print "#endif\n";
 } elsif ($nasm) {
     print <<___;
 \%else

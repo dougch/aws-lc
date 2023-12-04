@@ -17,6 +17,7 @@ if(ARCH STREQUAL "x86_64")
 
     aesni-gcm-avx512.${ASM_EXT}
     aesni-gcm-x86_64.${ASM_EXT}
+    aesni-xts-avx512.${ASM_EXT}
     aesni-x86_64.${ASM_EXT}
     ghash-ssse3-x86_64.${ASM_EXT}
     ghash-x86_64.${ASM_EXT}
@@ -103,6 +104,7 @@ endif()
 if(PERL_EXECUTABLE)
   perlasm(aesni-gcm-x86_64.${ASM_EXT} modes/asm/aesni-gcm-x86_64.pl)
   perlasm(aesni-gcm-avx512.${ASM_EXT} modes/asm/aesni-gcm-avx512.pl)
+  perlasm(aesni-xts-avx512.${ASM_EXT} aes/asm/aesni-xts-avx512.pl)
   perlasm(aesni-x86_64.${ASM_EXT} aes/asm/aesni-x86_64.pl)
   perlasm(aesni-x86.${ASM_EXT} aes/asm/aesni-x86.pl)
   perlasm(aesp8-ppc.${ASM_EXT} aes/asm/aesp8-ppc.pl)
@@ -160,12 +162,14 @@ endif()
 if ((CMAKE_ASM_COMPILER_ID MATCHES "Clang" OR CMAKE_ASM_COMPILER MATCHES "clang") AND
     (CMAKE_ASM_COMPILER_VERSION VERSION_LESS "7.0.0") AND (ARCH STREQUAL "x86_64"))
   set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/aesni-gcm-avx512.${ASM_EXT} PROPERTIES COMPILE_FLAGS "-mavx512f -mavx512bw -mavx512dq -mavx512vl")
+  set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/aesni-xts-avx512.${ASM_EXT} PROPERTIES COMPILE_FLAGS "-mavx512f -mavx512bw -mavx512dq -mavx512vl")
 endif()
 
 # s2n-bignum files can be compiled on Unix platforms only (except Apple),
 # and on x86_64 and aarch64 systems only.
-if((ARCH STREQUAL "x86_64" OR ARCH STREQUAL "aarch64") AND
-    UNIX AND NOT MY_ASSEMBLER_IS_TOO_OLD_FOR_AVX)
+if((((ARCH STREQUAL "x86_64") AND NOT MY_ASSEMBLER_IS_TOO_OLD_FOR_AVX) OR
+      ARCH STREQUAL "aarch64") AND
+    UNIX)
 
   # Set the source directory for s2n-bignum assembly files
   if(ARCH STREQUAL "x86_64")
@@ -215,16 +219,75 @@ if((ARCH STREQUAL "x86_64" OR ARCH STREQUAL "aarch64") AND
                 curve25519/curve25519_x25519.S
                 curve25519/curve25519_x25519_alt.S
                 curve25519/curve25519_x25519base.S
-                curve25519/curve25519_x25519base_alt.S
-                )
+                curve25519/curve25519_x25519base_alt.S)
+
+    # Delocater FIPS issue: CryptoAlg-2198
+    if(NOT FIPS)
+      list(APPEND S2N_BIGNUM_ASM_SOURCES
+                  curve25519/bignum_mod_n25519.S
+                  curve25519/bignum_neg_p25519.S
+                  curve25519/bignum_madd_n25519.S
+                  curve25519/bignum_madd_n25519_alt.S
+                  curve25519/edwards25519_decode.S
+                  curve25519/edwards25519_decode_alt.S
+                  curve25519/edwards25519_encode.S
+                  curve25519/edwards25519_scalarmulbase.S
+                  curve25519/edwards25519_scalarmulbase_alt.S
+                  curve25519/edwards25519_scalarmuldouble.S
+                  curve25519/edwards25519_scalarmuldouble_alt.S
+                  )
+    endif()
   elseif(ARCH STREQUAL "aarch64")
-    # byte-level interface for aarch64 s2n-bignum curve25519 is in
-    # files with "byte" tags.
+    # byte-level interface for aarch64 s2n-bignum x25519 are in
+    # files with "byte" tags, but ed25519 is not, neither are they byte-level...
     list(APPEND S2N_BIGNUM_ASM_SOURCES
                 curve25519/curve25519_x25519_byte.S
                 curve25519/curve25519_x25519_byte_alt.S
                 curve25519/curve25519_x25519base_byte.S
                 curve25519/curve25519_x25519base_byte_alt.S
+                )
+
+    # Delocater FIPS issue: CryptoAlg-2198
+    if(NOT FIPS)
+      list(APPEND S2N_BIGNUM_ASM_SOURCES
+                  curve25519/bignum_mod_n25519.S
+                  curve25519/bignum_neg_p25519.S
+                  curve25519/bignum_madd_n25519.S
+                  curve25519/bignum_madd_n25519_alt.S
+                  curve25519/edwards25519_decode.S
+                  curve25519/edwards25519_decode_alt.S
+                  curve25519/edwards25519_encode.S
+                  curve25519/edwards25519_scalarmulbase.S
+                  curve25519/edwards25519_scalarmulbase_alt.S
+                  curve25519/edwards25519_scalarmuldouble.S
+                  curve25519/edwards25519_scalarmuldouble_alt.S
+                  )
+    endif()
+
+
+    # Big integer arithmetics using s2n-bignum
+    list(APPEND S2N_BIGNUM_ASM_SOURCES
+                fastmul/bignum_kmul_16_32.S
+                fastmul/bignum_kmul_32_64.S
+                fastmul/bignum_ksqr_16_32.S
+                fastmul/bignum_ksqr_32_64.S
+                fastmul/bignum_emontredc_8n.S
+
+                generic/bignum_ge.S
+                generic/bignum_mul.S
+                generic/bignum_optsub.S
+                generic/bignum_sqr.S
+
+                fastmul/bignum_kmul_16_32_neon.S
+                fastmul/bignum_kmul_32_64_neon.S
+                fastmul/bignum_ksqr_16_32_neon.S
+                fastmul/bignum_ksqr_32_64_neon.S
+                fastmul/bignum_emontredc_8n_neon.S
+
+                generic/bignum_copy_row_from_table.S
+                generic/bignum_copy_row_from_table_8n_neon.S
+                generic/bignum_copy_row_from_table_16_neon.S
+                generic/bignum_copy_row_from_table_32_neon.S
                 )
   endif()
 endif()
@@ -235,18 +298,19 @@ function(cpreprocess dest src)
     set(TARGET "--target=${CMAKE_ASM_COMPILER_TARGET}")
   endif()
 
-  set(PREFIX_INCLUDE "")
   if(BORINGSSL_PREFIX)
-    set(PREFIX_INCLUDE "-I${BORINGSSL_PREFIX_HEADERS_PATH}")
+    set(PREFIX_INCLUDE "-I${PROJECT_BINARY_DIR}/symbol_prefix_include")
   endif()
 
   string(REGEX REPLACE "[ ]+" ";" CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS}")
   add_custom_command(
     OUTPUT ${dest}
-    COMMAND ${CMAKE_ASM_COMPILER} ${TARGET} ${CMAKE_ASM_FLAGS} -E ${src} -I${PROJECT_SOURCE_DIR}/include ${PREFIX_INCLUDE} > ${dest}
+    COMMAND ${CMAKE_ASM_COMPILER} ${TARGET} ${CMAKE_ASM_FLAGS} -E ${src} ${PREFIX_INCLUDE} -I${PROJECT_SOURCE_DIR}/include > ${dest}
     DEPENDS
     ${src}
     ${PROJECT_SOURCE_DIR}/include/openssl/arm_arch.h
+    ${PROJECT_SOURCE_DIR}/include/openssl/asm_base.h
+    ${PROJECT_SOURCE_DIR}/include/openssl/target.h
     WORKING_DIRECTORY .
   )
 endfunction()
@@ -318,7 +382,8 @@ if(FIPS_DELOCATE)
   endif()
 
   add_dependencies(bcm_c_generated_asm boringssl_prefix_symbols)
-  target_include_directories(bcm_c_generated_asm PRIVATE ../../include)
+  target_include_directories(bcm_c_generated_asm BEFORE PRIVATE ${PROJECT_BINARY_DIR}/symbol_prefix_include)
+  target_include_directories(bcm_c_generated_asm PRIVATE ${PROJECT_SOURCE_DIR}/include)
   set_target_properties(bcm_c_generated_asm PROPERTIES COMPILE_OPTIONS "-S")
   set_target_properties(bcm_c_generated_asm PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
@@ -348,6 +413,8 @@ if(FIPS_DELOCATE)
   target_compile_definitions(bcm_hashunset PRIVATE BORINGSSL_IMPLEMENTATION)
 
   add_dependencies(bcm_hashunset boringssl_prefix_symbols)
+  target_include_directories(bcm_hashunset BEFORE PRIVATE ${PROJECT_BINARY_DIR}/symbol_prefix_include)
+  target_include_directories(bcm_hashunset PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
   set_target_properties(bcm_hashunset PROPERTIES POSITION_INDEPENDENT_CODE ON)
   set_target_properties(bcm_hashunset PROPERTIES LINKER_LANGUAGE C)
@@ -378,7 +445,8 @@ if(FIPS_DELOCATE)
   target_compile_definitions(fipsmodule PRIVATE BORINGSSL_IMPLEMENTATION)
 
   add_dependencies(fipsmodule boringssl_prefix_symbols)
-  target_include_directories(fipsmodule PRIVATE ../../include)
+  target_include_directories(fipsmodule BEFORE PRIVATE ${PROJECT_BINARY_DIR}/symbol_prefix_include)
+  target_include_directories(fipsmodule PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
   set_target_properties(fipsmodule PROPERTIES LINKER_LANGUAGE C)
 elseif(FIPS_SHARED)
@@ -397,7 +465,8 @@ elseif(FIPS_SHARED)
   target_compile_definitions(fipsmodule PRIVATE BORINGSSL_IMPLEMENTATION)
 
   add_dependencies(fipsmodule boringssl_prefix_symbols)
-  target_include_directories(fipsmodule PRIVATE ../../include)
+  target_include_directories(fipsmodule BEFORE PRIVATE ${PROJECT_BINARY_DIR}/symbol_prefix_include)
+  target_include_directories(fipsmodule PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
   add_library(
     bcm_library
@@ -409,10 +478,11 @@ elseif(FIPS_SHARED)
     ${BCM_ASM_SOURCES}
   )
   target_compile_definitions(bcm_library PRIVATE BORINGSSL_IMPLEMENTATION)
-  target_include_directories(bcm_library PRIVATE ../../include)
+  target_include_directories(bcm_library PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
   add_dependencies(bcm_library boringssl_prefix_symbols)
-  target_include_directories(bcm_library PRIVATE ../../include)
+  target_include_directories(bcm_library BEFORE PRIVATE ${PROJECT_BINARY_DIR}/symbol_prefix_include)
+  target_include_directories(bcm_library PRIVATE ${PROJECT_SOURCE_DIR}/include)
   if (APPLE)
     set(BCM_NAME bcm.o)
     # The linker on macOS doesn't have the ability to process linker scripts,
@@ -424,17 +494,19 @@ elseif(FIPS_SHARED)
     # generate the output object file where all the code in the __text section
     # and all the read-only data in the __const section are between the
     # respective start and end markers.
+    if (CMAKE_OSX_DEPLOYMENT_TARGET)
+      set(OSX_VERSION_MIN_FLAG "-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
+    endif()
     add_custom_command(
       OUTPUT fips_apple_start.o
-      COMMAND ${CMAKE_C_COMPILER} -arch ${CMAKE_SYSTEM_PROCESSOR} -isysroot ${CMAKE_OSX_SYSROOT} -c ${CMAKE_CURRENT_SOURCE_DIR}/fips_shared_library_marker.c -DAWSLC_FIPS_SHARED_START -o fips_apple_start.o
+      COMMAND ${CMAKE_C_COMPILER} -arch ${CMAKE_SYSTEM_PROCESSOR} -isysroot ${CMAKE_OSX_SYSROOT} ${OSX_VERSION_MIN_FLAG} -c ${CMAKE_CURRENT_SOURCE_DIR}/fips_shared_library_marker.c -DAWSLC_FIPS_SHARED_START -o fips_apple_start.o
       DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/fips_shared_library_marker.c
     )
     add_custom_command(
       OUTPUT fips_apple_end.o
-      COMMAND ${CMAKE_C_COMPILER} -arch ${CMAKE_SYSTEM_PROCESSOR} -isysroot ${CMAKE_OSX_SYSROOT} -c ${CMAKE_CURRENT_SOURCE_DIR}/fips_shared_library_marker.c -DAWSLC_FIPS_SHARED_END -o fips_apple_end.o
+      COMMAND ${CMAKE_C_COMPILER} -arch ${CMAKE_SYSTEM_PROCESSOR} -isysroot ${CMAKE_OSX_SYSROOT} ${OSX_VERSION_MIN_FLAG} -c ${CMAKE_CURRENT_SOURCE_DIR}/fips_shared_library_marker.c -DAWSLC_FIPS_SHARED_END -o fips_apple_end.o
       DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/fips_shared_library_marker.c
     )
-
     add_custom_command(
       OUTPUT bcm.o
       COMMAND ${CMAKE_LINKER} -r fips_apple_start.o -force_load $<TARGET_FILE:bcm_library> fips_apple_end.o -keep_private_externs -o bcm.o
@@ -507,5 +579,6 @@ else()
   target_compile_definitions(fipsmodule PRIVATE BORINGSSL_IMPLEMENTATION)
 
   add_dependencies(fipsmodule boringssl_prefix_symbols)
-  target_include_directories(fipsmodule PRIVATE ../../include)
+  target_include_directories(fipsmodule BEFORE PRIVATE ${PROJECT_BINARY_DIR}/symbol_prefix_include)
+  target_include_directories(fipsmodule PRIVATE ${PROJECT_SOURCE_DIR}/include)
 endif()
