@@ -217,6 +217,9 @@ typedef struct {
   BN_ULONG words[EC_MAX_WORDS];
 } EC_FELEM;
 
+// ec_felem_one returns one in |group|'s field.
+const EC_FELEM *ec_felem_one(const EC_GROUP *group);
+
 // ec_bignum_to_felem converts |in| to an |EC_FELEM|. It returns one on success
 // and zero if |in| is out of range.
 int ec_bignum_to_felem(const EC_GROUP *group, EC_FELEM *out, const BIGNUM *in);
@@ -603,21 +606,37 @@ struct ec_method_st {
 
 const EC_METHOD *EC_GFp_mont_method(void);
 
+struct ec_point_st {
+  // group is an owning reference to |group|, unless this is
+  // |group->generator|.
+  EC_GROUP *group;
+  // raw is the group-specific point data. Functions that take |EC_POINT|
+  // typically check consistency with |EC_GROUP| while functions that take
+  // |EC_JACOBIAN| do not. Thus accesses to this field should be externally
+  // checked for consistency.
+  EC_JACOBIAN raw;
+} /* EC_POINT */;
+
 struct ec_group_st {
   const EC_METHOD *meth;
 
   // Unlike all other |EC_POINT|s, |generator| does not own |generator->group|
   // to avoid a reference cycle. Additionally, Z is guaranteed to be one, so X
-  // and Y are suitable for use as an |EC_AFFINE|.
-  EC_POINT *generator;
+  // and Y are suitable for use as an |EC_AFFINE|. Before |has_order| is set, Z
+  // is one, but X and Y are uninitialized.
+  EC_POINT generator;
 
   BN_MONT_CTX order;
   BN_MONT_CTX field;
 
   EC_FELEM a, b;  // Curve coefficients.
-  EC_FELEM one;  // The value one.
+
+  // comment is a human-readable string describing the curve.
+  const char *comment;
 
   int curve_name;  // optional NID for named curve
+  uint8_t oid[9];
+  uint8_t oid_len;
 
   // a_is_minus3 is one if |a| is -3 mod |field| and zero otherwise. Point
   // arithmetic is optimized for -3.
@@ -632,17 +651,6 @@ struct ec_group_st {
 
   CRYPTO_refcount_t references;
 } /* EC_GROUP */;
-
-struct ec_point_st {
-  // group is an owning reference to |group|, unless this is
-  // |group->generator|.
-  EC_GROUP *group;
-  // raw is the group-specific point data. Functions that take |EC_POINT|
-  // typically check consistency with |EC_GROUP| while functions that take
-  // |EC_JACOBIAN| do not. Thus accesses to this field should be externally
-  // checked for consistency.
-  EC_JACOBIAN raw;
-} /* EC_POINT */;
 
 EC_GROUP *ec_group_new(const EC_METHOD *meth, const BIGNUM *p, const BIGNUM *a,
                        const BIGNUM *b, BN_CTX *ctx);
@@ -762,31 +770,6 @@ struct ec_key_st {
   CRYPTO_EX_DATA ex_data;
 } /* EC_KEY */;
 
-struct built_in_curve {
-  int nid;
-  const uint8_t *oid;
-  uint8_t oid_len;
-  // comment is a human-readable string describing the curve.
-  const char *comment;
-  // param_len is the number of bytes needed to store a field element.
-  uint8_t param_len;
-  // params points to an array of 6*|param_len| bytes which hold the field
-  // elements of the following (in big-endian order): prime, a, b, generator x,
-  // generator y, order.
-  const uint8_t *params;
-  const EC_METHOD *method;
-};
-
-#define OPENSSL_NUM_BUILT_IN_CURVES 5
-
-struct built_in_curves {
-  struct built_in_curve curves[OPENSSL_NUM_BUILT_IN_CURVES];
-};
-
-// OPENSSL_built_in_curves returns a pointer to static information about
-// standard curves. The array is terminated with an entry where |nid| is
-// |NID_undef|.
-const struct built_in_curves *OPENSSL_built_in_curves(void);
 
 #if defined(__cplusplus)
 }  // extern C
