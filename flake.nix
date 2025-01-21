@@ -11,8 +11,16 @@
           src = self;
           name = "aws-lc-fips";
           inherit system;
-          nativeBuildInputs = [ pkgs.ninja pkgs.cmake pkgs.perl ];
-          cmakeFlags = [ "-GNinja" "-DDISABLE_GO=ON" "-DCMAKE_BUILD_TYPE=relwithdebinfo"];
+          nativeBuildInputs = [ pkgs.ninja pkgs.cmake pkgs.perl pkgs.go ];
+          cmakeFlags = [ "-GNinja"
+                         "-DCMAKE_BUILD_TYPE=relwithdebinfo"
+                         "-DFIPS=1"];
+          buildPhase = ''
+            # Workaround a bug where the value of $HOME is set to
+            # non-writable /homeless-shelter dir
+            # see https://github.com/NixOS/nix/issues/670
+            export HOME=$(pwd)
+          '';
           checkPhase = ''
             ninja run_minimal_tests
           '';
