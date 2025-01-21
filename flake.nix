@@ -13,6 +13,7 @@
           inherit system;
           nativeBuildInputs = [ pkgs.ninja pkgs.cmake pkgs.perl pkgs.go ];
           cmakeFlags = [ "-GNinja"
+                         "-DBUILD_SHARED_LIBS=1"
                          "-DCMAKE_BUILD_TYPE=relwithdebinfo"
                          "-DFIPS=1"];
           buildPhase = ''
