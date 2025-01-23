@@ -7,7 +7,7 @@
     flake-utils.lib.eachDefaultSystem (system:
       let pkgs = nixpkgs.legacyPackages.${system};
       in rec {
-        packages.aws-lc-fips = pkgs.stdenv.mkDerivation {
+        packages.aws-lc-fips2022 = pkgs.stdenv.mkDerivation {
           src = self;
           name = "aws-lc-fips";
           inherit system;
