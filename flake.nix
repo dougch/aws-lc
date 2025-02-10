@@ -7,9 +7,9 @@
     flake-utils.lib.eachDefaultSystem (system:
       let pkgs = nixpkgs.legacyPackages.${system};
       in rec {
-        packages.aws-lc-fips2022 = pkgs.stdenv.mkDerivation {
+        packages.aws-lc-fips-2024 = pkgs.stdenv.mkDerivation {
           src = self;
-          name = "aws-lc-fips";
+          name = "aws-lc-fips-2024";
           inherit system;
           nativeBuildInputs = [ pkgs.ninja pkgs.cmake pkgs.perl pkgs.go ];
           cmakeFlags = [ "-GNinja"
@@ -27,7 +27,7 @@
           '';
         };
         formatter = pkgs.nixfmt;
-        packages.default = packages.aws-lc-fips;
+        packages.default = packages.aws-lc-fips-2024;
         packages.aws-lc-fips-test = packages.aws-lc-fips.overrideAttrs
          (finalAttrs: previousAttrs: {
             doCheck = true;
