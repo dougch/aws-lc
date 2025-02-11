@@ -10,7 +10,7 @@
         packages.aws-lc-fips-2022 = pkgs.stdenv.mkDerivation {
           hardeningDisable = [ "fortify" ];
           src = self;
-          name = "aws-lc-fips";
+          name = "aws-lc-fips-2022";
           inherit system;
           nativeBuildInputs = [ pkgs.ninja pkgs.cmake pkgs.perl pkgs.go ];
           cmakeFlags = [
