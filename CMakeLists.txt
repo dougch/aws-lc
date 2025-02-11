@@ -29,13 +29,13 @@ enable_language(C)
 if(FIPS)
   message(STATUS "FIPS build mode configured")
 
-  if(ENABLE_FIPS_ENTROPY_CPU_JITTER)
+  #if(ENABLE_FIPS_ENTROPY_CPU_JITTER)
     add_definitions(-DFIPS_ENTROPY_SOURCE_JITTER_CPU)
     message(STATUS "FIPS entropy source method configured: CPU Jitter")
-  else()
-    add_definitions(-DFIPS_ENTROPY_SOURCE_PASSIVE)
-    message(STATUS "FIPS entropy source method configured: Passive")
-  endif()
+  ##else()
+  #  add_definitions(-DFIPS_ENTROPY_SOURCE_PASSIVE)
+  #  message(STATUS "FIPS entropy source method configured: Passive")
+  #endif()
 endif()
 
 # Tests and libssl both require the CXX language to be enabled. If a consumer
