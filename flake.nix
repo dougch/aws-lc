@@ -7,7 +7,7 @@
     flake-utils.lib.eachDefaultSystem (system:
       let pkgs = nixpkgs.legacyPackages.${system};
       in rec {
-        packages.aws-lc-fips = pkgs.stdenv.mkDerivation {
+        packages.aws-lc-fips-2022 = pkgs.stdenv.mkDerivation {
           hardeningDisable = [ "fortify" ];
           src = self;
           name = "aws-lc-fips";
@@ -31,7 +31,7 @@
           '';
         };
         formatter = pkgs.nixfmt;
-        packages.default = packages.aws-lc-fips;
+        packages.default = packages.aws-lc-fips-2022;
         packages.aws-lc-fips-test = packages.aws-lc-fips.overrideAttrs
           (finalAttrs: previousAttrs: { doCheck = true; });
       });
