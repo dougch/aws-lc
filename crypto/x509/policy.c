@@ -13,6 +13,13 @@
 #include "internal.h"
 
 
+//= https://www.rfc-editor.org/rfc/rfc5280#section-6.1.2
+//# (b)  permitted_subtrees:  a set of root names for each name type
+//# (e.g., X.500 distinguished names, email addresses, or IP
+//# addresses) defining a set of subtrees within which all
+//# subject names in subsequent certificates in the certification
+//# path MUST fall.
+//
 // This file computes the X.509 policy tree, as described in RFC 5280, section
 // 6.1. It differs in that:
 //

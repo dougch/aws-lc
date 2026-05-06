@@ -1,0 +1,29 @@
+'$schema' = "https://awslabs.github.io/duvet/config/v0.4.0.json"
+
+[[source]]
+pattern = "crypto/x509/**/*.c"
+
+[[source]]
+pattern = "crypto/x509/**/*.h"
+
+[[source]]
+pattern = "crypto/x509_test.cc"
+type = "test"
+
+[[source]]
+pattern = "crypto/x509/*_test.cc"
+type = "test"
+
+[[specification]]
+source = "https://www.rfc-editor.org/rfc/rfc5280"
+format = "ietf"
+
+[[requirement]]
+pattern = ".duvet/custom-requirements/**/*.toml"
+
+[report.html]
+enabled = true
+blob-link = "https://github.com/aws/aws-lc/blob/main"
+
+[report.json]
+enabled = true

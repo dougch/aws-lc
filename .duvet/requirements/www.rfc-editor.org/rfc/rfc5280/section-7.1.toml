@@ -1,0 +1,108 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-7.1"
+
+# Internationalized Names in Distinguished Names
+#
+#    Representation of internationalized names in distinguished names is
+#    covered in Sections 4.1.2.4, Issuer Name, and 4.1.2.6, Subject Name.
+#    Standard naming attributes, such as common name, employ the
+#    DirectoryString type, which supports internationalized names through
+#    a variety of language encodings.  Conforming implementations MUST
+#    support UTF8String and PrintableString.  RFC 3280 required only
+#    binary comparison of attribute values encoded in UTF8String, however,
+#    this specification requires a more comprehensive handling of
+#    comparison.  Implementations may encounter certificates and CRLs with
+#    names encoded using TeletexString, BMPString, or UniversalString, but
+#    support for these is OPTIONAL.
+# 
+#    Conforming implementations MUST use the LDAP StringPrep profile
+#    (including insignificant space handling), as specified in [RFC4518],
+#    as the basis for comparison of distinguished name attributes encoded
+#    in either PrintableString or UTF8String.  Conforming implementations
+#    MUST support name comparisons using caseIgnoreMatch.  Support for
+#    attribute types that use other equality matching rules is optional.
+# 
+#    Before comparing names using the caseIgnoreMatch matching rule,
+#    conforming implementations MUST perform the six-step string
+#    preparation algorithm described in [RFC4518] for each attribute of
+#    type DirectoryString, with the following clarifications:
+# 
+#       *  In step 2, Map, the mapping shall include case folding as
+#          specified in Appendix B.2 of [RFC3454].
+# 
+#       *  In step 6, Insignificant Character Removal, perform white space
+#          compression as specified in Section 2.6.1, Insignificant Space
+#          Handling, of [RFC4518].
+# 
+#    When performing the string preparation algorithm, attributes MUST be
+#    treated as stored values.
+# 
+#    Comparisons of domainComponent attributes MUST be performed as
+#    specified in Section 7.3.
+# 
+#    Two naming attributes match if the attribute types are the same and
+#    the values of the attributes are an exact match after processing with
+#    the string preparation algorithm.  Two relative distinguished names
+#    RDN1 and RDN2 match if they have the same number of naming attributes
+#    and for each naming attribute in RDN1 there is a matching naming
+#    attribute in RDN2.  Two distinguished names DN1 and DN2 match if they
+#    have the same number of RDNs, for each RDN in DN1 there is a matching
+#    RDN in DN2, and the matching RDNs appear in the same order in both
+#    DNs.  A distinguished name DN1 is within the subtree defined by the
+# 
+#    distinguished name DN2 if DN1 contains at least as many RDNs as DN2,
+#    and DN1 and DN2 are a match when trailing RDNs in DN1 are ignored.
+
+[[spec]]
+level = "MUST"
+quote = '''
+Conforming implementations MUST
+support UTF8String and PrintableString.
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+Implementations may encounter certificates and CRLs with
+names encoded using TeletexString, BMPString, or UniversalString, but
+support for these is OPTIONAL.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Conforming implementations MUST use the LDAP StringPrep profile
+(including insignificant space handling), as specified in [RFC4518],
+as the basis for comparison of distinguished name attributes encoded
+in either PrintableString or UTF8String.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Conforming implementations
+MUST support name comparisons using caseIgnoreMatch.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Before comparing names using the caseIgnoreMatch matching rule,
+conforming implementations MUST perform the six-step string
+preparation algorithm described in [RFC4518] for each attribute of
+type DirectoryString, with the following clarifications:
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+When performing the string preparation algorithm, attributes MUST be
+treated as stored values.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Comparisons of domainComponent attributes MUST be performed as
+specified in Section 7.3.
+'''
+

@@ -1,0 +1,27 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-5.1.2.3"
+
+# Issuer Name
+#
+#    The issuer name identifies the entity that has signed and issued the
+#    CRL.  The issuer identity is carried in the issuer field.
+#    Alternative name forms may also appear in the issuerAltName extension
+#    (Section 5.2.2).  The issuer field MUST contain a non-empty X.500
+#    distinguished name (DN).  The issuer field is defined as the X.501
+#    type Name, and MUST follow the encoding rules for the issuer name
+#    field in the certificate (Section 4.1.2.4).
+
+[[spec]]
+level = "MUST"
+quote = '''
+The issuer field MUST contain a non-empty X.500
+distinguished name (DN).
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+The issuer field is defined as the X.501
+type Name, and MUST follow the encoding rules for the issuer name
+field in the certificate (Section 4.1.2.4).
+'''
+

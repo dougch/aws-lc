@@ -1,0 +1,45 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-4.1.1.2"
+
+# signatureAlgorithm
+#
+#    The signatureAlgorithm field contains the identifier for the
+#    cryptographic algorithm used by the CA to sign this certificate.
+#    [RFC3279], [RFC4055], and [RFC4491] list supported signature
+#    algorithms, but other signature algorithms MAY also be supported.
+# 
+#    An algorithm identifier is defined by the following ASN.1 structure:
+# 
+#    AlgorithmIdentifier  ::=  SEQUENCE  {
+#         algorithm               OBJECT IDENTIFIER,
+#         parameters              ANY DEFINED BY algorithm OPTIONAL  }
+# 
+#    The algorithm identifier is used to identify a cryptographic
+#    algorithm.  The OBJECT IDENTIFIER component identifies the algorithm
+#    (such as DSA with SHA-1).  The contents of the optional parameters
+#    field will vary according to the algorithm identified.
+# 
+#    This field MUST contain the same algorithm identifier as the
+#    signature field in the sequence tbsCertificate (Section 4.1.2.3).
+
+[[spec]]
+level = "MAY"
+quote = '''
+[RFC3279], [RFC4055], and [RFC4491] list supported signature
+algorithms, but other signature algorithms MAY also be supported.
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+AlgorithmIdentifier  ::=  SEQUENCE  {
+algorithm               OBJECT IDENTIFIER,
+parameters              ANY DEFINED BY algorithm OPTIONAL  }
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+This field MUST contain the same algorithm identifier as the
+signature field in the sequence tbsCertificate (Section 4.1.2.3).
+'''
+

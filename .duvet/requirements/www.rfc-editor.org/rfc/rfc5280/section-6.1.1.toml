@@ -1,0 +1,91 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-6.1.1"
+
+# Inputs
+#
+#    This algorithm assumes that the following nine inputs are provided to
+#    the path processing logic:
+# 
+#       (a)  a prospective certification path of length n.
+# 
+#       (b)  the current date/time.
+# 
+#       (c)  user-initial-policy-set:  A set of certificate policy
+#            identifiers naming the policies that are acceptable to the
+#            certificate user.  The user-initial-policy-set contains the
+#            special value any-policy if the user is not concerned about
+#            certificate policy.
+# 
+#       (d)  trust anchor information, describing a CA that serves as a
+#            trust anchor for the certification path.  The trust anchor
+#            information includes:
+# 
+#          (1)  the trusted issuer name,
+# 
+#          (2)  the trusted public key algorithm,
+# 
+#          (3)  the trusted public key, and
+# 
+#          (4)  optionally, the trusted public key parameters associated
+#               with the public key.
+# 
+#       The trust anchor information may be provided to the path
+#       processing procedure in the form of a self-signed certificate.
+#       When the trust anchor information is provided in the form of a
+#       certificate, the name in the subject field is used as the trusted
+#       issuer name and the contents of the subjectPublicKeyInfo field is
+#       used as the source of the trusted public key algorithm and the
+#       trusted public key.  The trust anchor information is trusted
+#       because it was delivered to the path processing procedure by some
+#       trustworthy out-of-band procedure.  If the trusted public key
+#       algorithm requires parameters, then the parameters are provided
+#       along with the trusted public key.
+# 
+#       (e)  initial-policy-mapping-inhibit, which indicates if policy
+#            mapping is allowed in the certification path.
+# 
+#       (f)  initial-explicit-policy, which indicates if the path must be
+#            valid for at least one of the certificate policies in the
+#            user-initial-policy-set.
+# 
+#       (g)  initial-any-policy-inhibit, which indicates whether the
+#            anyPolicy OID should be processed if it is included in a
+#            certificate.
+# 
+#       (h)  initial-permitted-subtrees, which indicates for each name
+#            type (e.g., X.500 distinguished names, email addresses, or IP
+#            addresses) a set of subtrees within which all subject names
+#            in every certificate in the certification path MUST fall.
+#            The initial-permitted-subtrees input includes a set for each
+#            name type.  For each name type, the set may consist of a
+# 
+#            single subtree that includes all names of that name type or
+#            one or more subtrees that each specifies a subset of the
+#            names of that name type, or the set may be empty.  If the set
+#            for a name type is empty, then the certification path will be
+#            considered invalid if any certificate in the certification
+#            path includes a name of that name type.
+# 
+#       (i)  initial-excluded-subtrees, which indicates for each name type
+#            (e.g., X.500 distinguished names, email addresses, or IP
+#            addresses) a set of subtrees within which no subject name in
+#            any certificate in the certification path may fall.  The
+#            initial-excluded-subtrees input includes a set for each name
+#            type.  For each name type, the set may be empty or may
+#            consist of one or more subtrees that each specifies a subset
+#            of the names of that name type.  If the set for a name type
+#            is empty, then no names of that name type are excluded.
+# 
+#    Conforming implementations are not required to support the setting of
+#    all of these inputs.  For example, a conforming implementation may be
+#    designed to validate all certification paths using a value of FALSE
+#    for initial-any-policy-inhibit.
+
+[[spec]]
+level = "MUST"
+quote = '''
+(h)  initial-permitted-subtrees, which indicates for each name
+type (e.g., X.500 distinguished names, email addresses, or IP
+addresses) a set of subtrees within which all subject names
+in every certificate in the certification path MUST fall.
+'''
+

@@ -1,0 +1,51 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-7.5"
+
+# Internationalized Electronic Mail Addresses
+#
+#    Electronic Mail addresses may be included in certificates and CRLs in
+#    the subjectAltName and issuerAltName extensions, name constraints
+#    extension, authority information access extension, subject
+#    information access extension, issuing distribution point extension,
+#    or CRL distribution points extension.  Each of these extensions uses
+#    the GeneralName construct; GeneralName includes the rfc822Name
+#    choice, which is defined as type IA5String.  To accommodate email
+#    addresses with internationalized domain names using the current
+#    structure, conforming implementations MUST convert the addresses into
+#    an ASCII representation.
+# 
+#    Where the host-part (the Domain of the Mailbox) contains an
+#    internationalized name, the domain name MUST be converted from an IDN
+#    to the ASCII Compatible Encoding (ACE) format as specified in Section
+#    7.2.
+# 
+#    Two email addresses are considered to match if:
+# 
+#       1)  the local-part of each name is an exact match, AND
+# 
+#       2)  the host-part of each name matches using a case-insensitive
+#           ASCII comparison.
+# 
+#    Implementations should convert the host-part of internationalized
+#    email addresses specified in these extensions to Unicode before
+#    display.  Specifically, conforming implementations should perform the
+#    conversion of the host-part of the Mailbox as described in Section
+#    7.2.
+
+[[spec]]
+level = "MUST"
+quote = '''
+To accommodate email
+addresses with internationalized domain names using the current
+structure, conforming implementations MUST convert the addresses into
+an ASCII representation.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Where the host-part (the Domain of the Mailbox) contains an
+internationalized name, the domain name MUST be converted from an IDN
+to the ASCII Compatible Encoding (ACE) format as specified in Section
+7.2.
+'''
+

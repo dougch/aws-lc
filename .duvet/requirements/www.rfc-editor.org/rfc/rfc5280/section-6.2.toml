@@ -1,0 +1,86 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-6.2"
+
+# Using the Path Validation Algorithm
+#
+#    The path validation algorithm describes the process of validating a
+#    single certification path.  While each certification path begins with
+#    a specific trust anchor, there is no requirement that all
+#    certification paths validated by a particular system share a single
+#    trust anchor.  The selection of one or more trusted CAs is a local
+#    decision.  A system may provide any one of its trusted CAs as the
+#    trust anchor for a particular path.  The inputs to the path
+#    validation algorithm may be different for each path.  The inputs used
+#    to process a path may reflect application-specific requirements or
+#    limitations in the trust accorded a particular trust anchor.  For
+# 
+#    example, a trusted CA may only be trusted for a particular
+#    certificate policy.  This restriction can be expressed through the
+#    inputs to the path validation procedure.
+# 
+#    An implementation MAY augment the algorithm presented in Section 6.1
+#    to further limit the set of valid certification paths that begin with
+#    a particular trust anchor.  For example, an implementation MAY modify
+#    the algorithm to apply a path length constraint to a specific trust
+#    anchor during the initialization phase, or the application MAY
+#    require the presence of a particular alternative name form in the
+#    target certificate, or the application MAY impose requirements on
+#    application-specific extensions.  Thus, the path validation algorithm
+#    presented in Section 6.1 defines the minimum conditions for a path to
+#    be considered valid.
+# 
+#    Where a CA distributes self-signed certificates to specify trust
+#    anchor information, certificate extensions can be used to specify
+#    recommended inputs to path validation.  For example, a policy
+#    constraints extension could be included in the self-signed
+#    certificate to indicate that paths beginning with this trust anchor
+#    should be trusted only for the specified policies.  Similarly, a name
+#    constraints extension could be included to indicate that paths
+#    beginning with this trust anchor should be trusted only for the
+#    specified name spaces.  The path validation algorithm presented in
+#    Section 6.1 does not assume that trust anchor information is provided
+#    in self-signed certificates and does not specify processing rules for
+#    additional information included in such certificates.
+#    Implementations that use self-signed certificates to specify trust
+#    anchor information are free to process or ignore such information.
+
+[[spec]]
+level = "MAY"
+quote = '''
+An implementation MAY augment the algorithm presented in Section 6.1
+to further limit the set of valid certification paths that begin with
+a particular trust anchor.
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+For example, an implementation MAY modify
+the algorithm to apply a path length constraint to a specific trust
+anchor during the initialization phase, or the application MAY
+require the presence of a particular alternative name form in the
+target certificate, or the application MAY impose requirements on
+application-specific extensions.
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+For example, an implementation MAY modify
+the algorithm to apply a path length constraint to a specific trust
+anchor during the initialization phase, or the application MAY
+require the presence of a particular alternative name form in the
+target certificate, or the application MAY impose requirements on
+application-specific extensions.
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+For example, an implementation MAY modify
+the algorithm to apply a path length constraint to a specific trust
+anchor during the initialization phase, or the application MAY
+require the presence of a particular alternative name form in the
+target certificate, or the application MAY impose requirements on
+application-specific extensions.
+'''
+

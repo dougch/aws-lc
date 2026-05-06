@@ -1,0 +1,230 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-5.2.5"
+
+# Issuing Distribution Point
+#
+#    The issuing distribution point is a critical CRL extension that
+#    identifies the CRL distribution point and scope for a particular CRL,
+#    and it indicates whether the CRL covers revocation for end entity
+#    certificates only, CA certificates only, attribute certificates only,
+#    or a limited set of reason codes.  Although the extension is
+#    critical, conforming implementations are not required to support this
+#    extension.  However, implementations that do not support this
+#    extension MUST either treat the status of any certificate not listed
+#    on this CRL as unknown or locate another CRL that does not contain
+#    any unrecognized critical extensions.
+# 
+#    The CRL is signed using the CRL issuer's private key.  CRL
+#    distribution points do not have their own key pairs.  If the CRL is
+#    stored in the X.500 directory, it is stored in the directory entry
+#    corresponding to the CRL distribution point, which may be different
+#    from the directory entry of the CRL issuer.
+# 
+#    The reason codes associated with a distribution point MUST be
+#    specified in onlySomeReasons.  If onlySomeReasons does not appear,
+#    the distribution point MUST contain revocations for all reason codes.
+#    CAs may use CRL distribution points to partition the CRL on the basis
+#    of compromise and routine revocation.  In this case, the revocations
+#    with reason code keyCompromise (1), cACompromise (2), and
+#    aACompromise (8) appear in one distribution point, and the
+#    revocations with other reason codes appear in another distribution
+#    point.
+# 
+#    If a CRL includes an issuingDistributionPoint extension with
+#    onlySomeReasons present, then every certificate in the scope of the
+#    CRL that is revoked MUST be assigned a revocation reason other than
+#    unspecified.  The assigned revocation reason is used to determine on
+#    which CRL(s) to list the revoked certificate, however, there is no
+#    requirement to include the reasonCode CRL entry extension in the
+#    corresponding CRL entry.
+# 
+#    The syntax and semantics for the distributionPoint field are the same
+#    as for the distributionPoint field in the cRLDistributionPoints
+#    extension (Section 4.2.1.13).  If the distributionPoint field is
+#    present, then it MUST include at least one of names from the
+#    corresponding distributionPoint field of the cRLDistributionPoints
+# 
+#    extension of every certificate that is within the scope of this CRL.
+#    The identical encoding MUST be used in the distributionPoint fields
+#    of the certificate and the CRL.
+# 
+#    If the distributionPoint field is absent, the CRL MUST contain
+#    entries for all revoked unexpired certificates issued by the CRL
+#    issuer, if any, within the scope of the CRL.
+# 
+#    If the scope of the CRL only includes certificates issued by the CRL
+#    issuer, then the indirectCRL boolean MUST be set to FALSE.
+#    Otherwise, if the scope of the CRL includes certificates issued by
+#    one or more authorities other than the CRL issuer, the indirectCRL
+#    boolean MUST be set to TRUE.  The authority responsible for each
+#    entry is indicated by the certificate issuer CRL entry extension
+#    (Section 5.3.3).
+# 
+#    If the scope of the CRL only includes end entity public key
+#    certificates, then onlyContainsUserCerts MUST be set to TRUE.  If the
+#    scope of the CRL only includes CA certificates, then
+#    onlyContainsCACerts MUST be set to TRUE.  If either
+#    onlyContainsUserCerts or onlyContainsCACerts is set to TRUE, then the
+#    scope of the CRL MUST NOT include any version 1 or version 2
+#    certificates.  Conforming CRLs issuers MUST set the
+#    onlyContainsAttributeCerts boolean to FALSE.
+# 
+#    Conforming CRLs issuers MUST NOT issue CRLs where the DER encoding of
+#    the issuing distribution point extension is an empty sequence.  That
+#    is, if onlyContainsUserCerts, onlyContainsCACerts, indirectCRL, and
+#    onlyContainsAttributeCerts are all FALSE, then either the
+#    distributionPoint field or the onlySomeReasons field MUST be present.
+# 
+#    id-ce-issuingDistributionPoint OBJECT IDENTIFIER ::= { id-ce 28 }
+# 
+#    IssuingDistributionPoint ::= SEQUENCE {
+#         distributionPoint          [0] DistributionPointName OPTIONAL,
+#         onlyContainsUserCerts      [1] BOOLEAN DEFAULT FALSE,
+#         onlyContainsCACerts        [2] BOOLEAN DEFAULT FALSE,
+#         onlySomeReasons            [3] ReasonFlags OPTIONAL,
+#         indirectCRL                [4] BOOLEAN DEFAULT FALSE,
+#         onlyContainsAttributeCerts [5] BOOLEAN DEFAULT FALSE }
+# 
+#         -- at most one of onlyContainsUserCerts, onlyContainsCACerts,
+#         -- and onlyContainsAttributeCerts may be set to TRUE.
+
+[[spec]]
+level = "MUST"
+quote = '''
+However, implementations that do not support this
+extension MUST either treat the status of any certificate not listed
+on this CRL as unknown or locate another CRL that does not contain
+any unrecognized critical extensions.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+The reason codes associated with a distribution point MUST be
+specified in onlySomeReasons.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If onlySomeReasons does not appear,
+the distribution point MUST contain revocations for all reason codes.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If a CRL includes an issuingDistributionPoint extension with
+onlySomeReasons present, then every certificate in the scope of the
+CRL that is revoked MUST be assigned a revocation reason other than
+unspecified.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If the distributionPoint field is
+present, then it MUST include at least one of names from the
+corresponding distributionPoint field of the cRLDistributionPoints
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+The identical encoding MUST be used in the distributionPoint fields
+of the certificate and the CRL.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If the distributionPoint field is absent, the CRL MUST contain
+entries for all revoked unexpired certificates issued by the CRL
+issuer, if any, within the scope of the CRL.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If the scope of the CRL only includes certificates issued by the CRL
+issuer, then the indirectCRL boolean MUST be set to FALSE.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Otherwise, if the scope of the CRL includes certificates issued by
+one or more authorities other than the CRL issuer, the indirectCRL
+boolean MUST be set to TRUE.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If the scope of the CRL only includes end entity public key
+certificates, then onlyContainsUserCerts MUST be set to TRUE.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If the
+scope of the CRL only includes CA certificates, then
+onlyContainsCACerts MUST be set to TRUE.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If either
+onlyContainsUserCerts or onlyContainsCACerts is set to TRUE, then the
+scope of the CRL MUST NOT include any version 1 or version 2
+certificates.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Conforming CRLs issuers MUST set the
+onlyContainsAttributeCerts boolean to FALSE.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Conforming CRLs issuers MUST NOT issue CRLs where the DER encoding of
+the issuing distribution point extension is an empty sequence.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+That
+is, if onlyContainsUserCerts, onlyContainsCACerts, indirectCRL, and
+onlyContainsAttributeCerts are all FALSE, then either the
+distributionPoint field or the onlySomeReasons field MUST be present.
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+IssuingDistributionPoint ::= SEQUENCE {
+distributionPoint          [0] DistributionPointName OPTIONAL,
+onlyContainsUserCerts      [1] BOOLEAN DEFAULT FALSE,
+onlyContainsCACerts        [2] BOOLEAN DEFAULT FALSE,
+onlySomeReasons            [3] ReasonFlags OPTIONAL,
+indirectCRL                [4] BOOLEAN DEFAULT FALSE,
+onlyContainsAttributeCerts [5] BOOLEAN DEFAULT FALSE }
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+IssuingDistributionPoint ::= SEQUENCE {
+distributionPoint          [0] DistributionPointName OPTIONAL,
+onlyContainsUserCerts      [1] BOOLEAN DEFAULT FALSE,
+onlyContainsCACerts        [2] BOOLEAN DEFAULT FALSE,
+onlySomeReasons            [3] ReasonFlags OPTIONAL,
+indirectCRL                [4] BOOLEAN DEFAULT FALSE,
+onlyContainsAttributeCerts [5] BOOLEAN DEFAULT FALSE }
+'''
+

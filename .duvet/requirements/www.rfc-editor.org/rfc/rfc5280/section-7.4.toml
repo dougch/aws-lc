@@ -1,0 +1,116 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-7.4"
+
+# Internationalized Resource Identifiers
+#
+#    Internationalized Resource Identifiers (IRIs) are the
+#    internationalized complement to the Uniform Resource Identifier
+#    (URI).  IRIs are sequences of characters from Unicode, while URIs are
+#    sequences of characters from the ASCII character set.  [RFC3987]
+#    defines a mapping from IRIs to URIs.  While IRIs are not encoded
+#    directly in any certificate fields or extensions, their mapped URIs
+#    may be included in certificates and CRLs.  URIs may appear in the
+#    subjectAltName and issuerAltName extensions, name constraints
+#    extension, authority information access extension, subject
+#    information access extension, issuing distribution point extension,
+#    and CRL distribution points extension.  Each of these extensions uses
+#    the GeneralName type; URIs are encoded in the
+#    uniformResourceIdentifier field in GeneralName, which is defined as
+#    type IA5String.
+# 
+#    To accommodate IRIs in the current structure, conforming
+#    implementations MUST map IRIs to URIs as specified in Section 3.1 of
+#    [RFC3987], with the following clarifications:
+# 
+#       *  in step 1, generate a UCS character sequence from the original
+#          IRI format normalizing according to the NFC as specified in
+#          Variant b (normalization according to NFC);
+# 
+#       *  perform step 2 using the output from step 1.
+# 
+#    Implementations MUST NOT convert the ireg-name component before
+#    performing step 2.
+# 
+#    Before URIs may be compared, conforming implementations MUST perform
+#    a combination of the syntax-based and scheme-based normalization
+#    techniques described in [RFC3987].  Specifically, conforming
+#    implementations MUST prepare URIs for comparison as follows:
+# 
+#       *  Step 1: Where IRIs allow the usage of IDNs, those names MUST be
+#          converted to ASCII Compatible Encoding as specified in Section
+#          7.2 above.
+# 
+#       *  Step 2: The scheme and host are normalized to lowercase, as
+#          described in Section 5.3.2.1 of [RFC3987].
+# 
+#       *  Step 3: Perform percent-encoding normalization, as specified in
+#          Section 5.3.2.3 of [RFC3987].
+# 
+#       *  Step 4: Perform path segment normalization, as specified in
+#          Section 5.3.2.4 of [RFC3987].
+# 
+#       *  Step 5: If recognized, the implementation MUST perform scheme-
+#          based normalization as specified in Section 5.3.3 of [RFC3987].
+# 
+#    Conforming implementations MUST recognize and perform scheme-based
+#    normalization for the following schemes: ldap, http, https, and ftp.
+#    If the scheme is not recognized, step 5 is omitted.
+# 
+#    When comparing URIs for equivalence, conforming implementations shall
+#    perform a case-sensitive exact match.
+# 
+#    Implementations should convert URIs to Unicode before display.
+#    Specifically, conforming implementations should perform the
+#    conversion operation specified in Section 3.2 of [RFC3987].
+
+[[spec]]
+level = "MUST"
+quote = '''
+To accommodate IRIs in the current structure, conforming
+implementations MUST map IRIs to URIs as specified in Section 3.1 of
+[RFC3987], with the following clarifications:
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Implementations MUST NOT convert the ireg-name component before
+performing step 2.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Before URIs may be compared, conforming implementations MUST perform
+a combination of the syntax-based and scheme-based normalization
+techniques described in [RFC3987].
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Specifically, conforming
+implementations MUST prepare URIs for comparison as follows:
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+*  Step 1: Where IRIs allow the usage of IDNs, those names MUST be
+converted to ASCII Compatible Encoding as specified in Section
+7.2 above.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+*  Step 5: If recognized, the implementation MUST perform scheme-
+based normalization as specified in Section 5.3.3 of [RFC3987].
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Conforming implementations MUST recognize and perform scheme-based
+normalization for the following schemes: ldap, http, https, and ftp.
+'''
+

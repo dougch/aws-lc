@@ -1,0 +1,86 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-5.1.2.5"
+
+# Next Update
+#
+#    This field indicates the date by which the next CRL will be issued.
+#    The next CRL could be issued before the indicated date, but it will
+#    not be issued any later than the indicated date.  CRL issuers SHOULD
+#    issue CRLs with a nextUpdate time equal to or later than all previous
+#    CRLs.  nextUpdate may be encoded as UTCTime or GeneralizedTime.
+# 
+#    Conforming CRL issuers MUST include the nextUpdate field in all CRLs.
+#    Note that the ASN.1 syntax of TBSCertList describes this field as
+#    OPTIONAL, which is consistent with the ASN.1 structure defined in
+#    [X.509].  The behavior of clients processing CRLs that omit
+#    nextUpdate is not specified by this profile.
+# 
+#    CRL issuers conforming to this profile MUST encode nextUpdate as
+#    UTCTime for dates through the year 2049.  CRL issuers conforming to
+#    this profile MUST encode nextUpdate as GeneralizedTime for dates in
+#    the year 2050 or later.  Conforming applications MUST be able to
+#    process dates that are encoded in either UTCTime or GeneralizedTime.
+# 
+#    Where encoded as UTCTime, nextUpdate MUST be specified and
+#    interpreted as defined in Section 4.1.2.5.1.  Where encoded as
+#    GeneralizedTime, nextUpdate MUST be specified and interpreted as
+#    defined in Section 4.1.2.5.2.
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+CRL issuers SHOULD
+issue CRLs with a nextUpdate time equal to or later than all previous
+CRLs.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Conforming CRL issuers MUST include the nextUpdate field in all CRLs.
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+Note that the ASN.1 syntax of TBSCertList describes this field as
+OPTIONAL, which is consistent with the ASN.1 structure defined in
+[X.509].
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+CRL issuers conforming to this profile MUST encode nextUpdate as
+UTCTime for dates through the year 2049.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+CRL issuers conforming to
+this profile MUST encode nextUpdate as GeneralizedTime for dates in
+the year 2050 or later.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Conforming applications MUST be able to
+process dates that are encoded in either UTCTime or GeneralizedTime.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Where encoded as UTCTime, nextUpdate MUST be specified and
+interpreted as defined in Section 4.1.2.5.1.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Where encoded as
+GeneralizedTime, nextUpdate MUST be specified and interpreted as
+defined in Section 4.1.2.5.2.
+'''
+

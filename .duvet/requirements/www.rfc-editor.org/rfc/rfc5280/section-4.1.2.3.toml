@@ -1,0 +1,30 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-4.1.2.3"
+
+# Signature
+#
+#    This field contains the algorithm identifier for the algorithm used
+#    by the CA to sign the certificate.
+# 
+#    This field MUST contain the same algorithm identifier as the
+#    signatureAlgorithm field in the sequence Certificate (Section
+# 
+#    4.1.1.2).  The contents of the optional parameters field will vary
+#    according to the algorithm identified.  [RFC3279], [RFC4055], and
+#    [RFC4491] list supported signature algorithms, but other signature
+#    algorithms MAY also be supported.
+
+[[spec]]
+level = "MUST"
+quote = '''
+This field MUST contain the same algorithm identifier as the
+signatureAlgorithm field in the sequence Certificate (Section
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+[RFC3279], [RFC4055], and
+[RFC4491] list supported signature algorithms, but other signature
+algorithms MAY also be supported.
+'''
+

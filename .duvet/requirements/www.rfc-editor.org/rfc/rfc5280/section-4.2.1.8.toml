@@ -1,0 +1,19 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.8"
+
+# Subject Directory Attributes
+#
+#    The subject directory attributes extension is used to convey
+#    identification attributes (e.g., nationality) of the subject.  The
+#    extension is defined as a sequence of one or more attributes.
+#    Conforming CAs MUST mark this extension as non-critical.
+# 
+#    id-ce-subjectDirectoryAttributes OBJECT IDENTIFIER ::=  { id-ce 9 }
+# 
+#    SubjectDirectoryAttributes ::= SEQUENCE SIZE (1..MAX) OF Attribute
+
+[[spec]]
+level = "MUST"
+quote = '''
+Conforming CAs MUST mark this extension as non-critical.
+'''
+

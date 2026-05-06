@@ -1,0 +1,15 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-4.1.2.9"
+
+# Extensions
+#
+#    This field MUST only appear if the version is 3 (Section 4.1.2.1).
+#    If present, this field is a SEQUENCE of one or more certificate
+#    extensions.  The format and content of certificate extensions in the
+#    Internet PKI are defined in Section 4.2.
+
+[[spec]]
+level = "MUST"
+quote = '''
+This field MUST only appear if the version is 3 (Section 4.1.2.1).
+'''
+

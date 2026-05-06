@@ -1,0 +1,128 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-4.2"
+
+# Certificate Extensions
+#
+#    The extensions defined for X.509 v3 certificates provide methods for
+#    associating additional attributes with users or public keys and for
+#    managing relationships between CAs.  The X.509 v3 certificate format
+#    also allows communities to define private extensions to carry
+#    information unique to those communities.  Each extension in a
+#    certificate is designated as either critical or non-critical.  A
+#    certificate-using system MUST reject the certificate if it encounters
+#    a critical extension it does not recognize or a critical extension
+#    that contains information that it cannot process.  A non-critical
+#    extension MAY be ignored if it is not recognized, but MUST be
+#    processed if it is recognized.  The following sections present
+#    recommended extensions used within Internet certificates and standard
+#    locations for information.  Communities may elect to use additional
+#    extensions; however, caution ought to be exercised in adopting any
+#    critical extensions in certificates that might prevent use in a
+#    general context.
+# 
+#    Each extension includes an OID and an ASN.1 structure.  When an
+#    extension appears in a certificate, the OID appears as the field
+#    extnID and the corresponding ASN.1 DER encoded structure is the value
+#    of the octet string extnValue.  A certificate MUST NOT include more
+#    than one instance of a particular extension.  For example, a
+#    certificate may contain only one authority key identifier extension
+#    (Section 4.2.1.1).  An extension includes the boolean critical, with
+#    a default value of FALSE.  The text for each extension specifies the
+#    acceptable values for the critical field for CAs conforming to this
+#    profile.
+# 
+#    Conforming CAs MUST support key identifiers (Sections 4.2.1.1 and
+#    4.2.1.2), basic constraints (Section 4.2.1.9), key usage (Section
+#    4.2.1.3), and certificate policies (Section 4.2.1.4) extensions.  If
+#    the CA issues certificates with an empty sequence for the subject
+#    field, the CA MUST support the subject alternative name extension
+#    (Section 4.2.1.6).  Support for the remaining extensions is OPTIONAL.
+#    Conforming CAs MAY support extensions that are not identified within
+# 
+#    this specification; certificate issuers are cautioned that marking
+#    such extensions as critical may inhibit interoperability.
+# 
+#    At a minimum, applications conforming to this profile MUST recognize
+#    the following extensions: key usage (Section 4.2.1.3), certificate
+#    policies (Section 4.2.1.4), subject alternative name (Section
+#    4.2.1.6), basic constraints (Section 4.2.1.9), name constraints
+#    (Section 4.2.1.10), policy constraints (Section 4.2.1.11), extended
+#    key usage (Section 4.2.1.12), and inhibit anyPolicy (Section
+#    4.2.1.14).
+# 
+#    In addition, applications conforming to this profile SHOULD recognize
+#    the authority and subject key identifier (Sections 4.2.1.1 and
+#    4.2.1.2) and policy mappings (Section 4.2.1.5) extensions.
+
+[[spec]]
+level = "MUST"
+quote = '''
+A
+certificate-using system MUST reject the certificate if it encounters
+a critical extension it does not recognize or a critical extension
+that contains information that it cannot process.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+A non-critical
+extension MAY be ignored if it is not recognized, but MUST be
+processed if it is recognized.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+A certificate MUST NOT include more
+than one instance of a particular extension.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Conforming CAs MUST support key identifiers (Sections 4.2.1.1 and
+4.2.1.2), basic constraints (Section 4.2.1.9), key usage (Section
+4.2.1.3), and certificate policies (Section 4.2.1.4) extensions.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If
+the CA issues certificates with an empty sequence for the subject
+field, the CA MUST support the subject alternative name extension
+(Section 4.2.1.6).
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+Support for the remaining extensions is OPTIONAL.
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+Conforming CAs MAY support extensions that are not identified within
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+At a minimum, applications conforming to this profile MUST recognize
+the following extensions: key usage (Section 4.2.1.3), certificate
+policies (Section 4.2.1.4), subject alternative name (Section
+4.2.1.6), basic constraints (Section 4.2.1.9), name constraints
+(Section 4.2.1.10), policy constraints (Section 4.2.1.11), extended
+key usage (Section 4.2.1.12), and inhibit anyPolicy (Section
+4.2.1.14).
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+In addition, applications conforming to this profile SHOULD recognize
+the authority and subject key identifier (Sections 4.2.1.1 and
+4.2.1.2) and policy mappings (Section 4.2.1.5) extensions.
+'''
+

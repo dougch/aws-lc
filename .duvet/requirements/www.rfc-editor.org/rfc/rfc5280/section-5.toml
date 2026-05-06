@@ -1,0 +1,113 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-5"
+
+# CRL and CRL Extensions Profile
+#
+#    As discussed above, one goal of this X.509 v2 CRL profile is to
+#    foster the creation of an interoperable and reusable Internet PKI.
+#    To achieve this goal, guidelines for the use of extensions are
+#    specified, and some assumptions are made about the nature of
+#    information included in the CRL.
+# 
+#    CRLs may be used in a wide range of applications and environments
+#    covering a broad spectrum of interoperability goals and an even
+#    broader spectrum of operational and assurance requirements.  This
+#    profile establishes a common baseline for generic applications
+#    requiring broad interoperability.  The profile defines a set of
+#    information that can be expected in every CRL.  Also, the profile
+#    defines common locations within the CRL for frequently used
+#    attributes as well as common representations for these attributes.
+# 
+#    CRL issuers issue CRLs.  The CRL issuer is either the CA or an entity
+#    that has been authorized by the CA to issue CRLs.  CAs publish CRLs
+#    to provide status information about the certificates they issued.
+#    However, a CA may delegate this responsibility to another trusted
+#    authority.
+# 
+#    Each CRL has a particular scope.  The CRL scope is the set of
+#    certificates that could appear on a given CRL.  For example, the
+#    scope could be "all certificates issued by CA X", "all CA
+#    certificates issued by CA X", "all certificates issued by CA X that
+#    have been revoked for reasons of key compromise and CA compromise",
+#    or a set of certificates based on arbitrary local information, such
+#    as "all certificates issued to the NIST employees located in
+#    Boulder".
+# 
+#    A complete CRL lists all unexpired certificates, within its scope,
+#    that have been revoked for one of the revocation reasons covered by
+#    the CRL scope.  A full and complete CRL lists all unexpired
+#    certificates issued by a CA that have been revoked for any reason.
+#    (Note that since CAs and CRL issuers are identified by name, the
+#    scope of a CRL is not affected by the key used to sign the CRL or the
+#    key(s) used to sign certificates.)
+# 
+#    If the scope of the CRL includes one or more certificates issued by
+#    an entity other than the CRL issuer, then it is an indirect CRL.  The
+#    scope of an indirect CRL may be limited to certificates issued by a
+#    single CA or may include certificates issued by multiple CAs.  If the
+#    issuer of the indirect CRL is a CA, then the scope of the indirect
+#    CRL MAY also include certificates issued by the issuer of the CRL.
+# 
+#    The CRL issuer MAY also generate delta CRLs.  A delta CRL only lists
+#    those certificates, within its scope, whose revocation status has
+#    changed since the issuance of a referenced complete CRL.  The
+#    referenced complete CRL is referred to as a base CRL.  The scope of a
+#    delta CRL MUST be the same as the base CRL that it references.
+# 
+#    This profile defines one private Internet CRL extension but does not
+#    define any private CRL entry extensions.
+# 
+#    Environments with additional or special purpose requirements may
+#    build on this profile or may replace it.
+# 
+#    Conforming CAs are not required to issue CRLs if other revocation or
+#    certificate status mechanisms are provided.  When CRLs are issued,
+#    the CRLs MUST be version 2 CRLs, include the date by which the next
+#    CRL will be issued in the nextUpdate field (Section 5.1.2.5), include
+#    the CRL number extension (Section 5.2.3), and include the authority
+#    key identifier extension (Section 5.2.1).  Conforming applications
+#    that support CRLs are REQUIRED to process both version 1 and version
+#    2 complete CRLs that provide revocation information for all
+#    certificates issued by one CA.  Conforming applications are not
+#    required to support processing of delta CRLs, indirect CRLs, or CRLs
+#    with a scope other than all certificates issued by one CA.
+
+[[spec]]
+level = "MAY"
+quote = '''
+If the
+issuer of the indirect CRL is a CA, then the scope of the indirect
+CRL MAY also include certificates issued by the issuer of the CRL.
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+The CRL issuer MAY also generate delta CRLs.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+The scope of a
+delta CRL MUST be the same as the base CRL that it references.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+When CRLs are issued,
+the CRLs MUST be version 2 CRLs, include the date by which the next
+CRL will be issued in the nextUpdate field (Section 5.1.2.5), include
+the CRL number extension (Section 5.2.3), and include the authority
+key identifier extension (Section 5.2.1).
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Conforming applications
+that support CRLs are REQUIRED to process both version 1 and version
+2 complete CRLs that provide revocation information for all
+certificates issued by one CA.
+'''
+

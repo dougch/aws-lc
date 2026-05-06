@@ -1,0 +1,101 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-5.1"
+
+# CRL Fields
+#
+#    The X.509 v2 CRL syntax is as follows.  For signature calculation,
+#    the data that is to be signed is ASN.1 DER encoded.  ASN.1 DER
+#    encoding is a tag, length, value encoding system for each element.
+# 
+#    CertificateList  ::=  SEQUENCE  {
+#         tbsCertList          TBSCertList,
+#         signatureAlgorithm   AlgorithmIdentifier,
+#         signatureValue       BIT STRING  }
+# 
+#    TBSCertList  ::=  SEQUENCE  {
+#         version                 Version OPTIONAL,
+#                                      -- if present, MUST be v2
+#         signature               AlgorithmIdentifier,
+#         issuer                  Name,
+#         thisUpdate              Time,
+#         nextUpdate              Time OPTIONAL,
+#         revokedCertificates     SEQUENCE OF SEQUENCE  {
+#              userCertificate         CertificateSerialNumber,
+#              revocationDate          Time,
+#              crlEntryExtensions      Extensions OPTIONAL
+#                                       -- if present, version MUST be v2
+#                                   }  OPTIONAL,
+#         crlExtensions           [0]  EXPLICIT Extensions OPTIONAL
+#                                       -- if present, version MUST be v2
+#                                   }
+# 
+#    -- Version, Time, CertificateSerialNumber, and Extensions
+#    -- are all defined in the ASN.1 in Section 4.1
+# 
+#    -- AlgorithmIdentifier is defined in Section 4.1.1.2
+# 
+#    The following items describe the use of the X.509 v2 CRL in the
+#    Internet PKI.
+
+[[spec]]
+level = "MUST"
+quote = '''
+TBSCertList  ::=  SEQUENCE  {
+version                 Version OPTIONAL,
+-- if present, MUST be v2
+signature               AlgorithmIdentifier,
+issuer                  Name,
+thisUpdate              Time,
+nextUpdate              Time OPTIONAL,
+revokedCertificates     SEQUENCE OF SEQUENCE  {
+userCertificate         CertificateSerialNumber,
+revocationDate          Time,
+crlEntryExtensions      Extensions OPTIONAL
+-- if present, version MUST be v2
+}  OPTIONAL,
+crlExtensions           [0]  EXPLICIT Extensions OPTIONAL
+-- if present, version MUST be v2
+}
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+TBSCertList  ::=  SEQUENCE  {
+version                 Version OPTIONAL,
+-- if present, MUST be v2
+signature               AlgorithmIdentifier,
+issuer                  Name,
+thisUpdate              Time,
+nextUpdate              Time OPTIONAL,
+revokedCertificates     SEQUENCE OF SEQUENCE  {
+userCertificate         CertificateSerialNumber,
+revocationDate          Time,
+crlEntryExtensions      Extensions OPTIONAL
+-- if present, version MUST be v2
+}  OPTIONAL,
+crlExtensions           [0]  EXPLICIT Extensions OPTIONAL
+-- if present, version MUST be v2
+}
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+TBSCertList  ::=  SEQUENCE  {
+version                 Version OPTIONAL,
+-- if present, MUST be v2
+signature               AlgorithmIdentifier,
+issuer                  Name,
+thisUpdate              Time,
+nextUpdate              Time OPTIONAL,
+revokedCertificates     SEQUENCE OF SEQUENCE  {
+userCertificate         CertificateSerialNumber,
+revocationDate          Time,
+crlEntryExtensions      Extensions OPTIONAL
+-- if present, version MUST be v2
+}  OPTIONAL,
+crlExtensions           [0]  EXPLICIT Extensions OPTIONAL
+-- if present, version MUST be v2
+}
+'''
+

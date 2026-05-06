@@ -1,0 +1,157 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-6.1.4"
+
+# Preparation for Certificate i+1
+#
+#       To prepare for processing of certificate i+1, perform the
+#       following steps for certificate i:
+# 
+#       (a)  If a policy mappings extension is present, verify that the
+#            special value anyPolicy does not appear as an
+#            issuerDomainPolicy or a subjectDomainPolicy.
+# 
+#       (b)  If a policy mappings extension is present, then for each
+#            issuerDomainPolicy ID-P in the policy mappings extension:
+# 
+#          (1)  If the policy_mapping variable is greater than 0, for each
+#               node in the valid_policy_tree of depth i where ID-P is the
+#               valid_policy, set expected_policy_set to the set of
+#               subjectDomainPolicy values that are specified as
+#               equivalent to ID-P by the policy mappings extension.
+# 
+#               If no node of depth i in the valid_policy_tree has a
+#               valid_policy of ID-P but there is a node of depth i with a
+#               valid_policy of anyPolicy, then generate a child node of
+#               the node of depth i-1 that has a valid_policy of anyPolicy
+#               as follows:
+# 
+#             (i)    set the valid_policy to ID-P;
+# 
+#             (ii)   set the qualifier_set to the qualifier set of the
+#                    policy anyPolicy in the certificate policies
+#                    extension of certificate i; and
+# 
+#             (iii)  set the expected_policy_set to the set of
+#                    subjectDomainPolicy values that are specified as
+#                    equivalent to ID-P by the policy mappings extension.
+# 
+#          (2)  If the policy_mapping variable is equal to 0:
+# 
+#             (i)    delete each node of depth i in the valid_policy_tree
+#                    where ID-P is the valid_policy.
+# 
+#             (ii)   If there is a node in the valid_policy_tree of depth
+#                    i-1 or less without any child nodes, delete that
+#                    node.  Repeat this step until there are no nodes of
+#                    depth i-1 or less without children.
+# 
+#       (c)  Assign the certificate subject name to working_issuer_name.
+# 
+#       (d)  Assign the certificate subjectPublicKey to
+#            working_public_key.
+# 
+#       (e)  If the subjectPublicKeyInfo field of the certificate contains
+#            an algorithm field with non-null parameters, assign the
+#            parameters to the working_public_key_parameters variable.
+# 
+#            If the subjectPublicKeyInfo field of the certificate contains
+#            an algorithm field with null parameters or parameters are
+#            omitted, compare the certificate subjectPublicKey algorithm
+#            to the working_public_key_algorithm.  If the certificate
+#            subjectPublicKey algorithm and the
+#            working_public_key_algorithm are different, set the
+#            working_public_key_parameters to null.
+# 
+#       (f)  Assign the certificate subjectPublicKey algorithm to the
+#            working_public_key_algorithm variable.
+# 
+#       (g)  If a name constraints extension is included in the
+#            certificate, modify the permitted_subtrees and
+#            excluded_subtrees state variables as follows:
+# 
+#          (1)  If permittedSubtrees is present in the certificate, set
+#               the permitted_subtrees state variable to the intersection
+#               of its previous value and the value indicated in the
+#               extension field.  If permittedSubtrees does not include a
+#               particular name type, the permitted_subtrees state
+#               variable is unchanged for that name type.  For example,
+#               the intersection of example.com and foo.example.com is
+#               foo.example.com.  And the intersection of example.com and
+#               example.net is the empty set.
+# 
+#          (2)  If excludedSubtrees is present in the certificate, set the
+#               excluded_subtrees state variable to the union of its
+#               previous value and the value indicated in the extension
+#               field.  If excludedSubtrees does not include a particular
+#               name type, the excluded_subtrees state variable is
+#               unchanged for that name type.  For example, the union of
+#               the name spaces example.com and foo.example.com is
+#               example.com.  And the union of example.com and example.net
+#               is both name spaces.
+# 
+#       (h)  If certificate i is not self-issued:
+# 
+#          (1)  If explicit_policy is not 0, decrement explicit_policy by
+#               1.
+# 
+#          (2)  If policy_mapping is not 0, decrement policy_mapping by 1.
+# 
+#          (3)  If inhibit_anyPolicy is not 0, decrement inhibit_anyPolicy
+#               by 1.
+# 
+#       (i)  If a policy constraints extension is included in the
+#            certificate, modify the explicit_policy and policy_mapping
+#            state variables as follows:
+# 
+#          (1)  If requireExplicitPolicy is present and is less than
+#               explicit_policy, set explicit_policy to the value of
+#               requireExplicitPolicy.
+# 
+#          (2)  If inhibitPolicyMapping is present and is less than
+#               policy_mapping, set policy_mapping to the value of
+#               inhibitPolicyMapping.
+# 
+#       (j)  If the inhibitAnyPolicy extension is included in the
+#            certificate and is less than inhibit_anyPolicy, set
+#            inhibit_anyPolicy to the value of inhibitAnyPolicy.
+# 
+#       (k)  If certificate i is a version 3 certificate, verify that the
+#            basicConstraints extension is present and that cA is set to
+#            TRUE.  (If certificate i is a version 1 or version 2
+#            certificate, then the application MUST either verify that
+#            certificate i is a CA certificate through out-of-band means
+#            or reject the certificate.  Conforming implementations may
+#            choose to reject all version 1 and version 2 intermediate
+#            certificates.)
+# 
+#       (l)  If the certificate was not self-issued, verify that
+#            max_path_length is greater than zero and decrement
+#            max_path_length by 1.
+# 
+#       (m)  If pathLenConstraint is present in the certificate and is
+#            less than max_path_length, set max_path_length to the value
+#            of pathLenConstraint.
+# 
+#       (n)  If a key usage extension is present, verify that the
+#            keyCertSign bit is set.
+# 
+#       (o)  Recognize and process any other critical extension present in
+#            the certificate.  Process any other recognized non-critical
+#            extension present in the certificate that is relevant to path
+#            processing.
+# 
+#    If check (a), (k), (l), (n), or (o) fails, the procedure terminates,
+#    returning a failure indication and an appropriate reason.
+# 
+#    If (a), (k), (l), (n), and (o) have completed successfully, increment
+#    i and perform the basic certificate processing specified in Section
+#    6.1.3.
+
+[[spec]]
+level = "MUST"
+quote = '''
+(If certificate i is a version 1 or version 2
+certificate, then the application MUST either verify that
+certificate i is a CA certificate through out-of-band means
+or reject the certificate.
+'''
+

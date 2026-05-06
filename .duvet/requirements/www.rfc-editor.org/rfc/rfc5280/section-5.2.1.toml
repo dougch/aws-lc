@@ -1,0 +1,31 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-5.2.1"
+
+# Authority Key Identifier
+#
+#    The authority key identifier extension provides a means of
+#    identifying the public key corresponding to the private key used to
+#    sign a CRL.  The identification can be based on either the key
+#    identifier (the subject key identifier in the CRL signer's
+#    certificate) or the issuer name and serial number.  This extension is
+#    especially useful where an issuer has more than one signing key,
+#    either due to multiple concurrent key pairs or due to changeover.
+# 
+#    Conforming CRL issuers MUST use the key identifier method, and MUST
+#    include this extension in all CRLs issued.
+# 
+#    The syntax for this CRL extension is defined in Section 4.2.1.1.
+
+[[spec]]
+level = "MUST"
+quote = '''
+Conforming CRL issuers MUST use the key identifier method, and MUST
+include this extension in all CRLs issued.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Conforming CRL issuers MUST use the key identifier method, and MUST
+include this extension in all CRLs issued.
+'''
+

@@ -1,0 +1,111 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.2"
+
+# Subject Key Identifier
+#
+#    The subject key identifier extension provides a means of identifying
+#    certificates that contain a particular public key.
+# 
+#    To facilitate certification path construction, this extension MUST
+#    appear in all conforming CA certificates, that is, all certificates
+#    including the basic constraints extension (Section 4.2.1.9) where the
+#    value of cA is TRUE.  In conforming CA certificates, the value of the
+#    subject key identifier MUST be the value placed in the key identifier
+#    field of the authority key identifier extension (Section 4.2.1.1) of
+#    certificates issued by the subject of this certificate.  Applications
+#    are not required to verify that key identifiers match when performing
+#    certification path validation.
+# 
+#    For CA certificates, subject key identifiers SHOULD be derived from
+#    the public key or a method that generates unique values.  Two common
+#    methods for generating key identifiers from the public key are:
+# 
+#       (1) The keyIdentifier is composed of the 160-bit SHA-1 hash of the
+#            value of the BIT STRING subjectPublicKey (excluding the tag,
+#            length, and number of unused bits).
+# 
+#       (2) The keyIdentifier is composed of a four-bit type field with
+#            the value 0100 followed by the least significant 60 bits of
+#            the SHA-1 hash of the value of the BIT STRING
+#            subjectPublicKey (excluding the tag, length, and number of
+#            unused bits).
+# 
+#    Other methods of generating unique numbers are also acceptable.
+# 
+#    For end entity certificates, the subject key identifier extension
+#    provides a means for identifying certificates containing the
+#    particular public key used in an application.  Where an end entity
+#    has obtained multiple certificates, especially from multiple CAs, the
+#    subject key identifier provides a means to quickly identify the set
+#    of certificates containing a particular public key.  To assist
+#    applications in identifying the appropriate end entity certificate,
+#    this extension SHOULD be included in all end entity certificates.
+# 
+#    For end entity certificates, subject key identifiers SHOULD be
+#    derived from the public key.  Two common methods for generating key
+#    identifiers from the public key are identified above.
+# 
+#    Where a key identifier has not been previously established, this
+#    specification RECOMMENDS use of one of these methods for generating
+#    keyIdentifiers or use of a similar method that uses a different hash
+#    algorithm.  Where a key identifier has been previously established,
+#    the CA SHOULD use the previously established identifier.
+# 
+#    Conforming CAs MUST mark this extension as non-critical.
+# 
+#    id-ce-subjectKeyIdentifier OBJECT IDENTIFIER ::=  { id-ce 14 }
+# 
+#    SubjectKeyIdentifier ::= KeyIdentifier
+
+[[spec]]
+level = "MUST"
+quote = '''
+To facilitate certification path construction, this extension MUST
+appear in all conforming CA certificates, that is, all certificates
+including the basic constraints extension (Section 4.2.1.9) where the
+value of cA is TRUE.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+In conforming CA certificates, the value of the
+subject key identifier MUST be the value placed in the key identifier
+field of the authority key identifier extension (Section 4.2.1.1) of
+certificates issued by the subject of this certificate.
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+For CA certificates, subject key identifiers SHOULD be derived from
+the public key or a method that generates unique values.
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+To assist
+applications in identifying the appropriate end entity certificate,
+this extension SHOULD be included in all end entity certificates.
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+For end entity certificates, subject key identifiers SHOULD be
+derived from the public key.
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+Where a key identifier has been previously established,
+the CA SHOULD use the previously established identifier.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Conforming CAs MUST mark this extension as non-critical.
+'''
+

@@ -1,0 +1,255 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-4.1.2.6"
+
+# Subject
+#
+#    The subject field identifies the entity associated with the public
+#    key stored in the subject public key field.  The subject name MAY be
+#    carried in the subject field and/or the subjectAltName extension.  If
+#    the subject is a CA (e.g., the basic constraints extension, as
+#    discussed in Section 4.2.1.9, is present and the value of cA is
+#    TRUE), then the subject field MUST be populated with a non-empty
+#    distinguished name matching the contents of the issuer field (Section
+#    4.1.2.4) in all certificates issued by the subject CA.  If the
+#    subject is a CRL issuer (e.g., the key usage extension, as discussed
+#    in Section 4.2.1.3, is present and the value of cRLSign is TRUE),
+# 
+#    then the subject field MUST be populated with a non-empty
+#    distinguished name matching the contents of the issuer field (Section
+#    5.1.2.3) in all CRLs issued by the subject CRL issuer.  If subject
+#    naming information is present only in the subjectAltName extension
+#    (e.g., a key bound only to an email address or URI), then the subject
+#    name MUST be an empty sequence and the subjectAltName extension MUST
+#    be critical.
+# 
+#    Where it is non-empty, the subject field MUST contain an X.500
+#    distinguished name (DN).  The DN MUST be unique for each subject
+#    entity certified by the one CA as defined by the issuer field.  A CA
+#    MAY issue more than one certificate with the same DN to the same
+#    subject entity.
+# 
+#    The subject field is defined as the X.501 type Name.  Implementation
+#    requirements for this field are those defined for the issuer field
+#    (Section 4.1.2.4).  Implementations of this specification MUST be
+#    prepared to receive subject names containing the attribute types
+#    required for the issuer field.  Implementations of this specification
+#    SHOULD be prepared to receive subject names containing the
+#    recommended attribute types for the issuer field.  The syntax and
+#    associated object identifiers (OIDs) for these attribute types are
+#    provided in the ASN.1 modules in Appendix A.  Implementations of this
+#    specification MAY use the comparison rules in Section 7.1 to process
+#    unfamiliar attribute types (i.e., for name chaining) whose attribute
+#    values use one of the encoding options from DirectoryString.  Binary
+#    comparison should be used when unfamiliar attribute types include
+#    attribute values with encoding options other than those found in
+#    DirectoryString.  This allows implementations to process certificates
+#    with unfamiliar attributes in the subject name.
+# 
+#    When encoding attribute values of type DirectoryString, conforming
+#    CAs MUST use PrintableString or UTF8String encoding, with the
+#    following exceptions:
+# 
+#       (a)  When the subject of the certificate is a CA, the subject
+#            field MUST be encoded in the same way as it is encoded in the
+#            issuer field (Section 4.1.2.4) in all certificates issued by
+#            the subject CA.  Thus, if the subject CA encodes attributes
+#            in the issuer fields of certificates that it issues using the
+#            TeletexString, BMPString, or UniversalString encodings, then
+#            the subject field of certificates issued to that CA MUST use
+#            the same encoding.
+# 
+#       (b)  When the subject of the certificate is a CRL issuer, the
+#            subject field MUST be encoded in the same way as it is
+#            encoded in the issuer field (Section 5.1.2.3) in all CRLs
+#            issued by the subject CRL issuer.
+# 
+#       (c)  TeletexString, BMPString, and UniversalString are included
+#            for backward compatibility, and SHOULD NOT be used for
+#            certificates for new subjects.  However, these types MAY be
+#            used in certificates where the name was previously
+#            established, including cases in which a new certificate is
+#            being issued to an existing subject or a certificate is being
+#            issued to a new subject where the attributes being encoded
+#            have been previously established in certificates issued to
+#            other subjects.  Certificate users SHOULD be prepared to
+#            receive certificates with these types.
+# 
+#    Legacy implementations exist where an electronic mail address is
+#    embedded in the subject distinguished name as an emailAddress
+#    attribute [RFC2985].  The attribute value for emailAddress is of type
+#    IA5String to permit inclusion of the character '@', which is not part
+#    of the PrintableString character set.  emailAddress attribute values
+#    are not case-sensitive (e.g., "subscriber@example.com" is the same as
+#    "SUBSCRIBER@EXAMPLE.COM").
+# 
+#    Conforming implementations generating new certificates with
+#    electronic mail addresses MUST use the rfc822Name in the subject
+#    alternative name extension (Section 4.2.1.6) to describe such
+#    identities.  Simultaneous inclusion of the emailAddress attribute in
+#    the subject distinguished name to support legacy implementations is
+#    deprecated but permitted.
+
+[[spec]]
+level = "MAY"
+quote = '''
+The subject name MAY be
+carried in the subject field and/or the subjectAltName extension.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If
+the subject is a CA (e.g., the basic constraints extension, as
+discussed in Section 4.2.1.9, is present and the value of cA is
+TRUE), then the subject field MUST be populated with a non-empty
+distinguished name matching the contents of the issuer field (Section
+4.1.2.4) in all certificates issued by the subject CA.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+then the subject field MUST be populated with a non-empty
+distinguished name matching the contents of the issuer field (Section
+5.1.2.3) in all CRLs issued by the subject CRL issuer.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If subject
+naming information is present only in the subjectAltName extension
+(e.g., a key bound only to an email address or URI), then the subject
+name MUST be an empty sequence and the subjectAltName extension MUST
+be critical.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If subject
+naming information is present only in the subjectAltName extension
+(e.g., a key bound only to an email address or URI), then the subject
+name MUST be an empty sequence and the subjectAltName extension MUST
+be critical.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Where it is non-empty, the subject field MUST contain an X.500
+distinguished name (DN).
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+The DN MUST be unique for each subject
+entity certified by the one CA as defined by the issuer field.
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+A CA
+MAY issue more than one certificate with the same DN to the same
+subject entity.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Implementations of this specification MUST be
+prepared to receive subject names containing the attribute types
+required for the issuer field.
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+Implementations of this specification
+SHOULD be prepared to receive subject names containing the
+recommended attribute types for the issuer field.
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+Implementations of this
+specification MAY use the comparison rules in Section 7.1 to process
+unfamiliar attribute types (i.e., for name chaining) whose attribute
+values use one of the encoding options from DirectoryString.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+When encoding attribute values of type DirectoryString, conforming
+CAs MUST use PrintableString or UTF8String encoding, with the
+following exceptions:
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+(a)  When the subject of the certificate is a CA, the subject
+field MUST be encoded in the same way as it is encoded in the
+issuer field (Section 4.1.2.4) in all certificates issued by
+the subject CA.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Thus, if the subject CA encodes attributes
+in the issuer fields of certificates that it issues using the
+TeletexString, BMPString, or UniversalString encodings, then
+the subject field of certificates issued to that CA MUST use
+the same encoding.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+(b)  When the subject of the certificate is a CRL issuer, the
+subject field MUST be encoded in the same way as it is
+encoded in the issuer field (Section 5.1.2.3) in all CRLs
+issued by the subject CRL issuer.
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+(c)  TeletexString, BMPString, and UniversalString are included
+for backward compatibility, and SHOULD NOT be used for
+certificates for new subjects.
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+However, these types MAY be
+used in certificates where the name was previously
+established, including cases in which a new certificate is
+being issued to an existing subject or a certificate is being
+issued to a new subject where the attributes being encoded
+have been previously established in certificates issued to
+other subjects.
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+Certificate users SHOULD be prepared to
+receive certificates with these types.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Conforming implementations generating new certificates with
+electronic mail addresses MUST use the rfc822Name in the subject
+alternative name extension (Section 4.2.1.6) to describe such
+identities.
+'''
+

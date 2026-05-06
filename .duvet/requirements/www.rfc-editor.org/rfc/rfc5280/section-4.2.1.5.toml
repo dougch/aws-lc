@@ -1,0 +1,71 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.5"
+
+# Policy Mappings
+#
+#    This extension is used in CA certificates.  It lists one or more
+#    pairs of OIDs; each pair includes an issuerDomainPolicy and a
+#    subjectDomainPolicy.  The pairing indicates the issuing CA considers
+#    its issuerDomainPolicy equivalent to the subject CA's
+#    subjectDomainPolicy.
+# 
+#    The issuing CA's users might accept an issuerDomainPolicy for certain
+#    applications.  The policy mapping defines the list of policies
+#    associated with the subject CA that may be accepted as comparable to
+#    the issuerDomainPolicy.
+# 
+#    Each issuerDomainPolicy named in the policy mappings extension SHOULD
+#    also be asserted in a certificate policies extension in the same
+#    certificate.  Policies MUST NOT be mapped either to or from the
+#    special value anyPolicy (Section 4.2.1.4).
+# 
+#    In general, certificate policies that appear in the
+#    issuerDomainPolicy field of the policy mappings extension are not
+#    considered acceptable policies for inclusion in subsequent
+#    certificates in the certification path.  In some circumstances, a CA
+#    may wish to map from one policy (p1) to another (p2), but still wants
+#    the issuerDomainPolicy (p1) to be considered acceptable for inclusion
+#    in subsequent certificates.  This may occur, for example, if the CA
+#    is in the process of transitioning from the use of policy p1 to the
+#    use of policy p2 and has valid certificates that were issued under
+#    each of the policies.  A CA may indicate this by including two policy
+#    mappings in the CA certificates that it issues.  Each policy mapping
+#    would have an issuerDomainPolicy of p1; one policy mapping would have
+#    a subjectDomainPolicy of p1 and the other would have a
+#    subjectDomainPolicy of p2.
+# 
+#    This extension MAY be supported by CAs and/or applications.
+#    Conforming CAs SHOULD mark this extension as critical.
+# 
+#    id-ce-policyMappings OBJECT IDENTIFIER ::=  { id-ce 33 }
+# 
+#    PolicyMappings ::= SEQUENCE SIZE (1..MAX) OF SEQUENCE {
+#         issuerDomainPolicy      CertPolicyId,
+#         subjectDomainPolicy     CertPolicyId }
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+Each issuerDomainPolicy named in the policy mappings extension SHOULD
+also be asserted in a certificate policies extension in the same
+certificate.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Policies MUST NOT be mapped either to or from the
+special value anyPolicy (Section 4.2.1.4).
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+This extension MAY be supported by CAs and/or applications.
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+Conforming CAs SHOULD mark this extension as critical.
+'''
+

@@ -1,0 +1,157 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.12"
+
+# Extended Key Usage
+#
+#    This extension indicates one or more purposes for which the certified
+#    public key may be used, in addition to or in place of the basic
+#    purposes indicated in the key usage extension.  In general, this
+#    extension will appear only in end entity certificates.  This
+#    extension is defined as follows:
+# 
+#    id-ce-extKeyUsage OBJECT IDENTIFIER ::= { id-ce 37 }
+# 
+#    ExtKeyUsageSyntax ::= SEQUENCE SIZE (1..MAX) OF KeyPurposeId
+# 
+#    KeyPurposeId ::= OBJECT IDENTIFIER
+# 
+#    Key purposes may be defined by any organization with a need.  Object
+#    identifiers used to identify key purposes MUST be assigned in
+#    accordance with IANA or ITU-T Recommendation X.660 [X.660].
+# 
+#    This extension MAY, at the option of the certificate issuer, be
+#    either critical or non-critical.
+# 
+#    If the extension is present, then the certificate MUST only be used
+#    for one of the purposes indicated.  If multiple purposes are
+#    indicated the application need not recognize all purposes indicated,
+#    as long as the intended purpose is present.  Certificate using
+#    applications MAY require that the extended key usage extension be
+#    present and that a particular purpose be indicated in order for the
+#    certificate to be acceptable to that application.
+# 
+#    If a CA includes extended key usages to satisfy such applications,
+#    but does not wish to restrict usages of the key, the CA can include
+#    the special KeyPurposeId anyExtendedKeyUsage in addition to the
+#    particular key purposes required by the applications.  Conforming CAs
+#    SHOULD NOT mark this extension as critical if the anyExtendedKeyUsage
+#    KeyPurposeId is present.  Applications that require the presence of a
+#    particular purpose MAY reject certificates that include the
+#    anyExtendedKeyUsage OID but not the particular OID expected for the
+#    application.
+# 
+#    If a certificate contains both a key usage extension and an extended
+#    key usage extension, then both extensions MUST be processed
+#    independently and the certificate MUST only be used for a purpose
+#    consistent with both extensions.  If there is no purpose consistent
+#    with both extensions, then the certificate MUST NOT be used for any
+#    purpose.
+# 
+#    The following key usage purposes are defined:
+# 
+#    anyExtendedKeyUsage OBJECT IDENTIFIER ::= { id-ce-extKeyUsage 0 }
+# 
+#    id-kp OBJECT IDENTIFIER ::= { id-pkix 3 }
+# 
+#    id-kp-serverAuth             OBJECT IDENTIFIER ::= { id-kp 1 }
+#    -- TLS WWW server authentication
+#    -- Key usage bits that may be consistent: digitalSignature,
+#    -- keyEncipherment or keyAgreement
+# 
+#    id-kp-clientAuth             OBJECT IDENTIFIER ::= { id-kp 2 }
+#    -- TLS WWW client authentication
+#    -- Key usage bits that may be consistent: digitalSignature
+#    -- and/or keyAgreement
+# 
+#    id-kp-codeSigning             OBJECT IDENTIFIER ::= { id-kp 3 }
+#    -- Signing of downloadable executable code
+#    -- Key usage bits that may be consistent: digitalSignature
+# 
+#    id-kp-emailProtection         OBJECT IDENTIFIER ::= { id-kp 4 }
+#    -- Email protection
+#    -- Key usage bits that may be consistent: digitalSignature,
+#    -- nonRepudiation, and/or (keyEncipherment or keyAgreement)
+# 
+#    id-kp-timeStamping            OBJECT IDENTIFIER ::= { id-kp 8 }
+#    -- Binding the hash of an object to a time
+#    -- Key usage bits that may be consistent: digitalSignature
+#    -- and/or nonRepudiation
+# 
+#    id-kp-OCSPSigning            OBJECT IDENTIFIER ::= { id-kp 9 }
+#    -- Signing OCSP responses
+#    -- Key usage bits that may be consistent: digitalSignature
+#    -- and/or nonRepudiation
+
+[[spec]]
+level = "MUST"
+quote = '''
+Object
+identifiers used to identify key purposes MUST be assigned in
+accordance with IANA or ITU-T Recommendation X.660 [X.660].
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+This extension MAY, at the option of the certificate issuer, be
+either critical or non-critical.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If the extension is present, then the certificate MUST only be used
+for one of the purposes indicated.
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+Certificate using
+applications MAY require that the extended key usage extension be
+present and that a particular purpose be indicated in order for the
+certificate to be acceptable to that application.
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+Conforming CAs
+SHOULD NOT mark this extension as critical if the anyExtendedKeyUsage
+KeyPurposeId is present.
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+Applications that require the presence of a
+particular purpose MAY reject certificates that include the
+anyExtendedKeyUsage OID but not the particular OID expected for the
+application.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If a certificate contains both a key usage extension and an extended
+key usage extension, then both extensions MUST be processed
+independently and the certificate MUST only be used for a purpose
+consistent with both extensions.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If a certificate contains both a key usage extension and an extended
+key usage extension, then both extensions MUST be processed
+independently and the certificate MUST only be used for a purpose
+consistent with both extensions.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If there is no purpose consistent
+with both extensions, then the certificate MUST NOT be used for any
+purpose.
+'''
+

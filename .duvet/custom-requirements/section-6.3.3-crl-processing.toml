@@ -1,0 +1,101 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-6.3.3"
+
+# Implemented steps
+
+[[spec]]
+level = "MUST"
+quote = '''
+Otherwise, verify that the CRL issuer matches the
+certificate issuer.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If the onlyContainsUserCerts boolean is asserted in
+the IDP CRL extension, verify that the certificate
+does not include the basic constraints extension with
+the cA boolean asserted.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If the onlyContainsCACerts boolean is asserted in the
+IDP CRL extension, verify that the certificate
+includes the basic constraints extension with the cA
+boolean asserted.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Verify that the onlyContainsAttributeCerts boolean is
+not asserted.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If a key usage extension is present
+in the CRL issuer's certificate, verify that the cRLSign bit
+is set.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Validate the signature on the complete CRL using the public
+key validated in step (f).
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If (cert_status is UNREVOKED), then search for the
+certificate on the complete CRL.
+'''
+
+# Intentionally unsupported — delta CRLs (steps a, c, h, i)
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+If use-deltas is set and either the certificate or the
+CRL contains the freshest CRL extension, obtain a
+delta CRL with a next update value that is after the
+current time and can be used to update the locally
+cached CRL as specified in Section 5.2.4.
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+If use-deltas is set, verify the issuer and scope of the
+delta CRL as follows:
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+If use-deltas is set, then validate the signature on the
+delta CRL using the public key validated in step (f).
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+If use-deltas is set, then search for the certificate on the
+delta CRL.
+'''
+
+# Intentionally unsupported — indirect CRLs (step b.1)
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+If the DP includes cRLIssuer, then verify that the issuer
+field in the complete CRL matches cRLIssuer in the DP and
+that the complete CRL contains an issuing distribution
+point extension with the indirectCRL boolean asserted.
+'''

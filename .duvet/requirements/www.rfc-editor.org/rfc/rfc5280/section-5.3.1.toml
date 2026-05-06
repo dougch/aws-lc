@@ -1,0 +1,42 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-5.3.1"
+
+# Reason Code
+#
+#    The reasonCode is a non-critical CRL entry extension that identifies
+#    the reason for the certificate revocation.  CRL issuers are strongly
+#    encouraged to include meaningful reason codes in CRL entries;
+#    however, the reason code CRL entry extension SHOULD be absent instead
+#    of using the unspecified (0) reasonCode value.
+# 
+#    The removeFromCRL (8) reasonCode value may only appear in delta CRLs
+#    and indicates that a certificate is to be removed from a CRL because
+#    either the certificate expired or was removed from hold.  All other
+#    reason codes may appear in any CRL and indicate that the specified
+#    certificate should be considered revoked.
+# 
+#    id-ce-cRLReasons OBJECT IDENTIFIER ::= { id-ce 21 }
+# 
+#    -- reasonCode ::= { CRLReason }
+# 
+#    CRLReason ::= ENUMERATED {
+#         unspecified             (0),
+#         keyCompromise           (1),
+#         cACompromise            (2),
+#         affiliationChanged      (3),
+#         superseded              (4),
+#         cessationOfOperation    (5),
+#         certificateHold         (6),
+#              -- value 7 is not used
+#         removeFromCRL           (8),
+#         privilegeWithdrawn      (9),
+#         aACompromise           (10) }
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+CRL issuers are strongly
+encouraged to include meaningful reason codes in CRL entries;
+however, the reason code CRL entry extension SHOULD be absent instead
+of using the unspecified (0) reasonCode value.
+'''
+

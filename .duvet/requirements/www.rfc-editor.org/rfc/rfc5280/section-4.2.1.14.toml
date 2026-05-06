@@ -1,0 +1,29 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.14"
+
+# Inhibit anyPolicy
+#
+#    The inhibit anyPolicy extension can be used in certificates issued to
+#    CAs.  The inhibit anyPolicy extension indicates that the special
+#    anyPolicy OID, with the value { 2 5 29 32 0 }, is not considered an
+#    explicit match for other certificate policies except when it appears
+#    in an intermediate self-issued CA certificate.  The value indicates
+#    the number of additional non-self-issued certificates that may appear
+#    in the path before anyPolicy is no longer permitted.  For example, a
+#    value of one indicates that anyPolicy may be processed in
+#    certificates issued by the subject of this certificate, but not in
+#    additional certificates in the path.
+# 
+#    Conforming CAs MUST mark this extension as critical.
+# 
+#    id-ce-inhibitAnyPolicy OBJECT IDENTIFIER ::=  { id-ce 54 }
+# 
+#    InhibitAnyPolicy ::= SkipCerts
+# 
+#    SkipCerts ::= INTEGER (0..MAX)
+
+[[spec]]
+level = "MUST"
+quote = '''
+Conforming CAs MUST mark this extension as critical.
+'''
+

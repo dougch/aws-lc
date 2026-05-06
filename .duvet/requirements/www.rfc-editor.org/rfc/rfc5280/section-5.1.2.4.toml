@@ -1,0 +1,55 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-5.1.2.4"
+
+# This Update
+#
+#    This field indicates the issue date of this CRL.  thisUpdate may be
+#    encoded as UTCTime or GeneralizedTime.
+# 
+#    CRL issuers conforming to this profile MUST encode thisUpdate as
+#    UTCTime for dates through the year 2049.  CRL issuers conforming to
+# 
+#    this profile MUST encode thisUpdate as GeneralizedTime for dates in
+#    the year 2050 or later.  Conforming applications MUST be able to
+#    process dates that are encoded in either UTCTime or GeneralizedTime.
+# 
+#    Where encoded as UTCTime, thisUpdate MUST be specified and
+#    interpreted as defined in Section 4.1.2.5.1.  Where encoded as
+#    GeneralizedTime, thisUpdate MUST be specified and interpreted as
+#    defined in Section 4.1.2.5.2.
+
+[[spec]]
+level = "MUST"
+quote = '''
+CRL issuers conforming to this profile MUST encode thisUpdate as
+UTCTime for dates through the year 2049.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+this profile MUST encode thisUpdate as GeneralizedTime for dates in
+the year 2050 or later.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Conforming applications MUST be able to
+process dates that are encoded in either UTCTime or GeneralizedTime.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Where encoded as UTCTime, thisUpdate MUST be specified and
+interpreted as defined in Section 4.1.2.5.1.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Where encoded as
+GeneralizedTime, thisUpdate MUST be specified and interpreted as
+defined in Section 4.1.2.5.2.
+'''
+

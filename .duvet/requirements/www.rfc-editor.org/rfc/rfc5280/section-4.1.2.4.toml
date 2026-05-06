@@ -1,0 +1,185 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-4.1.2.4"
+
+# Issuer
+#
+#    The issuer field identifies the entity that has signed and issued the
+#    certificate.  The issuer field MUST contain a non-empty distinguished
+#    name (DN).  The issuer field is defined as the X.501 type Name
+#    [X.501].  Name is defined by the following ASN.1 structures:
+# 
+#    Name ::= CHOICE { -- only one possibility for now --
+#      rdnSequence  RDNSequence }
+# 
+#    RDNSequence ::= SEQUENCE OF RelativeDistinguishedName
+# 
+#    RelativeDistinguishedName ::=
+#      SET SIZE (1..MAX) OF AttributeTypeAndValue
+# 
+#    AttributeTypeAndValue ::= SEQUENCE {
+#      type     AttributeType,
+#      value    AttributeValue }
+# 
+#    AttributeType ::= OBJECT IDENTIFIER
+# 
+#    AttributeValue ::= ANY -- DEFINED BY AttributeType
+# 
+#    DirectoryString ::= CHOICE {
+#          teletexString           TeletexString (SIZE (1..MAX)),
+#          printableString         PrintableString (SIZE (1..MAX)),
+#          universalString         UniversalString (SIZE (1..MAX)),
+#          utf8String              UTF8String (SIZE (1..MAX)),
+#          bmpString               BMPString (SIZE (1..MAX)) }
+# 
+#    The Name describes a hierarchical name composed of attributes, such
+#    as country name, and corresponding values, such as US.  The type of
+#    the component AttributeValue is determined by the AttributeType; in
+#    general it will be a DirectoryString.
+# 
+#    The DirectoryString type is defined as a choice of PrintableString,
+#    TeletexString, BMPString, UTF8String, and UniversalString.  CAs
+#    conforming to this profile MUST use either the PrintableString or
+#    UTF8String encoding of DirectoryString, with two exceptions.  When
+#    CAs have previously issued certificates with issuer fields with
+#    attributes encoded using TeletexString, BMPString, or
+#    UniversalString, then the CA MAY continue to use these encodings of
+#    the DirectoryString to preserve backward compatibility.  Also, new
+# 
+#    CAs that are added to a domain where existing CAs issue certificates
+#    with issuer fields with attributes encoded using TeletexString,
+#    BMPString, or UniversalString MAY encode attributes that they share
+#    with the existing CAs using the same encodings as the existing CAs
+#    use.
+# 
+#    As noted above, distinguished names are composed of attributes.  This
+#    specification does not restrict the set of attribute types that may
+#    appear in names.  However, conforming implementations MUST be
+#    prepared to receive certificates with issuer names containing the set
+#    of attribute types defined below.  This specification RECOMMENDS
+#    support for additional attribute types.
+# 
+#    Standard sets of attributes have been defined in the X.500 series of
+#    specifications [X.520].  Implementations of this specification MUST
+#    be prepared to receive the following standard attribute types in
+#    issuer and subject (Section 4.1.2.6) names:
+# 
+#       * country,
+#       * organization,
+#       * organizational unit,
+#       * distinguished name qualifier,
+#       * state or province name,
+#       * common name (e.g., "Susan Housley"), and
+#       * serial number.
+# 
+#    In addition, implementations of this specification SHOULD be prepared
+#    to receive the following standard attribute types in issuer and
+#    subject names:
+# 
+#       * locality,
+#       * title,
+#       * surname,
+#       * given name,
+#       * initials,
+#       * pseudonym, and
+#       * generation qualifier (e.g., "Jr.", "3rd", or "IV").
+# 
+#    The syntax and associated object identifiers (OIDs) for these
+#    attribute types are provided in the ASN.1 modules in Appendix A.
+# 
+#    In addition, implementations of this specification MUST be prepared
+#    to receive the domainComponent attribute, as defined in [RFC4519].
+#    The Domain Name System (DNS) provides a hierarchical resource
+#    labeling system.  This attribute provides a convenient mechanism for
+#    organizations that wish to use DNs that parallel their DNS names.
+#    This is not a replacement for the dNSName component of the
+#    alternative name extensions.  Implementations are not required to
+# 
+#    convert such names into DNS names.  The syntax and associated OID for
+#    this attribute type are provided in the ASN.1 modules in Appendix A.
+#    Rules for encoding internationalized domain names for use with the
+#    domainComponent attribute type are specified in Section 7.3.
+# 
+#    Certificate users MUST be prepared to process the issuer
+#    distinguished name and subject distinguished name (Section 4.1.2.6)
+#    fields to perform name chaining for certification path validation
+#    (Section 6).  Name chaining is performed by matching the issuer
+#    distinguished name in one certificate with the subject name in a CA
+#    certificate.  Rules for comparing distinguished names are specified
+#    in Section 7.1.  If the names in the issuer and subject field in a
+#    certificate match according to the rules specified in Section 7.1,
+#    then the certificate is self-issued.
+
+[[spec]]
+level = "MUST"
+quote = '''
+The issuer field MUST contain a non-empty distinguished
+name (DN).
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+CAs
+conforming to this profile MUST use either the PrintableString or
+UTF8String encoding of DirectoryString, with two exceptions.
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+When
+CAs have previously issued certificates with issuer fields with
+attributes encoded using TeletexString, BMPString, or
+UniversalString, then the CA MAY continue to use these encodings of
+the DirectoryString to preserve backward compatibility.
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+CAs that are added to a domain where existing CAs issue certificates
+with issuer fields with attributes encoded using TeletexString,
+BMPString, or UniversalString MAY encode attributes that they share
+with the existing CAs using the same encodings as the existing CAs
+use.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+However, conforming implementations MUST be
+prepared to receive certificates with issuer names containing the set
+of attribute types defined below.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Implementations of this specification MUST
+be prepared to receive the following standard attribute types in
+issuer and subject (Section 4.1.2.6) names:
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+In addition, implementations of this specification SHOULD be prepared
+to receive the following standard attribute types in issuer and
+subject names:
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+In addition, implementations of this specification MUST be prepared
+to receive the domainComponent attribute, as defined in [RFC4519].
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Certificate users MUST be prepared to process the issuer
+distinguished name and subject distinguished name (Section 4.1.2.6)
+fields to perform name chaining for certification path validation
+(Section 6).
+'''
+

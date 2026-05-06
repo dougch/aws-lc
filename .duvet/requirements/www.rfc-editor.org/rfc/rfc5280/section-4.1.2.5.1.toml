@@ -1,0 +1,56 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-4.1.2.5.1"
+
+# UTCTime
+#
+#    The universal time type, UTCTime, is a standard ASN.1 type intended
+#    for representation of dates and time.  UTCTime specifies the year
+#    through the two low-order digits and time is specified to the
+#    precision of one minute or one second.  UTCTime includes either Z
+#    (for Zulu, or Greenwich Mean Time) or a time differential.
+# 
+#    For the purposes of this profile, UTCTime values MUST be expressed in
+#    Greenwich Mean Time (Zulu) and MUST include seconds (i.e., times are
+#    YYMMDDHHMMSSZ), even where the number of seconds is zero.  Conforming
+#    systems MUST interpret the year field (YY) as follows:
+# 
+#       Where YY is greater than or equal to 50, the year SHALL be
+#       interpreted as 19YY; and
+# 
+#       Where YY is less than 50, the year SHALL be interpreted as 20YY.
+
+[[spec]]
+level = "MUST"
+quote = '''
+For the purposes of this profile, UTCTime values MUST be expressed in
+Greenwich Mean Time (Zulu) and MUST include seconds (i.e., times are
+YYMMDDHHMMSSZ), even where the number of seconds is zero.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+For the purposes of this profile, UTCTime values MUST be expressed in
+Greenwich Mean Time (Zulu) and MUST include seconds (i.e., times are
+YYMMDDHHMMSSZ), even where the number of seconds is zero.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Conforming
+systems MUST interpret the year field (YY) as follows:
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Where YY is greater than or equal to 50, the year SHALL be
+interpreted as 19YY; and
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Where YY is less than 50, the year SHALL be interpreted as 20YY.
+'''
+

@@ -1,0 +1,29 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-5.1.1.2"
+
+# signatureAlgorithm
+#
+#    The signatureAlgorithm field contains the algorithm identifier for
+#    the algorithm used by the CRL issuer to sign the CertificateList.
+#    The field is of type AlgorithmIdentifier, which is defined in Section
+#    4.1.1.2.  [RFC3279], [RFC4055], and [RFC4491] list supported
+#    algorithms for this specification, but other signature algorithms MAY
+#    also be supported.
+# 
+#    This field MUST contain the same algorithm identifier as the
+#    signature field in the sequence tbsCertList (Section 5.1.2.2).
+
+[[spec]]
+level = "MAY"
+quote = '''
+[RFC3279], [RFC4055], and [RFC4491] list supported
+algorithms for this specification, but other signature algorithms MAY
+also be supported.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+This field MUST contain the same algorithm identifier as the
+signature field in the sequence tbsCertList (Section 5.1.2.2).
+'''
+

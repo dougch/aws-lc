@@ -1,0 +1,267 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-5.2.4"
+
+# Delta CRL Indicator
+#
+#    The delta CRL indicator is a critical CRL extension that identifies a
+#    CRL as being a delta CRL.  Delta CRLs contain updates to revocation
+#    information previously distributed, rather than all the information
+#    that would appear in a complete CRL.  The use of delta CRLs can
+#    significantly reduce network load and processing time in some
+#    environments.  Delta CRLs are generally smaller than the CRLs they
+#    update, so applications that obtain delta CRLs consume less network
+#    bandwidth than applications that obtain the corresponding complete
+#    CRLs.  Applications that store revocation information in a format
+#    other than the CRL structure can add new revocation information to
+#    the local database without reprocessing information.
+# 
+#    The delta CRL indicator extension contains the single value of type
+#    BaseCRLNumber.  The CRL number identifies the CRL, complete for a
+#    given scope, that was used as the starting point in the generation of
+#    this delta CRL.  A conforming CRL issuer MUST publish the referenced
+#    base CRL as a complete CRL.  The delta CRL contains all updates to
+#    the revocation status for that same scope.  The combination of a
+#    delta CRL plus the referenced base CRL is equivalent to a complete
+#    CRL, for the applicable scope, at the time of publication of the
+#    delta CRL.
+# 
+#    When a conforming CRL issuer generates a delta CRL, the delta CRL
+#    MUST include a critical delta CRL indicator extension.
+# 
+#    When a delta CRL is issued, it MUST cover the same set of reasons and
+#    the same set of certificates that were covered by the base CRL it
+#    references.  That is, the scope of the delta CRL MUST be the same as
+#    the scope of the complete CRL referenced as the base.  The referenced
+#    base CRL and the delta CRL MUST omit the issuing distribution point
+#    extension or contain identical issuing distribution point extensions.
+#    Further, the CRL issuer MUST use the same private key to sign the
+#    delta CRL and any complete CRL that it can be used to update.
+# 
+#    An application that supports delta CRLs can construct a CRL that is
+#    complete for a given scope by combining a delta CRL for that scope
+#    with either an issued CRL that is complete for that scope or a
+#    locally constructed CRL that is complete for that scope.
+# 
+#    When a delta CRL is combined with a complete CRL or a locally
+#    constructed CRL, the resulting locally constructed CRL has the CRL
+#    number specified in the CRL number extension found in the delta CRL
+#    used in its construction.  In addition, the resulting locally
+#    constructed CRL has the thisUpdate and nextUpdate times specified in
+# 
+#    the corresponding fields of the delta CRL used in its construction.
+#    In addition, the locally constructed CRL inherits the issuing
+#    distribution point from the delta CRL.
+# 
+#    A complete CRL and a delta CRL MAY be combined if the following four
+#    conditions are satisfied:
+# 
+#       (a)  The complete CRL and delta CRL have the same issuer.
+# 
+#       (b)  The complete CRL and delta CRL have the same scope.  The two
+#            CRLs have the same scope if either of the following
+#            conditions are met:
+# 
+#          (1)  The issuingDistributionPoint extension is omitted from
+#               both the complete CRL and the delta CRL.
+# 
+#          (2)  The issuingDistributionPoint extension is present in both
+#               the complete CRL and the delta CRL, and the values for
+#               each of the fields in the extensions are the same in both
+#               CRLs.
+# 
+#       (c)  The CRL number of the complete CRL is equal to or greater
+#            than the BaseCRLNumber specified in the delta CRL.  That is,
+#            the complete CRL contains (at a minimum) all the revocation
+#            information held by the referenced base CRL.
+# 
+#       (d)  The CRL number of the complete CRL is less than the CRL
+#            number of the delta CRL.  That is, the delta CRL follows the
+#            complete CRL in the numbering sequence.
+# 
+#    CRL issuers MUST ensure that the combination of a delta CRL and any
+#    appropriate complete CRL accurately reflects the current revocation
+#    status.  The CRL issuer MUST include an entry in the delta CRL for
+#    each certificate within the scope of the delta CRL whose status has
+#    changed since the generation of the referenced base CRL:
+# 
+#       (a)  If the certificate is revoked for a reason included in the
+#            scope of the CRL, list the certificate as revoked.
+# 
+#       (b)  If the certificate is valid and was listed on the referenced
+#            base CRL or any subsequent CRL with reason code
+#            certificateHold, and the reason code certificateHold is
+#            included in the scope of the CRL, list the certificate with
+#            the reason code removeFromCRL.
+# 
+#       (c)  If the certificate is revoked for a reason outside the scope
+#            of the CRL, but the certificate was listed on the referenced
+#            base CRL or any subsequent CRL with a reason code included in
+#            the scope of this CRL, list the certificate as revoked but
+#            omit the reason code.
+# 
+#       (d)  If the certificate is revoked for a reason outside the scope
+#            of the CRL and the certificate was neither listed on the
+#            referenced base CRL nor any subsequent CRL with a reason code
+#            included in the scope of this CRL, do not list the
+#            certificate on this CRL.
+# 
+#    The status of a certificate is considered to have changed if it is
+#    revoked (for any revocation reason, including certificateHold), if it
+#    is released from hold, or if its revocation reason changes.
+# 
+#    It is appropriate to list a certificate with reason code
+#    removeFromCRL on a delta CRL even if the certificate was not on hold
+#    in the referenced base CRL.  If the certificate was placed on hold in
+#    any CRL issued after the base but before this delta CRL and then
+#    released from hold, it MUST be listed on the delta CRL with
+#    revocation reason removeFromCRL.
+# 
+#    A CRL issuer MAY optionally list a certificate on a delta CRL with
+#    reason code removeFromCRL if the notAfter time specified in the
+#    certificate precedes the thisUpdate time specified in the delta CRL
+#    and the certificate was listed on the referenced base CRL or in any
+#    CRL issued after the base but before this delta CRL.
+# 
+#    If a certificate revocation notice first appears on a delta CRL, then
+#    it is possible for the certificate validity period to expire before
+#    the next complete CRL for the same scope is issued.  In this case,
+#    the revocation notice MUST be included in all subsequent delta CRLs
+#    until the revocation notice is included on at least one explicitly
+#    issued complete CRL for this scope.
+# 
+#    An application that supports delta CRLs MUST be able to construct a
+#    current complete CRL by combining a previously issued complete CRL
+#    and the most current delta CRL.  An application that supports delta
+#    CRLs MAY also be able to construct a current complete CRL by
+#    combining a previously locally constructed complete CRL and the
+#    current delta CRL.  A delta CRL is considered to be the current one
+#    if the current time is between the times contained in the thisUpdate
+#    and nextUpdate fields.  Under some circumstances, the CRL issuer may
+#    publish one or more delta CRLs before the time indicated by the
+#    nextUpdate field.  If more than one current delta CRL for a given
+#    scope is encountered, the application SHOULD consider the one with
+#    the latest value in thisUpdate to be the most current one.
+# 
+#    id-ce-deltaCRLIndicator OBJECT IDENTIFIER ::= { id-ce 27 }
+# 
+#    BaseCRLNumber ::= CRLNumber
+
+[[spec]]
+level = "MUST"
+quote = '''
+A conforming CRL issuer MUST publish the referenced
+base CRL as a complete CRL.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+When a conforming CRL issuer generates a delta CRL, the delta CRL
+MUST include a critical delta CRL indicator extension.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+When a delta CRL is issued, it MUST cover the same set of reasons and
+the same set of certificates that were covered by the base CRL it
+references.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+That is, the scope of the delta CRL MUST be the same as
+the scope of the complete CRL referenced as the base.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+The referenced
+base CRL and the delta CRL MUST omit the issuing distribution point
+extension or contain identical issuing distribution point extensions.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Further, the CRL issuer MUST use the same private key to sign the
+delta CRL and any complete CRL that it can be used to update.
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+A complete CRL and a delta CRL MAY be combined if the following four
+conditions are satisfied:
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+CRL issuers MUST ensure that the combination of a delta CRL and any
+appropriate complete CRL accurately reflects the current revocation
+status.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+The CRL issuer MUST include an entry in the delta CRL for
+each certificate within the scope of the delta CRL whose status has
+changed since the generation of the referenced base CRL:
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If the certificate was placed on hold in
+any CRL issued after the base but before this delta CRL and then
+released from hold, it MUST be listed on the delta CRL with
+revocation reason removeFromCRL.
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+A CRL issuer MAY optionally list a certificate on a delta CRL with
+reason code removeFromCRL if the notAfter time specified in the
+certificate precedes the thisUpdate time specified in the delta CRL
+and the certificate was listed on the referenced base CRL or in any
+CRL issued after the base but before this delta CRL.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+In this case,
+the revocation notice MUST be included in all subsequent delta CRLs
+until the revocation notice is included on at least one explicitly
+issued complete CRL for this scope.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+An application that supports delta CRLs MUST be able to construct a
+current complete CRL by combining a previously issued complete CRL
+and the most current delta CRL.
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+An application that supports delta
+CRLs MAY also be able to construct a current complete CRL by
+combining a previously locally constructed complete CRL and the
+current delta CRL.
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+If more than one current delta CRL for a given
+scope is encountered, the application SHOULD consider the one with
+the latest value in thisUpdate to be the most current one.
+'''
+

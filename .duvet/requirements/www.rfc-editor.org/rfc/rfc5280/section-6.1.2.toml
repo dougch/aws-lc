@@ -1,0 +1,140 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-6.1.2"
+
+# Initialization
+#
+#    This initialization phase establishes eleven state variables based
+#    upon the nine inputs:
+# 
+#       (a)  valid_policy_tree:  A tree of certificate policies with their
+#            optional qualifiers; each of the leaves of the tree
+#            represents a valid policy at this stage in the certification
+#            path validation.  If valid policies exist at this stage in
+#            the certification path validation, the depth of the tree is
+#            equal to the number of certificates in the chain that have
+#            been processed.  If valid policies do not exist at this stage
+#            in the certification path validation, the tree is set to
+#            NULL.  Once the tree is set to NULL, policy processing
+#            ceases.
+# 
+#            Each node in the valid_policy_tree includes three data
+#            objects: the valid policy, a set of associated policy
+#            qualifiers, and a set of one or more expected policy values.
+#            If the node is at depth x, the components of the node have
+#            the following semantics:
+# 
+#          (1)  The valid_policy is a single policy OID representing a
+#               valid policy for the path of length x.
+# 
+#          (2)  The qualifier_set is a set of policy qualifiers associated
+#               with the valid policy in certificate x.
+# 
+#          (3)  The expected_policy_set contains one or more policy OIDs
+#               that would satisfy this policy in the certificate x+1.
+# 
+#       The initial value of the valid_policy_tree is a single node with
+#       valid_policy anyPolicy, an empty qualifier_set, and an
+#       expected_policy_set with the single value anyPolicy.  This node is
+#       considered to be at depth zero.
+# 
+#       Figure 3 is a graphic representation of the initial state of the
+#       valid_policy_tree.  Additional figures will use this format to
+#       describe changes in the valid_policy_tree during path processing.
+# 
+#               +----------------+
+#               |   anyPolicy    |   <---- valid_policy
+#               +----------------+
+#               |       {}       |   <---- qualifier_set
+#               +----------------+
+#               |  {anyPolicy}   |   <---- expected_policy_set
+#               +----------------+
+# 
+#       Figure 3.  Initial Value of the valid_policy_tree State Variable
+# 
+#       (b)  permitted_subtrees:  a set of root names for each name type
+#            (e.g., X.500 distinguished names, email addresses, or IP
+#            addresses) defining a set of subtrees within which all
+#            subject names in subsequent certificates in the certification
+#            path MUST fall.  This variable includes a set for each name
+#            type, and the initial value is initial-permitted-subtrees.
+# 
+#       (c)  excluded_subtrees:  a set of root names for each name type
+#            (e.g., X.500 distinguished names, email addresses, or IP
+#            addresses) defining a set of subtrees within which no subject
+#            name in subsequent certificates in the certification path may
+#            fall.  This variable includes a set for each name type, and
+#            the initial value is initial-excluded-subtrees.
+# 
+#       (d)  explicit_policy:  an integer that indicates if a non-NULL
+#            valid_policy_tree is required.  The integer indicates the
+#            number of non-self-issued certificates to be processed before
+#            this requirement is imposed.  Once set, this variable may be
+#            decreased, but may not be increased.  That is, if a
+#            certificate in the path requires a non-NULL
+#            valid_policy_tree, a later certificate cannot remove this
+#            requirement.  If initial-explicit-policy is set, then the
+#            initial value is 0, otherwise the initial value is n+1.
+# 
+#       (e)  inhibit_anyPolicy:  an integer that indicates whether the
+#            anyPolicy policy identifier is considered a match.  The
+#            integer indicates the number of non-self-issued certificates
+#            to be processed before the anyPolicy OID, if asserted in a
+#            certificate other than an intermediate self-issued
+#            certificate, is ignored.  Once set, this variable may be
+#            decreased, but may not be increased.  That is, if a
+#            certificate in the path inhibits processing of anyPolicy, a
+#            later certificate cannot permit it.  If initial-any-policy-
+#            inhibit is set, then the initial value is 0, otherwise the
+#            initial value is n+1.
+# 
+#       (f)  policy_mapping:  an integer that indicates if policy mapping
+#            is permitted.  The integer indicates the number of non-self-
+#            issued certificates to be processed before policy mapping is
+#            inhibited.  Once set, this variable may be decreased, but may
+#            not be increased.  That is, if a certificate in the path
+#            specifies that policy mapping is not permitted, it cannot be
+#            overridden by a later certificate.  If initial-policy-
+#            mapping-inhibit is set, then the initial value is 0,
+#            otherwise the initial value is n+1.
+# 
+#       (g)  working_public_key_algorithm:  the digital signature
+#            algorithm used to verify the signature of a certificate.  The
+#            working_public_key_algorithm is initialized from the trusted
+#            public key algorithm provided in the trust anchor
+#            information.
+# 
+#       (h)  working_public_key:  the public key used to verify the
+#            signature of a certificate.  The working_public_key is
+#            initialized from the trusted public key provided in the trust
+#            anchor information.
+# 
+#       (i)  working_public_key_parameters:  parameters associated with
+#            the current public key that may be required to verify a
+#            signature (depending upon the algorithm).  The
+#            working_public_key_parameters variable is initialized from
+#            the trusted public key parameters provided in the trust
+#            anchor information.
+# 
+#       (j)  working_issuer_name:  the issuer distinguished name expected
+#            in the next certificate in the chain.  The
+#            working_issuer_name is initialized to the trusted issuer name
+#            provided in the trust anchor information.
+# 
+#       (k)  max_path_length:  this integer is initialized to n, is
+#            decremented for each non-self-issued certificate in the path,
+#            and may be reduced to the value in the path length constraint
+#            field within the basic constraints extension of a CA
+#            certificate.
+# 
+#    Upon completion of the initialization steps, perform the basic
+#    certificate processing steps specified in 6.1.3.
+
+[[spec]]
+level = "MUST"
+quote = '''
+(b)  permitted_subtrees:  a set of root names for each name type
+(e.g., X.500 distinguished names, email addresses, or IP
+addresses) defining a set of subtrees within which all
+subject names in subsequent certificates in the certification
+path MUST fall.
+'''
+

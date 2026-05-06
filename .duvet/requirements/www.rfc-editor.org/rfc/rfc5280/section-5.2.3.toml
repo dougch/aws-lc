@@ -1,0 +1,106 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-5.2.3"
+
+# CRL Number
+#
+#    The CRL number is a non-critical CRL extension that conveys a
+#    monotonically increasing sequence number for a given CRL scope and
+#    CRL issuer.  This extension allows users to easily determine when a
+#    particular CRL supersedes another CRL.  CRL numbers also support the
+#    identification of complementary complete CRLs and delta CRLs.  CRL
+#    issuers conforming to this profile MUST include this extension in all
+#    CRLs and MUST mark this extension as non-critical.
+# 
+#    If a CRL issuer generates delta CRLs in addition to complete CRLs for
+#    a given scope, the complete CRLs and delta CRLs MUST share one
+#    numbering sequence.  If a delta CRL and a complete CRL that cover the
+#    same scope are issued at the same time, they MUST have the same CRL
+#    number and provide the same revocation information.  That is, the
+#    combination of the delta CRL and an acceptable complete CRL MUST
+#    provide the same revocation information as the simultaneously issued
+#    complete CRL.
+# 
+#    If a CRL issuer generates two CRLs (two complete CRLs, two delta
+#    CRLs, or a complete CRL and a delta CRL) for the same scope at
+#    different times, the two CRLs MUST NOT have the same CRL number.
+#    That is, if the this update field (Section 5.1.2.4) in the two CRLs
+#    are not identical, the CRL numbers MUST be different.
+# 
+#    Given the requirements above, CRL numbers can be expected to contain
+#    long integers.  CRL verifiers MUST be able to handle CRLNumber values
+#    up to 20 octets.  Conforming CRL issuers MUST NOT use CRLNumber
+#    values longer than 20 octets.
+# 
+#    id-ce-cRLNumber OBJECT IDENTIFIER ::= { id-ce 20 }
+# 
+#    CRLNumber ::= INTEGER (0..MAX)
+
+[[spec]]
+level = "MUST"
+quote = '''
+CRL
+issuers conforming to this profile MUST include this extension in all
+CRLs and MUST mark this extension as non-critical.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+CRL
+issuers conforming to this profile MUST include this extension in all
+CRLs and MUST mark this extension as non-critical.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If a CRL issuer generates delta CRLs in addition to complete CRLs for
+a given scope, the complete CRLs and delta CRLs MUST share one
+numbering sequence.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If a delta CRL and a complete CRL that cover the
+same scope are issued at the same time, they MUST have the same CRL
+number and provide the same revocation information.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+That is, the
+combination of the delta CRL and an acceptable complete CRL MUST
+provide the same revocation information as the simultaneously issued
+complete CRL.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If a CRL issuer generates two CRLs (two complete CRLs, two delta
+CRLs, or a complete CRL and a delta CRL) for the same scope at
+different times, the two CRLs MUST NOT have the same CRL number.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+That is, if the this update field (Section 5.1.2.4) in the two CRLs
+are not identical, the CRL numbers MUST be different.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+CRL verifiers MUST be able to handle CRLNumber values
+up to 20 octets.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Conforming CRL issuers MUST NOT use CRLNumber
+values longer than 20 octets.
+'''
+

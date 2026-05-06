@@ -1,0 +1,263 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#appendix-B"
+
+# ASN.1 Notes
+#
+#    CAs MUST force the serialNumber to be a non-negative integer, that
+#    is, the sign bit in the DER encoding of the INTEGER value MUST be
+#    zero.  This can be done by adding a leading (leftmost) `00'H octet if
+#    necessary.  This removes a potential ambiguity in mapping between a
+#    string of octets and an integer value.
+# 
+#    As noted in Section 4.1.2.2, serial numbers can be expected to
+#    contain long integers.  Certificate users MUST be able to handle
+#    serialNumber values up to 20 octets in length.  Conforming CAs MUST
+#    NOT use serialNumber values longer than 20 octets.
+# 
+#    As noted in Section 5.2.3, CRL numbers can be expected to contain
+#    long integers.  CRL validators MUST be able to handle cRLNumber
+#    values up to 20 octets in length.  Conforming CRL issuers MUST NOT
+#    use cRLNumber values longer than 20 octets.
+# 
+#    The construct "SEQUENCE SIZE (1..MAX) OF" appears in several ASN.1
+#    constructs.  A valid ASN.1 sequence will have zero or more entries.
+#    The SIZE (1..MAX) construct constrains the sequence to have at least
+#    one entry.  MAX indicates that the upper bound is unspecified.
+#    Implementations are free to choose an upper bound that suits their
+#    environment.
+# 
+#    The character string type PrintableString supports a very basic Latin
+#    character set: the lowercase letters 'a' through 'z', uppercase
+#    letters 'A' through 'Z', the digits '0' through '9', eleven special
+#    characters ' = ( ) + , - . / : ? and space.
+# 
+#    Implementers should note that the at sign ('@') and underscore ('_')
+#    characters are not supported by the ASN.1 type PrintableString.
+#    These characters often appear in Internet addresses.  Such addresses
+#    MUST be encoded using an ASN.1 type that supports them.  They are
+#    usually encoded as IA5String in either the emailAddress attribute
+#    within a distinguished name or the rfc822Name field of GeneralName.
+#    Conforming implementations MUST NOT encode strings that include
+#    either the at sign or underscore character as PrintableString.
+# 
+#    The character string type TeletexString is a superset of
+#    PrintableString.  TeletexString supports a fairly standard (ASCII-
+#    like) Latin character set: Latin characters with non-spacing accents
+#    and Japanese characters.
+# 
+#    Named bit lists are BIT STRINGs where the values have been assigned
+#    names.  This specification makes use of named bit lists in the
+#    definitions for the key usage, CRL distribution points, and freshest
+#    CRL certificate extensions, as well as the freshest CRL and issuing
+#    distribution point CRL extensions.  When DER encoding a named bit
+#    list, trailing zeros MUST be omitted.  That is, the encoded value
+#    ends with the last named bit that is set to one.
+# 
+#    The character string type UniversalString supports any of the
+#    characters allowed by [ISO10646].  ISO 10646 is the Universal
+#    multiple-octet coded Character Set (UCS).
+# 
+#    The character string type UTF8String was introduced in the 1997
+#    version of ASN.1, and UTF8String was added to the list of choices for
+#    DirectoryString in the 2001 version of [X.520].  UTF8String is a
+#    universal type and has been assigned tag number 12.  The content of
+#    UTF8String was defined by RFC 2044 and updated in RFC 2279, which was
+#    updated in [RFC3629].
+# 
+#    In anticipation of these changes, and in conformance with IETF Best
+#    Practices codified in [RFC2277], IETF Policy on Character Sets and
+#    Languages, this document includes UTF8String as a choice in
+#    DirectoryString and in the userNotice certificate policy qualifier.
+# 
+#    For many of the attribute types defined in [X.520], the
+#    AttributeValue uses the DirectoryString type.  Of the attributes
+#    specified in Appendix A, the name, surname, givenName, initials,
+#    generationQualifier, commonName, localityName, stateOrProvinceName,
+#    organizationName, organizationalUnitName, title, and pseudonym
+#    attributes all use the DirectoryString type.  X.520 uses a
+#    parameterized type definition [X.683] of DirectoryString to specify
+#    the syntax for each of these attributes.  The parameter is used to
+#    indicate the maximum string length allowed for the attribute.  In
+#    Appendix A, in order to avoid the use of parameterized type
+#    definitions, the DirectoryString type is written in its expanded form
+#    for the definition of each of these attribute types.  So, the ASN.1
+#    in Appendix A describes the syntax for each of these attributes as
+#    being a CHOICE of TeletexString, PrintableString, UniversalString,
+#    UTF8String, and BMPString, with the appropriate constraints on the
+#    string length applied to each of the types in the CHOICE, rather than
+#    using the ASN.1 type DirectoryString to describe the syntax.
+# 
+#    Implementers should note that the DER encoding of the SET OF values
+#    requires ordering of the encodings of the values.  In particular,
+#    this issue arises with respect to distinguished names.
+# 
+#    Implementers should note that the DER encoding of SET or SEQUENCE
+#    components whose value is the DEFAULT omit the component from the
+#    encoded certificate or CRL.  For example, a BasicConstraints
+#    extension whose cA value is FALSE would omit the cA boolean from the
+#    encoded certificate.
+# 
+#    Object Identifiers (OIDs) are used throughout this specification to
+#    identify certificate policies, public key and signature algorithms,
+#    certificate extensions, etc.  There is no maximum size for OIDs.
+#    This specification mandates support for OIDs that have arc elements
+#    with values that are less than 2^28, that is, they MUST be between 0
+#    and 268,435,455, inclusive.  This allows each arc element to be
+#    represented within a single 32-bit word.  Implementations MUST also
+#    support OIDs where the length of the dotted decimal (see Section 1.4
+#    of [RFC4512]) string representation can be up to 100 bytes
+#    (inclusive).  Implementations MUST be able to handle OIDs with up to
+#    20 elements (inclusive).  CAs SHOULD NOT issue certificates that
+#    contain OIDs that exceed these requirements.  Likewise, CRL issuers
+#    SHOULD NOT issue CRLs that contain OIDs that exceed these
+#    requirements.
+# 
+#    The content-specific rules for encoding GeneralName field values in
+#    the nameConstraints extension differ from rules that apply in other
+#    extensions.  In all other certificate, CRL, and CRL entry extensions
+#    specified in this document the encoding rules conform to the rules
+#    for the underlying type.  For example, values in the
+#    uniformResourceIdentifier field must contain a valid URI as specified
+#    in [RFC3986].  The content-specific rules for encoding values in the
+#    nameConstraints extension are specified in Section 4.2.1.10, and
+#    these rules may not conform to the rules for the underlying type.
+#    For example, when the uniformResourceIdentifier field appears in a
+#    nameConstraints extension, it must hold a DNS name (e.g.,
+#    "host.example.com" or ".example.com") rather than a URI.
+# 
+#    Implementors are warned that the X.500 standards community has
+#    developed a series of extensibility rules.  These rules determine
+#    when an ASN.1 definition can be changed without assigning a new
+#    Object Identifier (OID).  For example, at least two extension
+#    definitions included in [RFC2459], the predecessor to this profile
+#    document, have different ASN.1 definitions in this specification, but
+#    the same OID is used.  If unknown elements appear within an
+#    extension, and the extension is not marked as critical, those unknown
+#    elements ought to be ignored, as follows:
+# 
+#       (a)  ignore all unknown bit name assignments within a bit string;
+# 
+#       (b)  ignore all unknown named numbers in an ENUMERATED type or
+#            INTEGER type that is being used in the enumerated style,
+#            provided the number occurs as an optional element of a SET or
+#            SEQUENCE; and
+# 
+#       (c)  ignore all unknown elements in SETs, at the end of SEQUENCEs,
+#            or in CHOICEs where the CHOICE is itself an optional element
+#            of a SET or SEQUENCE.
+# 
+#    If an extension containing unexpected values is marked as critical,
+#    the implementation MUST reject the certificate or CRL containing the
+#    unrecognized extension.
+
+[[spec]]
+level = "MUST"
+quote = '''
+CAs MUST force the serialNumber to be a non-negative integer, that
+is, the sign bit in the DER encoding of the INTEGER value MUST be
+zero.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+CAs MUST force the serialNumber to be a non-negative integer, that
+is, the sign bit in the DER encoding of the INTEGER value MUST be
+zero.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Certificate users MUST be able to handle
+serialNumber values up to 20 octets in length.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Conforming CAs MUST
+NOT use serialNumber values longer than 20 octets.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+CRL validators MUST be able to handle cRLNumber
+values up to 20 octets in length.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Conforming CRL issuers MUST NOT
+use cRLNumber values longer than 20 octets.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Such addresses
+MUST be encoded using an ASN.1 type that supports them.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Conforming implementations MUST NOT encode strings that include
+either the at sign or underscore character as PrintableString.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+When DER encoding a named bit
+list, trailing zeros MUST be omitted.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+This specification mandates support for OIDs that have arc elements
+with values that are less than 2^28, that is, they MUST be between 0
+and 268,435,455, inclusive.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Implementations MUST also
+support OIDs where the length of the dotted decimal (see Section 1.4
+of [RFC4512]) string representation can be up to 100 bytes
+(inclusive).
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Implementations MUST be able to handle OIDs with up to
+20 elements (inclusive).
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+CAs SHOULD NOT issue certificates that
+contain OIDs that exceed these requirements.
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+Likewise, CRL issuers
+SHOULD NOT issue CRLs that contain OIDs that exceed these
+requirements.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If an extension containing unexpected values is marked as critical,
+the implementation MUST reject the certificate or CRL containing the
+unrecognized extension.
+'''
+

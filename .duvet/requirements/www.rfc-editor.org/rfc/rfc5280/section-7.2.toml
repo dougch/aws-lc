@@ -1,0 +1,124 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-7.2"
+
+# Internationalized Domain Names in GeneralName
+#
+#    Internationalized Domain Names (IDNs) may be included in certificates
+#    and CRLs in the subjectAltName and issuerAltName extensions, name
+#    constraints extension, authority information access extension,
+#    subject information access extension, CRL distribution points
+#    extension, and issuing distribution point extension.  Each of these
+#    extensions uses the GeneralName type; one choice in GeneralName is
+#    the dNSName field, which is defined as type IA5String.
+# 
+#    IA5String is limited to the set of ASCII characters.  To accommodate
+#    internationalized domain names in the current structure, conforming
+#    implementations MUST convert internationalized domain names to the
+#    ASCII Compatible Encoding (ACE) format as specified in Section 4 of
+#    RFC 3490 before storage in the dNSName field.  Specifically,
+#    conforming implementations MUST perform the conversion operation
+#    specified in Section 4 of RFC 3490, with the following
+#    clarifications:
+# 
+#       *  in step 1, the domain name SHALL be considered a "stored
+#          string".  That is, the AllowUnassigned flag SHALL NOT be set;
+# 
+#       *  in step 3, set the flag called "UseSTD3ASCIIRules";
+# 
+#       *  in step 4, process each label with the "ToASCII" operation; and
+# 
+#       *  in step 5, change all label separators to U+002E (full stop).
+# 
+#    When comparing DNS names for equality, conforming implementations
+#    MUST perform a case-insensitive exact match on the entire DNS name.
+#    When evaluating name constraints, conforming implementations MUST
+#    perform a case-insensitive exact match on a label-by-label basis.  As
+#    noted in Section 4.2.1.10, any DNS name that may be constructed by
+#    adding labels to the left-hand side of the domain name given as the
+#    constraint is considered to fall within the indicated subtree.
+# 
+#    Implementations should convert IDNs to Unicode before display.
+#    Specifically, conforming implementations should perform the
+#    conversion operation specified in Section 4 of RFC 3490, with the
+#    following clarifications:
+# 
+#       *  in step 1, the domain name SHALL be considered a "stored
+#          string".  That is, the AllowUnassigned flag SHALL NOT be set;
+# 
+#       *  in step 3, set the flag called "UseSTD3ASCIIRules";
+# 
+#       *  in step 4, process each label with the "ToUnicode" operation;
+#          and
+# 
+#       *  skip step 5.
+# 
+#    Note:  Implementations MUST allow for increased space requirements
+#    for IDNs.  An IDN ACE label will begin with the four additional
+#    characters "xn--" and may require as many as five ASCII characters to
+#    specify a single international character.
+
+[[spec]]
+level = "MUST"
+quote = '''
+To accommodate
+internationalized domain names in the current structure, conforming
+implementations MUST convert internationalized domain names to the
+ASCII Compatible Encoding (ACE) format as specified in Section 4 of
+RFC 3490 before storage in the dNSName field.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Specifically,
+conforming implementations MUST perform the conversion operation
+specified in Section 4 of RFC 3490, with the following
+clarifications:
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+*  in step 1, the domain name SHALL be considered a "stored
+string".
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+That is, the AllowUnassigned flag SHALL NOT be set;
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+When comparing DNS names for equality, conforming implementations
+MUST perform a case-insensitive exact match on the entire DNS name.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+When evaluating name constraints, conforming implementations MUST
+perform a case-insensitive exact match on a label-by-label basis.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+*  in step 1, the domain name SHALL be considered a "stored
+string".
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+That is, the AllowUnassigned flag SHALL NOT be set;
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Note:  Implementations MUST allow for increased space requirements
+for IDNs.
+'''
+

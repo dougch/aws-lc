@@ -1,0 +1,282 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.4"
+
+# Certificate Policies
+#
+#    The certificate policies extension contains a sequence of one or more
+#    policy information terms, each of which consists of an object
+#    identifier (OID) and optional qualifiers.  Optional qualifiers, which
+#    MAY be present, are not expected to change the definition of the
+#    policy.  A certificate policy OID MUST NOT appear more than once in a
+#    certificate policies extension.
+# 
+#    In an end entity certificate, these policy information terms indicate
+#    the policy under which the certificate has been issued and the
+#    purposes for which the certificate may be used.  In a CA certificate,
+#    these policy information terms limit the set of policies for
+#    certification paths that include this certificate.  When a CA does
+#    not wish to limit the set of policies for certification paths that
+#    include this certificate, it MAY assert the special policy anyPolicy,
+#    with a value of { 2 5 29 32 0 }.
+# 
+#    Applications with specific policy requirements are expected to have a
+#    list of those policies that they will accept and to compare the
+#    policy OIDs in the certificate to that list.  If this extension is
+#    critical, the path validation software MUST be able to interpret this
+#    extension (including the optional qualifier), or MUST reject the
+#    certificate.
+# 
+#    To promote interoperability, this profile RECOMMENDS that policy
+#    information terms consist of only an OID.  Where an OID alone is
+#    insufficient, this profile strongly recommends that the use of
+#    qualifiers be limited to those identified in this section.  When
+#    qualifiers are used with the special policy anyPolicy, they MUST be
+#    limited to the qualifiers identified in this section.  Only those
+#    qualifiers returned as a result of path validation are considered.
+# 
+#    This specification defines two policy qualifier types for use by
+#    certificate policy writers and certificate issuers.  The qualifier
+#    types are the CPS Pointer and User Notice qualifiers.
+# 
+#    The CPS Pointer qualifier contains a pointer to a Certification
+#    Practice Statement (CPS) published by the CA.  The pointer is in the
+#    form of a URI.  Processing requirements for this qualifier are a
+#    local matter.  No action is mandated by this specification regardless
+#    of the criticality value asserted for the extension.
+# 
+#    User notice is intended for display to a relying party when a
+#    certificate is used.  Only user notices returned as a result of path
+#    validation are intended for display to the user.  If a notice is
+# 
+#    duplicated, only one copy need be displayed.  To prevent such
+#    duplication, this qualifier SHOULD only be present in end entity
+#    certificates and CA certificates issued to other organizations.
+# 
+#    The user notice has two optional fields: the noticeRef field and the
+#    explicitText field.  Conforming CAs SHOULD NOT use the noticeRef
+#    option.
+# 
+#       The noticeRef field, if used, names an organization and
+#       identifies, by number, a particular textual statement prepared by
+#       that organization.  For example, it might identify the
+#       organization "CertsRUs" and notice number 1.  In a typical
+#       implementation, the application software will have a notice file
+#       containing the current set of notices for CertsRUs; the
+#       application will extract the notice text from the file and display
+#       it.  Messages MAY be multilingual, allowing the software to select
+#       the particular language message for its own environment.
+# 
+#       An explicitText field includes the textual statement directly in
+#       the certificate.  The explicitText field is a string with a
+#       maximum size of 200 characters.  Conforming CAs SHOULD use the
+#       UTF8String encoding for explicitText, but MAY use IA5String.
+#       Conforming CAs MUST NOT encode explicitText as VisibleString or
+#       BMPString.  The explicitText string SHOULD NOT include any control
+#       characters (e.g., U+0000 to U+001F and U+007F to U+009F).  When
+#       the UTF8String encoding is used, all character sequences SHOULD be
+#       normalized according to Unicode normalization form C (NFC) [NFC].
+# 
+#    If both the noticeRef and explicitText options are included in the
+#    one qualifier and if the application software can locate the notice
+#    text indicated by the noticeRef option, then that text SHOULD be
+#    displayed; otherwise, the explicitText string SHOULD be displayed.
+# 
+#    Note: While the explicitText has a maximum size of 200 characters,
+#    some non-conforming CAs exceed this limit.  Therefore, certificate
+#    users SHOULD gracefully handle explicitText with more than 200
+#    characters.
+# 
+#    id-ce-certificatePolicies OBJECT IDENTIFIER ::=  { id-ce 32 }
+# 
+#    anyPolicy OBJECT IDENTIFIER ::= { id-ce-certificatePolicies 0 }
+# 
+#    certificatePolicies ::= SEQUENCE SIZE (1..MAX) OF PolicyInformation
+# 
+#    PolicyInformation ::= SEQUENCE {
+#         policyIdentifier   CertPolicyId,
+#         policyQualifiers   SEQUENCE SIZE (1..MAX) OF
+#                                 PolicyQualifierInfo OPTIONAL }
+# 
+#    CertPolicyId ::= OBJECT IDENTIFIER
+# 
+#    PolicyQualifierInfo ::= SEQUENCE {
+#         policyQualifierId  PolicyQualifierId,
+#         qualifier          ANY DEFINED BY policyQualifierId }
+# 
+#    -- policyQualifierIds for Internet policy qualifiers
+# 
+#    id-qt          OBJECT IDENTIFIER ::=  { id-pkix 2 }
+#    id-qt-cps      OBJECT IDENTIFIER ::=  { id-qt 1 }
+#    id-qt-unotice  OBJECT IDENTIFIER ::=  { id-qt 2 }
+# 
+#    PolicyQualifierId ::= OBJECT IDENTIFIER ( id-qt-cps | id-qt-unotice )
+# 
+#    Qualifier ::= CHOICE {
+#         cPSuri           CPSuri,
+#         userNotice       UserNotice }
+# 
+#    CPSuri ::= IA5String
+# 
+#    UserNotice ::= SEQUENCE {
+#         noticeRef        NoticeReference OPTIONAL,
+#         explicitText     DisplayText OPTIONAL }
+# 
+#    NoticeReference ::= SEQUENCE {
+#         organization     DisplayText,
+#         noticeNumbers    SEQUENCE OF INTEGER }
+# 
+#    DisplayText ::= CHOICE {
+#         ia5String        IA5String      (SIZE (1..200)),
+#         visibleString    VisibleString  (SIZE (1..200)),
+#         bmpString        BMPString      (SIZE (1..200)),
+#         utf8String       UTF8String     (SIZE (1..200)) }
+
+[[spec]]
+level = "MAY"
+quote = '''
+Optional qualifiers, which
+MAY be present, are not expected to change the definition of the
+policy.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+A certificate policy OID MUST NOT appear more than once in a
+certificate policies extension.
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+When a CA does
+not wish to limit the set of policies for certification paths that
+include this certificate, it MAY assert the special policy anyPolicy,
+with a value of { 2 5 29 32 0 }.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If this extension is
+critical, the path validation software MUST be able to interpret this
+extension (including the optional qualifier), or MUST reject the
+certificate.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If this extension is
+critical, the path validation software MUST be able to interpret this
+extension (including the optional qualifier), or MUST reject the
+certificate.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+When
+qualifiers are used with the special policy anyPolicy, they MUST be
+limited to the qualifiers identified in this section.
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+To prevent such
+duplication, this qualifier SHOULD only be present in end entity
+certificates and CA certificates issued to other organizations.
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+Conforming CAs SHOULD NOT use the noticeRef
+option.
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+Messages MAY be multilingual, allowing the software to select
+the particular language message for its own environment.
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+Conforming CAs SHOULD use the
+UTF8String encoding for explicitText, but MAY use IA5String.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Conforming CAs MUST NOT encode explicitText as VisibleString or
+BMPString.
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+The explicitText string SHOULD NOT include any control
+characters (e.g., U+0000 to U+001F and U+007F to U+009F).
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+When
+the UTF8String encoding is used, all character sequences SHOULD be
+normalized according to Unicode normalization form C (NFC) [NFC].
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+If both the noticeRef and explicitText options are included in the
+one qualifier and if the application software can locate the notice
+text indicated by the noticeRef option, then that text SHOULD be
+displayed; otherwise, the explicitText string SHOULD be displayed.
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+If both the noticeRef and explicitText options are included in the
+one qualifier and if the application software can locate the notice
+text indicated by the noticeRef option, then that text SHOULD be
+displayed; otherwise, the explicitText string SHOULD be displayed.
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+Therefore, certificate
+users SHOULD gracefully handle explicitText with more than 200
+characters.
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+.MAX) OF
+PolicyQualifierInfo OPTIONAL }
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+UserNotice ::= SEQUENCE {
+noticeRef        NoticeReference OPTIONAL,
+explicitText     DisplayText OPTIONAL }
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+UserNotice ::= SEQUENCE {
+noticeRef        NoticeReference OPTIONAL,
+explicitText     DisplayText OPTIONAL }
+'''
+

@@ -1,0 +1,36 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-5.2.2"
+
+# Issuer Alternative Name
+#
+#    The issuer alternative name extension allows additional identities to
+#    be associated with the issuer of the CRL.  Defined options include an
+#    electronic mail address (rfc822Name), a DNS name, an IP address, and
+#    a URI.  Multiple instances of a name form and multiple name forms may
+# 
+#    be included.  Whenever such identities are used, the issuer
+#    alternative name extension MUST be used; however, a DNS name MAY be
+#    represented in the issuer field using the domainComponent attribute
+#    as described in Section 4.1.2.4.
+# 
+#    Conforming CRL issuers SHOULD mark the issuerAltName extension as
+#    non-critical.
+# 
+#    The OID and syntax for this CRL extension are defined in Section
+#    4.2.1.7.
+
+[[spec]]
+level = "MUST"
+quote = '''
+Whenever such identities are used, the issuer
+alternative name extension MUST be used; however, a DNS name MAY be
+represented in the issuer field using the domainComponent attribute
+as described in Section 4.1.2.4.
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+Conforming CRL issuers SHOULD mark the issuerAltName extension as
+non-critical.
+'''
+

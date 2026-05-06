@@ -1,0 +1,46 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-7.3"
+
+# Internationalized Domain Names in Distinguished Names
+#
+#    Domain Names may also be represented as distinguished names using
+#    domain components in the subject field, the issuer field, the
+#    subjectAltName extension, or the issuerAltName extension.  As with
+#    the dNSName in the GeneralName type, the value of this attribute is
+#    defined as an IA5String.  Each domainComponent attribute represents a
+#    single label.  To represent a label from an IDN in the distinguished
+#    name, the implementation MUST perform the "ToASCII" label conversion
+#    specified in Section 4.1 of RFC 3490.  The label SHALL be considered
+#    a "stored string".  That is, the AllowUnassigned flag SHALL NOT be
+#    set.
+# 
+#    Conforming implementations shall perform a case-insensitive exact
+#    match when comparing domainComponent attributes in distinguished
+#    names, as described in Section 7.2.
+# 
+#    Implementations should convert ACE labels to Unicode before display.
+#    Specifically, conforming implementations should perform the
+#    "ToUnicode" conversion operation specified, as described in Section
+#    7.2, on each ACE label before displaying the name.
+
+[[spec]]
+level = "MUST"
+quote = '''
+To represent a label from an IDN in the distinguished
+name, the implementation MUST perform the "ToASCII" label conversion
+specified in Section 4.1 of RFC 3490.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+The label SHALL be considered
+a "stored string".
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+That is, the AllowUnassigned flag SHALL NOT be
+set.
+'''
+

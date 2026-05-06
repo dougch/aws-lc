@@ -1,0 +1,69 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-3.3"
+
+# Revocation
+#
+#    When a certificate is issued, it is expected to be in use for its
+#    entire validity period.  However, various circumstances may cause a
+#    certificate to become invalid prior to the expiration of the validity
+#    period.  Such circumstances include change of name, change of
+#    association between subject and CA (e.g., an employee terminates
+#    employment with an organization), and compromise or suspected
+#    compromise of the corresponding private key.  Under such
+#    circumstances, the CA needs to revoke the certificate.
+# 
+#    X.509 defines one method of certificate revocation.  This method
+#    involves each CA periodically issuing a signed data structure called
+#    a certificate revocation list (CRL).  A CRL is a time-stamped list
+#    identifying revoked certificates that is signed by a CA or CRL issuer
+#    and made freely available in a public repository.  Each revoked
+#    certificate is identified in a CRL by its certificate serial number.
+#    When a certificate-using system uses a certificate (e.g., for
+#    verifying a remote user's digital signature), that system not only
+#    checks the certificate signature and validity but also acquires a
+#    suitably recent CRL and checks that the certificate serial number is
+#    not on that CRL.  The meaning of "suitably recent" may vary with
+#    local policy, but it usually means the most recently issued CRL.  A
+#    new CRL is issued on a regular periodic basis (e.g., hourly, daily,
+#    or weekly).  An entry is added to the CRL as part of the next update
+#    following notification of revocation.  An entry MUST NOT be removed
+#    from the CRL until it appears on one regularly scheduled CRL issued
+#    beyond the revoked certificate's validity period.
+# 
+#    An advantage of this revocation method is that CRLs may be
+#    distributed by exactly the same means as certificates themselves,
+#    namely, via untrusted servers and untrusted communications.
+# 
+#    One limitation of the CRL revocation method, using untrusted
+#    communications and servers, is that the time granularity of
+#    revocation is limited to the CRL issue period.  For example, if a
+# 
+#    revocation is reported now, that revocation will not be reliably
+#    notified to certificate-using systems until all currently issued CRLs
+#    are scheduled to be updated -- this may be up to one hour, one day,
+#    or one week depending on the frequency that CRLs are issued.
+# 
+#    As with the X.509 v3 certificate format, in order to facilitate
+#    interoperable implementations from multiple vendors, the X.509 v2 CRL
+#    format needs to be profiled for Internet use.  It is one goal of this
+#    document to specify that profile.  However, this profile does not
+#    require the issuance of CRLs.  Message formats and protocols
+#    supporting on-line revocation notification are defined in other PKIX
+#    specifications.  On-line methods of revocation notification may be
+#    applicable in some environments as an alternative to the X.509 CRL.
+#    On-line revocation checking may significantly reduce the latency
+#    between a revocation report and the distribution of the information
+#    to relying parties.  Once the CA accepts a revocation report as
+#    authentic and valid, any query to the on-line service will correctly
+#    reflect the certificate validation impacts of the revocation.
+#    However, these methods impose new security requirements: the
+#    certificate validator needs to trust the on-line validation service
+#    while the repository does not need to be trusted.
+
+[[spec]]
+level = "MUST"
+quote = '''
+An entry MUST NOT be removed
+from the CRL until it appears on one regularly scheduled CRL issued
+beyond the revoked certificate's validity period.
+'''
+

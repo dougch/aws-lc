@@ -1,0 +1,176 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-6.3.3"
+
+# CRL Processing
+#
+#    This algorithm begins by assuming that the certificate is not
+#    revoked.  The algorithm checks one or more CRLs until either the
+#    certificate status is determined to be revoked or sufficient CRLs
+#    have been checked to cover all reason codes.
+# 
+#    For each distribution point (DP) in the certificate's CRL
+#    distribution points extension, for each corresponding CRL in the
+#    local CRL cache, while ((reasons_mask is not all-reasons) and
+#    (cert_status is UNREVOKED)) perform the following:
+# 
+#       (a)  Update the local CRL cache by obtaining a complete CRL, a
+#            delta CRL, or both, as required:
+# 
+#          (1)  If the current time is after the value of the CRL next
+#               update field, then do one of the following:
+# 
+#             (i)   If use-deltas is set and either the certificate or the
+#                   CRL contains the freshest CRL extension, obtain a
+#                   delta CRL with a next update value that is after the
+#                   current time and can be used to update the locally
+#                   cached CRL as specified in Section 5.2.4.
+# 
+#             (ii)  Update the local CRL cache with a current complete
+#                   CRL, verify that the current time is before the next
+#                   update value in the new CRL, and continue processing
+#                   with the new CRL.  If use-deltas is set and either the
+#                   certificate or the CRL contains the freshest CRL
+#                   extension, then obtain the current delta CRL that can
+#                   be used to update the new locally cached complete CRL
+#                   as specified in Section 5.2.4.
+# 
+#          (2)  If the current time is before the value of the next update
+#               field, use-deltas is set, and either the certificate or
+#               the CRL contains the freshest CRL extension, then obtain
+#               the current delta CRL that can be used to update the
+#               locally cached complete CRL as specified in Section 5.2.4.
+# 
+#       (b)  Verify the issuer and scope of the complete CRL as follows:
+# 
+#          (1)  If the DP includes cRLIssuer, then verify that the issuer
+#               field in the complete CRL matches cRLIssuer in the DP and
+#               that the complete CRL contains an issuing distribution
+#               point extension with the indirectCRL boolean asserted.
+#               Otherwise, verify that the CRL issuer matches the
+#               certificate issuer.
+# 
+#          (2)  If the complete CRL includes an issuing distribution point
+#               (IDP) CRL extension, check the following:
+# 
+#             (i)   If the distribution point name is present in the IDP
+#                   CRL extension and the distribution field is present in
+#                   the DP, then verify that one of the names in the IDP
+#                   matches one of the names in the DP.  If the
+#                   distribution point name is present in the IDP CRL
+#                   extension and the distribution field is omitted from
+#                   the DP, then verify that one of the names in the IDP
+#                   matches one of the names in the cRLIssuer field of the
+#                   DP.
+# 
+#             (ii)  If the onlyContainsUserCerts boolean is asserted in
+#                   the IDP CRL extension, verify that the certificate
+#                   does not include the basic constraints extension with
+#                   the cA boolean asserted.
+# 
+#             (iii) If the onlyContainsCACerts boolean is asserted in the
+#                   IDP CRL extension, verify that the certificate
+#                   includes the basic constraints extension with the cA
+#                   boolean asserted.
+# 
+#             (iv)  Verify that the onlyContainsAttributeCerts boolean is
+#                   not asserted.
+# 
+#       (c)  If use-deltas is set, verify the issuer and scope of the
+#            delta CRL as follows:
+# 
+#          (1)  Verify that the delta CRL issuer matches the complete CRL
+#               issuer.
+# 
+#          (2)  If the complete CRL includes an issuing distribution point
+#               (IDP) CRL extension, verify that the delta CRL contains a
+#               matching IDP CRL extension.  If the complete CRL omits an
+#               IDP CRL extension, verify that the delta CRL also omits an
+#               IDP CRL extension.
+# 
+#          (3)  Verify that the delta CRL authority key identifier
+#               extension matches the complete CRL authority key
+#               identifier extension.
+# 
+#       (d)  Compute the interim_reasons_mask for this CRL as follows:
+# 
+#          (1)  If the issuing distribution point (IDP) CRL extension is
+#               present and includes onlySomeReasons and the DP includes
+#               reasons, then set interim_reasons_mask to the intersection
+#               of reasons in the DP and onlySomeReasons in the IDP CRL
+#               extension.
+# 
+#          (2)  If the IDP CRL extension includes onlySomeReasons but the
+#               DP omits reasons, then set interim_reasons_mask to the
+#               value of onlySomeReasons in the IDP CRL extension.
+# 
+#          (3)  If the IDP CRL extension is not present or omits
+#               onlySomeReasons but the DP includes reasons, then set
+#               interim_reasons_mask to the value of DP reasons.
+# 
+#          (4)  If the IDP CRL extension is not present or omits
+#               onlySomeReasons and the DP omits reasons, then set
+#               interim_reasons_mask to the special value all-reasons.
+# 
+#       (e)  Verify that interim_reasons_mask includes one or more reasons
+#            that are not included in the reasons_mask.
+# 
+#       (f)  Obtain and validate the certification path for the issuer of
+#            the complete CRL.  The trust anchor for the certification
+#            path MUST be the same as the trust anchor used to validate
+#            the target certificate.  If a key usage extension is present
+#            in the CRL issuer's certificate, verify that the cRLSign bit
+#            is set.
+# 
+#       (g)  Validate the signature on the complete CRL using the public
+#            key validated in step (f).
+# 
+#       (h)  If use-deltas is set, then validate the signature on the
+#            delta CRL using the public key validated in step (f).
+# 
+#       (i)  If use-deltas is set, then search for the certificate on the
+#            delta CRL.  If an entry is found that matches the certificate
+#            issuer and serial number as described in Section 5.3.3, then
+#            set the cert_status variable to the indicated reason as
+#            follows:
+# 
+#          (1)  If the reason code CRL entry extension is present, set the
+#               cert_status variable to the value of the reason code CRL
+#               entry extension.
+# 
+#          (2)  If the reason code CRL entry extension is not present, set
+#               the cert_status variable to the value unspecified.
+# 
+#       (j)  If (cert_status is UNREVOKED), then search for the
+#            certificate on the complete CRL.  If an entry is found that
+#            matches the certificate issuer and serial number as described
+#            in Section 5.3.3, then set the cert_status variable to the
+#            indicated reason as described in step (i).
+# 
+#       (k)  If (cert_status is removeFromCRL), then set cert_status to
+#            UNREVOKED.
+# 
+#       (l)  Set the reasons_mask state variable to the union of its
+#            previous value and the value of the interim_reasons_mask
+#            state variable.
+# 
+#    If ((reasons_mask is all-reasons) OR (cert_status is not UNREVOKED)),
+#    then the revocation status has been determined, so return
+#    cert_status.
+# 
+#    If the revocation status has not been determined, repeat the process
+#    above with any available CRLs not specified in a distribution point
+#    but issued by the certificate issuer.  For the processing of such a
+#    CRL, assume a DP with both the reasons and the cRLIssuer fields
+#    omitted and a distribution point name of the certificate issuer.
+#    That is, the sequence of names in fullName is generated from the
+#    certificate issuer field as well as the certificate issuerAltName
+#    extension.  After processing such CRLs, if the revocation status has
+#    still not been determined, then return the cert_status UNDETERMINED.
+
+[[spec]]
+level = "MUST"
+quote = '''
+The trust anchor for the certification
+path MUST be the same as the trust anchor used to validate
+the target certificate.
+'''
+

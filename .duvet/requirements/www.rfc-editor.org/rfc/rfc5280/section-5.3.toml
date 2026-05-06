@@ -1,0 +1,43 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-5.3"
+
+# CRL Entry Extensions
+#
+#    The CRL entry extensions defined by ISO/IEC, ITU-T, and ANSI X9 for
+#    X.509 v2 CRLs provide methods for associating additional attributes
+#    with CRL entries [X.509] [X9.55].  The X.509 v2 CRL format also
+#    allows communities to define private CRL entry extensions to carry
+#    information unique to those communities.  Each extension in a CRL
+#    entry may be designated as critical or non-critical.  If a CRL
+#    contains a critical CRL entry extension that the application cannot
+#    process, then the application MUST NOT use that CRL to determine the
+#    status of any certificates.  However, applications may ignore
+#    unrecognized non-critical CRL entry extensions.
+# 
+#    The following subsections present recommended extensions used within
+#    Internet CRL entries and standard locations for information.
+#    Communities may elect to use additional CRL entry extensions;
+#    however, caution should be exercised in adopting any critical CRL
+#    entry extensions in CRLs that might be used in a general context.
+# 
+#    Support for the CRL entry extensions defined in this specification is
+#    optional for conforming CRL issuers and applications.  However, CRL
+#    issuers SHOULD include reason codes (Section 5.3.1) and invalidity
+#    dates (Section 5.3.2) whenever this information is available.
+
+[[spec]]
+level = "MUST"
+quote = '''
+If a CRL
+contains a critical CRL entry extension that the application cannot
+process, then the application MUST NOT use that CRL to determine the
+status of any certificates.
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+However, CRL
+issuers SHOULD include reason codes (Section 5.3.1) and invalidity
+dates (Section 5.3.2) whenever this information is available.
+'''
+

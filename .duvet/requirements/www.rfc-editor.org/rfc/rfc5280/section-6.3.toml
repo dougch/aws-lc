@@ -1,0 +1,32 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-6.3"
+
+# CRL Validation
+#
+#    This section describes the steps necessary to determine if a
+#    certificate is revoked when CRLs are the revocation mechanism used by
+#    the certificate issuer.  Conforming implementations that support CRLs
+#    are not required to implement this algorithm, but they MUST be
+#    functionally equivalent to the external behavior resulting from this
+#    procedure when processing CRLs that are issued in conformance with
+#    this profile.  Any algorithm may be used by a particular
+#    implementation so long as it derives the correct result.
+# 
+#    This algorithm assumes that all of the needed CRLs are available in a
+#    local cache.  Further, if the next update time of a CRL has passed,
+#    the algorithm assumes a mechanism to fetch a current CRL and place it
+#    in the local CRL cache.
+# 
+#    This algorithm defines a set of inputs, a set of state variables, and
+#    processing steps that are performed for each certificate in the path.
+#    The algorithm output is the revocation status of the certificate.
+
+[[spec]]
+level = "MUST"
+quote = '''
+Conforming implementations that support CRLs
+are not required to implement this algorithm, but they MUST be
+functionally equivalent to the external behavior resulting from this
+procedure when processing CRLs that are issued in conformance with
+this profile.
+'''
+

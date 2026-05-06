@@ -1,0 +1,48 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-5.3.2"
+
+# Invalidity Date
+#
+#    The invalidity date is a non-critical CRL entry extension that
+#    provides the date on which it is known or suspected that the private
+#    key was compromised or that the certificate otherwise became invalid.
+#    This date may be earlier than the revocation date in the CRL entry,
+#    which is the date at which the CA processed the revocation.  When a
+#    revocation is first posted by a CRL issuer in a CRL, the invalidity
+#    date may precede the date of issue of earlier CRLs, but the
+#    revocation date SHOULD NOT precede the date of issue of earlier CRLs.
+#    Whenever this information is available, CRL issuers are strongly
+#    encouraged to share it with CRL users.
+# 
+#    The GeneralizedTime values included in this field MUST be expressed
+#    in Greenwich Mean Time (Zulu), and MUST be specified and interpreted
+#    as defined in Section 4.1.2.5.2.
+# 
+#    id-ce-invalidityDate OBJECT IDENTIFIER ::= { id-ce 24 }
+# 
+#    InvalidityDate ::=  GeneralizedTime
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+When a
+revocation is first posted by a CRL issuer in a CRL, the invalidity
+date may precede the date of issue of earlier CRLs, but the
+revocation date SHOULD NOT precede the date of issue of earlier CRLs.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+The GeneralizedTime values included in this field MUST be expressed
+in Greenwich Mean Time (Zulu), and MUST be specified and interpreted
+as defined in Section 4.1.2.5.2.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+The GeneralizedTime values included in this field MUST be expressed
+in Greenwich Mean Time (Zulu), and MUST be specified and interpreted
+as defined in Section 4.1.2.5.2.
+'''
+

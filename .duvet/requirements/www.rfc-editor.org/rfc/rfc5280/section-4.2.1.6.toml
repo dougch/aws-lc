@@ -1,0 +1,359 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.6"
+
+# Subject Alternative Name
+#
+#    The subject alternative name extension allows identities to be bound
+#    to the subject of the certificate.  These identities may be included
+#    in addition to or in place of the identity in the subject field of
+#    the certificate.  Defined options include an Internet electronic mail
+# 
+#    address, a DNS name, an IP address, and a Uniform Resource Identifier
+#    (URI).  Other options exist, including completely local definitions.
+#    Multiple name forms, and multiple instances of each name form, MAY be
+#    included.  Whenever such identities are to be bound into a
+#    certificate, the subject alternative name (or issuer alternative
+#    name) extension MUST be used; however, a DNS name MAY also be
+#    represented in the subject field using the domainComponent attribute
+#    as described in Section 4.1.2.4.  Note that where such names are
+#    represented in the subject field implementations are not required to
+#    convert them into DNS names.
+# 
+#    Because the subject alternative name is considered to be definitively
+#    bound to the public key, all parts of the subject alternative name
+#    MUST be verified by the CA.
+# 
+#    Further, if the only subject identity included in the certificate is
+#    an alternative name form (e.g., an electronic mail address), then the
+#    subject distinguished name MUST be empty (an empty sequence), and the
+#    subjectAltName extension MUST be present.  If the subject field
+#    contains an empty sequence, then the issuing CA MUST include a
+#    subjectAltName extension that is marked as critical.  When including
+#    the subjectAltName extension in a certificate that has a non-empty
+#    subject distinguished name, conforming CAs SHOULD mark the
+#    subjectAltName extension as non-critical.
+# 
+#    When the subjectAltName extension contains an Internet mail address,
+#    the address MUST be stored in the rfc822Name.  The format of an
+#    rfc822Name is a "Mailbox" as defined in Section 4.1.2 of [RFC2821].
+#    A Mailbox has the form "Local-part@Domain".  Note that a Mailbox has
+#    no phrase (such as a common name) before it, has no comment (text
+#    surrounded in parentheses) after it, and is not surrounded by "<" and
+#    ">".  Rules for encoding Internet mail addresses that include
+#    internationalized domain names are specified in Section 7.5.
+# 
+#    When the subjectAltName extension contains an iPAddress, the address
+#    MUST be stored in the octet string in "network byte order", as
+#    specified in [RFC791].  The least significant bit (LSB) of each octet
+#    is the LSB of the corresponding byte in the network address.  For IP
+#    version 4, as specified in [RFC791], the octet string MUST contain
+#    exactly four octets.  For IP version 6, as specified in
+#    [RFC2460], the octet string MUST contain exactly sixteen octets.
+# 
+#    When the subjectAltName extension contains a domain name system
+#    label, the domain name MUST be stored in the dNSName (an IA5String).
+#    The name MUST be in the "preferred name syntax", as specified by
+#    Section 3.5 of [RFC1034] and as modified by Section 2.1 of
+#    [RFC1123].  Note that while uppercase and lowercase letters are
+#    allowed in domain names, no significance is attached to the case.  In
+# 
+#    addition, while the string " " is a legal domain name, subjectAltName
+#    extensions with a dNSName of " " MUST NOT be used.  Finally, the use
+#    of the DNS representation for Internet mail addresses
+#    (subscriber.example.com instead of subscriber@example.com) MUST NOT
+#    be used; such identities are to be encoded as rfc822Name.  Rules for
+#    encoding internationalized domain names are specified in Section 7.2.
+# 
+#    When the subjectAltName extension contains a URI, the name MUST be
+#    stored in the uniformResourceIdentifier (an IA5String).  The name
+#    MUST NOT be a relative URI, and it MUST follow the URI syntax and
+#    encoding rules specified in [RFC3986].  The name MUST include both a
+#    scheme (e.g., "http" or "ftp") and a scheme-specific-part.  URIs that
+#    include an authority ([RFC3986], Section 3.2) MUST include a fully
+#    qualified domain name or IP address as the host.  Rules for encoding
+#    Internationalized Resource Identifiers (IRIs) are specified in
+#    Section 7.4.
+# 
+#    As specified in [RFC3986], the scheme name is not case-sensitive
+#    (e.g., "http" is equivalent to "HTTP").  The host part, if present,
+#    is also not case-sensitive, but other components of the scheme-
+#    specific-part may be case-sensitive.  Rules for comparing URIs are
+#    specified in Section 7.4.
+# 
+#    When the subjectAltName extension contains a DN in the directoryName,
+#    the encoding rules are the same as those specified for the issuer
+#    field in Section 4.1.2.4.  The DN MUST be unique for each subject
+#    entity certified by the one CA as defined by the issuer field.  A CA
+#    MAY issue more than one certificate with the same DN to the same
+#    subject entity.
+# 
+#    The subjectAltName MAY carry additional name types through the use of
+#    the otherName field.  The format and semantics of the name are
+#    indicated through the OBJECT IDENTIFIER in the type-id field.  The
+#    name itself is conveyed as value field in otherName.  For example,
+#    Kerberos [RFC4120] format names can be encoded into the otherName,
+#    using a Kerberos 5 principal name OID and a SEQUENCE of the Realm and
+#    the PrincipalName.
+# 
+#    Subject alternative names MAY be constrained in the same manner as
+#    subject distinguished names using the name constraints extension as
+#    described in Section 4.2.1.10.
+# 
+#    If the subjectAltName extension is present, the sequence MUST contain
+#    at least one entry.  Unlike the subject field, conforming CAs MUST
+#    NOT issue certificates with subjectAltNames containing empty
+#    GeneralName fields.  For example, an rfc822Name is represented as an
+#    IA5String.  While an empty string is a valid IA5String, such an
+#    rfc822Name is not permitted by this profile.  The behavior of clients
+# 
+#    that encounter such a certificate when processing a certification
+#    path is not defined by this profile.
+# 
+#    Finally, the semantics of subject alternative names that include
+#    wildcard characters (e.g., as a placeholder for a set of names) are
+#    not addressed by this specification.  Applications with specific
+#    requirements MAY use such names, but they must define the semantics.
+# 
+#    id-ce-subjectAltName OBJECT IDENTIFIER ::=  { id-ce 17 }
+# 
+#    SubjectAltName ::= GeneralNames
+# 
+#    GeneralNames ::= SEQUENCE SIZE (1..MAX) OF GeneralName
+# 
+#    GeneralName ::= CHOICE {
+#         otherName                       [0]     OtherName,
+#         rfc822Name                      [1]     IA5String,
+#         dNSName                         [2]     IA5String,
+#         x400Address                     [3]     ORAddress,
+#         directoryName                   [4]     Name,
+#         ediPartyName                    [5]     EDIPartyName,
+#         uniformResourceIdentifier       [6]     IA5String,
+#         iPAddress                       [7]     OCTET STRING,
+#         registeredID                    [8]     OBJECT IDENTIFIER }
+# 
+#    OtherName ::= SEQUENCE {
+#         type-id    OBJECT IDENTIFIER,
+#         value      [0] EXPLICIT ANY DEFINED BY type-id }
+# 
+#    EDIPartyName ::= SEQUENCE {
+#         nameAssigner            [0]     DirectoryString OPTIONAL,
+#         partyName               [1]     DirectoryString }
+
+[[spec]]
+level = "MAY"
+quote = '''
+Multiple name forms, and multiple instances of each name form, MAY be
+included.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Whenever such identities are to be bound into a
+certificate, the subject alternative name (or issuer alternative
+name) extension MUST be used; however, a DNS name MAY also be
+represented in the subject field using the domainComponent attribute
+as described in Section 4.1.2.4.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Because the subject alternative name is considered to be definitively
+bound to the public key, all parts of the subject alternative name
+MUST be verified by the CA.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Further, if the only subject identity included in the certificate is
+an alternative name form (e.g., an electronic mail address), then the
+subject distinguished name MUST be empty (an empty sequence), and the
+subjectAltName extension MUST be present.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Further, if the only subject identity included in the certificate is
+an alternative name form (e.g., an electronic mail address), then the
+subject distinguished name MUST be empty (an empty sequence), and the
+subjectAltName extension MUST be present.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If the subject field
+contains an empty sequence, then the issuing CA MUST include a
+subjectAltName extension that is marked as critical.
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+When including
+the subjectAltName extension in a certificate that has a non-empty
+subject distinguished name, conforming CAs SHOULD mark the
+subjectAltName extension as non-critical.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+When the subjectAltName extension contains an Internet mail address,
+the address MUST be stored in the rfc822Name.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+When the subjectAltName extension contains an iPAddress, the address
+MUST be stored in the octet string in "network byte order", as
+specified in [RFC791].
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+For IP
+version 4, as specified in [RFC791], the octet string MUST contain
+exactly four octets.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+For IP version 6, as specified in
+[RFC2460], the octet string MUST contain exactly sixteen octets.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+When the subjectAltName extension contains a domain name system
+label, the domain name MUST be stored in the dNSName (an IA5String).
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+The name MUST be in the "preferred name syntax", as specified by
+Section 3.5 of [RFC1034] and as modified by Section 2.1 of
+[RFC1123].
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+addition, while the string " " is a legal domain name, subjectAltName
+extensions with a dNSName of " " MUST NOT be used.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Finally, the use
+of the DNS representation for Internet mail addresses
+(subscriber.example.com instead of subscriber@example.com) MUST NOT
+be used; such identities are to be encoded as rfc822Name.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+When the subjectAltName extension contains a URI, the name MUST be
+stored in the uniformResourceIdentifier (an IA5String).
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+The name
+MUST NOT be a relative URI, and it MUST follow the URI syntax and
+encoding rules specified in [RFC3986].
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+The name
+MUST NOT be a relative URI, and it MUST follow the URI syntax and
+encoding rules specified in [RFC3986].
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+The name MUST include both a
+scheme (e.g., "http" or "ftp") and a scheme-specific-part.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+URIs that
+include an authority ([RFC3986], Section 3.2) MUST include a fully
+qualified domain name or IP address as the host.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+The DN MUST be unique for each subject
+entity certified by the one CA as defined by the issuer field.
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+A CA
+MAY issue more than one certificate with the same DN to the same
+subject entity.
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+The subjectAltName MAY carry additional name types through the use of
+the otherName field.
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+Subject alternative names MAY be constrained in the same manner as
+subject distinguished names using the name constraints extension as
+described in Section 4.2.1.10.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If the subjectAltName extension is present, the sequence MUST contain
+at least one entry.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Unlike the subject field, conforming CAs MUST
+NOT issue certificates with subjectAltNames containing empty
+GeneralName fields.
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+Applications with specific
+requirements MAY use such names, but they must define the semantics.
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+EDIPartyName ::= SEQUENCE {
+nameAssigner            [0]     DirectoryString OPTIONAL,
+partyName               [1]     DirectoryString }
+'''
+

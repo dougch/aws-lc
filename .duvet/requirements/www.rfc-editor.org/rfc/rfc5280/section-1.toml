@@ -1,0 +1,128 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-1"
+
+# Introduction
+#
+#    This specification is one part of a family of standards for the X.509
+#    Public Key Infrastructure (PKI) for the Internet.
+# 
+#    This specification profiles the format and semantics of certificates
+#    and certificate revocation lists (CRLs) for the Internet PKI.
+#    Procedures are described for processing of certification paths in the
+#    Internet environment.  Finally, ASN.1 modules are provided in the
+#    appendices for all data structures defined or referenced.
+# 
+#    Section 2 describes Internet PKI requirements and the assumptions
+#    that affect the scope of this document.  Section 3 presents an
+#    architectural model and describes its relationship to previous IETF
+#    and ISO/IEC/ITU-T standards.  In particular, this document's
+#    relationship with the IETF PEM specifications and the ISO/IEC/ITU-T
+#    X.509 documents is described.
+# 
+#    Section 4 profiles the X.509 version 3 certificate, and Section 5
+#    profiles the X.509 version 2 CRL.  The profiles include the
+#    identification of ISO/IEC/ITU-T and ANSI extensions that may be
+#    useful in the Internet PKI.  The profiles are presented in the 1988
+#    Abstract Syntax Notation One (ASN.1) rather than the 1997 ASN.1
+#    syntax used in the most recent ISO/IEC/ITU-T standards.
+# 
+#    Section 6 includes certification path validation procedures.  These
+#    procedures are based upon the ISO/IEC/ITU-T definition.
+#    Implementations are REQUIRED to derive the same results but are not
+#    required to use the specified procedures.
+# 
+#    Procedures for identification and encoding of public key materials
+#    and digital signatures are defined in [RFC3279], [RFC4055], and
+#    [RFC4491].  Implementations of this specification are not required to
+#    use any particular cryptographic algorithms.  However, conforming
+#    implementations that use the algorithms identified in [RFC3279],
+#    [RFC4055], and [RFC4491] MUST identify and encode the public key
+#    materials and digital signatures as described in those
+#    specifications.
+# 
+#    Finally, three appendices are provided to aid implementers.  Appendix
+#    A contains all ASN.1 structures defined or referenced within this
+#    specification.  As above, the material is presented in the 1988
+#    ASN.1.  Appendix B contains notes on less familiar features of the
+#    ASN.1 notation used within this specification.  Appendix C contains
+#    examples of conforming certificates and a conforming CRL.
+# 
+#    This specification obsoletes [RFC3280].  Differences from RFC 3280
+#    are summarized below:
+# 
+#       * Enhanced support for internationalized names is specified in
+#         Section 7, with rules for encoding and comparing
+#         Internationalized Domain Names, Internationalized Resource
+#         Identifiers (IRIs), and distinguished names.  These rules are
+#         aligned with comparison rules established in current RFCs,
+#         including [RFC3490], [RFC3987], and [RFC4518].
+# 
+#       * Sections 4.1.2.4 and 4.1.2.6 incorporate the conditions for
+#         continued use of legacy text encoding schemes that were
+#         specified in [RFC4630].  Where in use by an established PKI,
+#         transition to UTF8String could cause denial of service based on
+#         name chaining failures or incorrect processing of name
+#         constraints.
+# 
+#       * Section 4.2.1.4 in RFC 3280, which specified the
+#         privateKeyUsagePeriod certificate extension but deprecated its
+#         use, was removed.  Use of this ISO standard extension is neither
+#         deprecated nor recommended for use in the Internet PKI.
+# 
+#       * Section 4.2.1.5 recommends marking the policy mappings extension
+#         as critical.  RFC 3280 required that the policy mappings
+#         extension be marked as non-critical.
+# 
+#       * Section 4.2.1.11 requires marking the policy constraints
+#         extension as critical.  RFC 3280 permitted the policy
+#         constraints extension to be marked as critical or non-critical.
+# 
+#       * The Authority Information Access (AIA) CRL extension, as
+#         specified in [RFC4325], was added as Section 5.2.7.
+# 
+#       * Sections 5.2 and 5.3 clarify the rules for handling unrecognized
+#         CRL extensions and CRL entry extensions, respectively.
+# 
+#       * Section 5.3.2 in RFC 3280, which specified the
+#         holdInstructionCode CRL entry extension, was removed.
+# 
+#       * The path validation algorithm specified in Section 6 no longer
+#         tracks the criticality of the certificate policies extensions in
+#         a chain of certificates.  In RFC 3280, this information was
+#         returned to a relying party.
+# 
+#       * The Security Considerations section addresses the risk of
+#         circular dependencies arising from the use of https or similar
+#         schemes in the CRL distribution points, authority information
+#         access, or subject information access extensions.
+# 
+#       * The Security Considerations section addresses risks associated
+#         with name ambiguity.
+# 
+#       * The Security Considerations section references RFC 4210 for
+#         procedures to signal changes in CA operations.
+# 
+#    The ASN.1 modules in Appendix A are unchanged from RFC 3280, except
+#    that ub-emailaddress-length was changed from 128 to 255 in order to
+#    align with PKCS #9 [RFC2985].
+# 
+#    The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+#    "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+#    document are to be interpreted as described in [RFC2119].
+
+[[spec]]
+level = "MUST"
+quote = '''
+Implementations are REQUIRED to derive the same results but are not
+required to use the specified procedures.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+However, conforming
+implementations that use the algorithms identified in [RFC3279],
+[RFC4055], and [RFC4491] MUST identify and encode the public key
+materials and digital signatures as described in those
+specifications.
+'''
+

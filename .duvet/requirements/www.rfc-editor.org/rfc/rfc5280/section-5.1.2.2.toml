@@ -1,0 +1,20 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-5.1.2.2"
+
+# Signature
+#
+#    This field contains the algorithm identifier for the algorithm used
+#    to sign the CRL.  [RFC3279], [RFC4055], and [RFC4491] list OIDs for
+#    the most popular signature algorithms used in the Internet PKI.
+# 
+#    This field MUST contain the same algorithm identifier as the
+#    signatureAlgorithm field in the sequence CertificateList (Section
+#    5.1.1.2).
+
+[[spec]]
+level = "MUST"
+quote = '''
+This field MUST contain the same algorithm identifier as the
+signatureAlgorithm field in the sequence CertificateList (Section
+5.1.1.2).
+'''
+

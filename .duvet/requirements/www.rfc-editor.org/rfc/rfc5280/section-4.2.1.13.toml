@@ -1,0 +1,293 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.13"
+
+# CRL Distribution Points
+#
+#    The CRL distribution points extension identifies how CRL information
+#    is obtained.  The extension SHOULD be non-critical, but this profile
+#    RECOMMENDS support for this extension by CAs and applications.
+#    Further discussion of CRL management is contained in Section 5.
+# 
+#    The cRLDistributionPoints extension is a SEQUENCE of
+#    DistributionPoint.  A DistributionPoint consists of three fields,
+#    each of which is optional: distributionPoint, reasons, and cRLIssuer.
+#    While each of these fields is optional, a DistributionPoint MUST NOT
+#    consist of only the reasons field; either distributionPoint or
+#    cRLIssuer MUST be present.  If the certificate issuer is not the CRL
+#    issuer, then the cRLIssuer field MUST be present and contain the Name
+#    of the CRL issuer.  If the certificate issuer is also the CRL issuer,
+#    then conforming CAs MUST omit the cRLIssuer field and MUST include
+#    the distributionPoint field.
+# 
+#    When the distributionPoint field is present, it contains either a
+#    SEQUENCE of general names or a single value, nameRelativeToCRLIssuer.
+#    If the DistributionPointName contains multiple values, each name
+#    describes a different mechanism to obtain the same CRL.  For example,
+#    the same CRL could be available for retrieval through both LDAP and
+#    HTTP.
+# 
+#    If the distributionPoint field contains a directoryName, the entry
+#    for that directoryName contains the current CRL for the associated
+#    reasons and the CRL is issued by the associated cRLIssuer.  The CRL
+#    may be stored in either the certificateRevocationList or
+#    authorityRevocationList attribute.  The CRL is to be obtained by the
+#    application from whatever directory server is locally configured.
+#    The protocol the application uses to access the directory (e.g., DAP
+#    or LDAP) is a local matter.
+# 
+#    If the DistributionPointName contains a general name of type URI, the
+#    following semantics MUST be assumed: the URI is a pointer to the
+#    current CRL for the associated reasons and will be issued by the
+#    associated cRLIssuer.  When the HTTP or FTP URI scheme is used, the
+#    URI MUST point to a single DER encoded CRL as specified in
+#    [RFC2585].  HTTP server implementations accessed via the URI SHOULD
+#    specify the media type application/pkix-crl in the content-type
+#    header field of the response.  When the LDAP URI scheme [RFC4516] is
+#    used, the URI MUST include a <dn> field containing the distinguished
+#    name of the entry holding the CRL, MUST include a single <attrdesc>
+#    that contains an appropriate attribute description for the attribute
+#    that holds the CRL [RFC4523], and SHOULD include a <host>
+#    (e.g., <ldap://ldap.example.com/cn=example%20CA,dc=example,dc=com?
+#    certificateRevocationList;binary>).  Omitting the <host> (e.g.,
+#    <ldap:///cn=CA,dc=example,dc=com?authorityRevocationList;binary>) has
+#    the effect of relying on whatever a priori knowledge the client might
+#    have to contact an appropriate server.  When present,
+#    DistributionPointName SHOULD include at least one LDAP or HTTP URI.
+# 
+#    If the DistributionPointName contains the single value
+#    nameRelativeToCRLIssuer, the value provides a distinguished name
+# 
+#    fragment.  The fragment is appended to the X.500 distinguished name
+#    of the CRL issuer to obtain the distribution point name.  If the
+#    cRLIssuer field in the DistributionPoint is present, then the name
+#    fragment is appended to the distinguished name that it contains;
+#    otherwise, the name fragment is appended to the certificate issuer
+#    distinguished name.  Conforming CAs SHOULD NOT use
+#    nameRelativeToCRLIssuer to specify distribution point names.  The
+#    DistributionPointName MUST NOT use the nameRelativeToCRLIssuer
+#    alternative when cRLIssuer contains more than one distinguished name.
+# 
+#    If the DistributionPoint omits the reasons field, the CRL MUST
+#    include revocation information for all reasons.  This profile
+#    RECOMMENDS against segmenting CRLs by reason code.  When a conforming
+#    CA includes a cRLDistributionPoints extension in a certificate, it
+#    MUST include at least one DistributionPoint that points to a CRL that
+#    covers the certificate for all reasons.
+# 
+#    The cRLIssuer identifies the entity that signs and issues the CRL.
+#    If present, the cRLIssuer MUST only contain the distinguished name
+#    (DN) from the issuer field of the CRL to which the DistributionPoint
+#    is pointing.  The encoding of the name in the cRLIssuer field MUST be
+#    exactly the same as the encoding in issuer field of the CRL.  If the
+#    cRLIssuer field is included and the DN in that field does not
+#    correspond to an X.500 or LDAP directory entry where CRL is located,
+#    then conforming CAs MUST include the distributionPoint field.
+# 
+#    id-ce-cRLDistributionPoints OBJECT IDENTIFIER ::=  { id-ce 31 }
+# 
+#    CRLDistributionPoints ::= SEQUENCE SIZE (1..MAX) OF DistributionPoint
+# 
+#    DistributionPoint ::= SEQUENCE {
+#         distributionPoint       [0]     DistributionPointName OPTIONAL,
+#         reasons                 [1]     ReasonFlags OPTIONAL,
+#         cRLIssuer               [2]     GeneralNames OPTIONAL }
+# 
+#    DistributionPointName ::= CHOICE {
+#         fullName                [0]     GeneralNames,
+#         nameRelativeToCRLIssuer [1]     RelativeDistinguishedName }
+# 
+#    ReasonFlags ::= BIT STRING {
+#         unused                  (0),
+#         keyCompromise           (1),
+#         cACompromise            (2),
+#         affiliationChanged      (3),
+#         superseded              (4),
+#         cessationOfOperation    (5),
+#         certificateHold         (6),
+#         privilegeWithdrawn      (7),
+#         aACompromise            (8) }
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+The extension SHOULD be non-critical, but this profile
+RECOMMENDS support for this extension by CAs and applications.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+While each of these fields is optional, a DistributionPoint MUST NOT
+consist of only the reasons field; either distributionPoint or
+cRLIssuer MUST be present.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+While each of these fields is optional, a DistributionPoint MUST NOT
+consist of only the reasons field; either distributionPoint or
+cRLIssuer MUST be present.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If the certificate issuer is not the CRL
+issuer, then the cRLIssuer field MUST be present and contain the Name
+of the CRL issuer.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If the certificate issuer is also the CRL issuer,
+then conforming CAs MUST omit the cRLIssuer field and MUST include
+the distributionPoint field.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If the certificate issuer is also the CRL issuer,
+then conforming CAs MUST omit the cRLIssuer field and MUST include
+the distributionPoint field.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If the DistributionPointName contains a general name of type URI, the
+following semantics MUST be assumed: the URI is a pointer to the
+current CRL for the associated reasons and will be issued by the
+associated cRLIssuer.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+When the HTTP or FTP URI scheme is used, the
+URI MUST point to a single DER encoded CRL as specified in
+[RFC2585].
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+HTTP server implementations accessed via the URI SHOULD
+specify the media type application/pkix-crl in the content-type
+header field of the response.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+When the LDAP URI scheme [RFC4516] is
+used, the URI MUST include a <dn> field containing the distinguished
+name of the entry holding the CRL, MUST include a single <attrdesc>
+that contains an appropriate attribute description for the attribute
+that holds the CRL [RFC4523], and SHOULD include a <host>
+(e.g., <ldap://ldap.example.com/cn=example%20CA,dc=example,dc=com?
+certificateRevocationList;binary>).
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+When the LDAP URI scheme [RFC4516] is
+used, the URI MUST include a <dn> field containing the distinguished
+name of the entry holding the CRL, MUST include a single <attrdesc>
+that contains an appropriate attribute description for the attribute
+that holds the CRL [RFC4523], and SHOULD include a <host>
+(e.g., <ldap://ldap.example.com/cn=example%20CA,dc=example,dc=com?
+certificateRevocationList;binary>).
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+When present,
+DistributionPointName SHOULD include at least one LDAP or HTTP URI.
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+Conforming CAs SHOULD NOT use
+nameRelativeToCRLIssuer to specify distribution point names.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+The
+DistributionPointName MUST NOT use the nameRelativeToCRLIssuer
+alternative when cRLIssuer contains more than one distinguished name.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If the DistributionPoint omits the reasons field, the CRL MUST
+include revocation information for all reasons.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+When a conforming
+CA includes a cRLDistributionPoints extension in a certificate, it
+MUST include at least one DistributionPoint that points to a CRL that
+covers the certificate for all reasons.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If present, the cRLIssuer MUST only contain the distinguished name
+(DN) from the issuer field of the CRL to which the DistributionPoint
+is pointing.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+The encoding of the name in the cRLIssuer field MUST be
+exactly the same as the encoding in issuer field of the CRL.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If the
+cRLIssuer field is included and the DN in that field does not
+correspond to an X.500 or LDAP directory entry where CRL is located,
+then conforming CAs MUST include the distributionPoint field.
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+DistributionPoint ::= SEQUENCE {
+distributionPoint       [0]     DistributionPointName OPTIONAL,
+reasons                 [1]     ReasonFlags OPTIONAL,
+cRLIssuer               [2]     GeneralNames OPTIONAL }
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+DistributionPoint ::= SEQUENCE {
+distributionPoint       [0]     DistributionPointName OPTIONAL,
+reasons                 [1]     ReasonFlags OPTIONAL,
+cRLIssuer               [2]     GeneralNames OPTIONAL }
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+DistributionPoint ::= SEQUENCE {
+distributionPoint       [0]     DistributionPointName OPTIONAL,
+reasons                 [1]     ReasonFlags OPTIONAL,
+cRLIssuer               [2]     GeneralNames OPTIONAL }
+'''
+

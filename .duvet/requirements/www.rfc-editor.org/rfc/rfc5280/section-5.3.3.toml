@@ -1,0 +1,54 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-5.3.3"
+
+# Certificate Issuer
+#
+#    This CRL entry extension identifies the certificate issuer associated
+#    with an entry in an indirect CRL, that is, a CRL that has the
+#    indirectCRL indicator set in its issuing distribution point
+#    extension.  When present, the certificate issuer CRL entry extension
+#    includes one or more names from the issuer field and/or issuer
+#    alternative name extension of the certificate that corresponds to the
+#    CRL entry.  If this extension is not present on the first entry in an
+#    indirect CRL, the certificate issuer defaults to the CRL issuer.  On
+# 
+#    subsequent entries in an indirect CRL, if this extension is not
+#    present, the certificate issuer for the entry is the same as that for
+#    the preceding entry.  This field is defined as follows:
+# 
+#    id-ce-certificateIssuer   OBJECT IDENTIFIER ::= { id-ce 29 }
+# 
+#    CertificateIssuer ::=     GeneralNames
+# 
+#    Conforming CRL issuers MUST include in this extension the
+#    distinguished name (DN) from the issuer field of the certificate that
+#    corresponds to this CRL entry.  The encoding of the DN MUST be
+#    identical to the encoding used in the certificate.
+# 
+#    CRL issuers MUST mark this extension as critical since an
+#    implementation that ignored this extension could not correctly
+#    attribute CRL entries to certificates.  This specification RECOMMENDS
+#    that implementations recognize this extension.
+
+[[spec]]
+level = "MUST"
+quote = '''
+Conforming CRL issuers MUST include in this extension the
+distinguished name (DN) from the issuer field of the certificate that
+corresponds to this CRL entry.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+The encoding of the DN MUST be
+identical to the encoding used in the certificate.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+CRL issuers MUST mark this extension as critical since an
+implementation that ignored this extension could not correctly
+attribute CRL entries to certificates.
+'''
+

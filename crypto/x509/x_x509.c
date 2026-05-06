@@ -71,14 +71,16 @@ static int x509_cb(int operation, ASN1_VALUE **pval, const ASN1_ITEM *it,
         }
       }
 
-      // Per RFC 5280, section 4.1.2.8, these fields require v2 or v3.
+      //= https://www.rfc-editor.org/rfc/rfc5280#section-4.1.2.8
+      //# These fields MUST NOT appear if the version is 1.
       if (version == X509_VERSION_1 && (ret->cert_info->issuerUID != NULL ||
                                         ret->cert_info->subjectUID != NULL)) {
         OPENSSL_PUT_ERROR(X509, X509_R_INVALID_FIELD_FOR_VERSION);
         return 0;
       }
 
-      // Per RFC 5280, section 4.1.2.9, extensions require v3.
+      //= https://www.rfc-editor.org/rfc/rfc5280#section-4.1.2.9
+      //# This field MUST only appear if the version is 3 (Section 4.1.2.1).
       if (version != X509_VERSION_3 && ret->cert_info->extensions != NULL) {
         OPENSSL_PUT_ERROR(X509, X509_R_INVALID_FIELD_FOR_VERSION);
         return 0;

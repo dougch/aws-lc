@@ -1,0 +1,45 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-4.1.2.8"
+
+# Unique Identifiers
+#
+#    These fields MUST only appear if the version is 2 or 3 (Section
+#    4.1.2.1).  These fields MUST NOT appear if the version is 1.  The
+#    subject and issuer unique identifiers are present in the certificate
+#    to handle the possibility of reuse of subject and/or issuer names
+#    over time.  This profile RECOMMENDS that names not be reused for
+#    different entities and that Internet certificates not make use of
+#    unique identifiers.  CAs conforming to this profile MUST NOT generate
+#    certificates with unique identifiers.  Applications conforming to
+# 
+#    this profile SHOULD be capable of parsing certificates that include
+#    unique identifiers, but there are no processing requirements
+#    associated with the unique identifiers.
+
+[[spec]]
+level = "MUST"
+quote = '''
+These fields MUST only appear if the version is 2 or 3 (Section
+4.1.2.1).
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+These fields MUST NOT appear if the version is 1.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+CAs conforming to this profile MUST NOT generate
+certificates with unique identifiers.
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+this profile SHOULD be capable of parsing certificates that include
+unique identifiers, but there are no processing requirements
+associated with the unique identifiers.
+'''
+

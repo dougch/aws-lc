@@ -1,0 +1,39 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-5.2"
+
+# CRL Extensions
+#
+#    The extensions defined by ANSI X9, ISO/IEC, and ITU-T for X.509 v2
+#    CRLs [X.509] [X9.55] provide methods for associating additional
+#    attributes with CRLs.  The X.509 v2 CRL format also allows
+#    communities to define private extensions to carry information unique
+#    to those communities.  Each extension in a CRL may be designated as
+#    critical or non-critical.  If a CRL contains a critical extension
+#    that the application cannot process, then the application MUST NOT
+#    use that CRL to determine the status of certificates.  However,
+#    applications may ignore unrecognized non-critical extensions.  The
+#    following subsections present those extensions used within Internet
+#    CRLs.  Communities may elect to include extensions in CRLs that are
+#    not defined in this specification.  However, caution should be
+#    exercised in adopting any critical extensions in CRLs that might be
+#    used in a general context.
+# 
+#    Conforming CRL issuers are REQUIRED to include the authority key
+#    identifier (Section 5.2.1) and the CRL number (Section 5.2.3)
+#    extensions in all CRLs issued.
+
+[[spec]]
+level = "MUST"
+quote = '''
+If a CRL contains a critical extension
+that the application cannot process, then the application MUST NOT
+use that CRL to determine the status of certificates.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Conforming CRL issuers are REQUIRED to include the authority key
+identifier (Section 5.2.1) and the CRL number (Section 5.2.3)
+extensions in all CRLs issued.
+'''
+

@@ -41,11 +41,11 @@ static CRYPTO_EX_DATA_CLASS g_ex_data_class =
 // CRL's IDP specifically matches the certificate's CRLDP. Always set
 // alongside CRL_SCORE_SCOPE; refines a broad in-scope match into a
 // specific one so a specific-IDP CRL outranks a broad no-IDP CRL of
-// equal freshness. 
+// equal freshness.
 //
-// This bit is placed strictly below CRL_SCORE_TIME 
-// so that an invalid specific-IDP CRL cannot win over a valid broad CRL. 
-// A specific-IDP CRL must still be fresh (TIME) and free of unhandled critical 
+// This bit is placed strictly below CRL_SCORE_TIME
+// so that an invalid specific-IDP CRL cannot win over a valid broad CRL.
+// A specific-IDP CRL must still be fresh (TIME) and free of unhandled critical
 // extensions (NOCRITICAL) to qualify as valid.
 #define CRL_SCORE_IDP_MATCH 0x040
 
@@ -147,6 +147,11 @@ static X509 *lookup_cert_match(X509_STORE_CTX *ctx, X509 *x) {
   return xtmp;
 }
 
+//= https://www.rfc-editor.org/rfc/rfc5280#section-6.1.1
+//# (h)  initial-permitted-subtrees, which indicates for each name
+//# type (e.g., X.500 distinguished names, email addresses, or IP
+//# addresses) a set of subtrees within which all subject names
+//# in every certificate in the certification path MUST fall.
 int X509_verify_cert(X509_STORE_CTX *ctx) {
   X509 *xtmp, *xtmp2, *chain_ss = NULL;
   int bad_chain = 0;
@@ -169,6 +174,33 @@ int X509_verify_cert(X509_STORE_CTX *ctx) {
     return -1;
   }
 
+  //= https://www.rfc-editor.org/rfc/rfc5280#section-5.2.4
+  //= type=exception
+  //# When a conforming CRL issuer generates a delta CRL, the delta CRL
+  //# MUST include a critical delta CRL indicator extension.
+  //
+  //= https://www.rfc-editor.org/rfc/rfc5280#section-6.3.3
+  //= type=exception
+  //# If use-deltas is set and either the certificate or the
+  //# CRL contains the freshest CRL extension, obtain a
+  //# delta CRL with a next update value that is after the
+  //# current time and can be used to update the locally
+  //# cached CRL as specified in Section 5.2.4.
+  //
+  //= https://www.rfc-editor.org/rfc/rfc5280#section-6.3.3
+  //= type=exception
+  //# If use-deltas is set, verify the issuer and scope of the
+  //# delta CRL as follows:
+  //
+  //= https://www.rfc-editor.org/rfc/rfc5280#section-6.3.3
+  //= type=exception
+  //# If use-deltas is set, then validate the signature on the
+  //# delta CRL using the public key validated in step (f).
+  //
+  //= https://www.rfc-editor.org/rfc/rfc5280#section-6.3.3
+  //= type=exception
+  //# If use-deltas is set, then search for the certificate on the
+  //# delta CRL.
   if (ctx->param->flags &
       (X509_V_FLAG_EXTENDED_CRL_SUPPORT | X509_V_FLAG_USE_DELTAS)) {
     // We do not support indirect or delta CRLs. The flags still exist for
@@ -430,7 +462,11 @@ int X509_verify_cert(X509_STORE_CTX *ctx) {
     }
   }
 
-  // We have the chain complete: now we need to check its purpose
+  //= https://www.rfc-editor.org/rfc/rfc5280#section-6.1.4
+  //# (If certificate i is a version 1 or version 2
+  //# certificate, then the application MUST either verify that
+  //# certificate i is a CA certificate through out-of-band means
+  //# or reject the certificate.
   ok = check_chain_extensions(ctx);
 
   if (!ok) {
@@ -456,8 +492,9 @@ int X509_verify_cert(X509_STORE_CTX *ctx) {
     goto end;
   }
 
-  // Check name constraints
-
+  //= https://www.rfc-editor.org/rfc/rfc5280#section-6.1.3
+  //# The certificate
+  //# MUST satisfy each of the following:
   ok = check_name_constraints(ctx);
   if (!ok) {
     goto end;
@@ -1042,6 +1079,11 @@ static int get_crl_sk(X509_STORE_CTX *ctx, X509_CRL **pcrl, X509 **pissuer,
   return 0;
 }
 
+//= https://www.rfc-editor.org/rfc/rfc5280#section-6.3.3
+//# The trust anchor for the certification
+//# path MUST be the same as the trust anchor used to validate
+//# the target certificate.
+//
 // For a given CRL return how suitable it is for the supplied certificate
 // 'x'. The return value is a mask of several criteria. If the issuer is not
 // the certificate issuer this is returned in *pissuer.
@@ -1055,11 +1097,19 @@ static int get_crl_score(X509_STORE_CTX *ctx, X509 **pissuer, X509_CRL *crl,
   if (crl->idp_flags & IDP_INVALID) {
     return 0;
   }
-  // Reason codes and indirect CRLs are not supported.
+  //= https://www.rfc-editor.org/rfc/rfc5280#section-6.3.3
+  //= type=exception
+  //= reason=aws-lc does not support indirect CRLs or CRLs partitioned by reason code.
+  //# If the DP includes cRLIssuer, then verify that the issuer
+  //# field in the complete CRL matches cRLIssuer in the DP and
+  //# that the complete CRL contains an issuing distribution
+  //# point extension with the indirectCRL boolean asserted.
   if (crl->idp_flags & (IDP_INDIRECT | IDP_REASONS)) {
     return 0;
   }
-  // We do not support indirect CRLs, so the issuer names must match.
+  //= https://www.rfc-editor.org/rfc/rfc5280#section-6.3.3
+  //# Otherwise, verify that the CRL issuer matches the
+  //# certificate issuer.
   if (X509_NAME_cmp(X509_get_issuer_name(x), X509_CRL_get_issuer(crl))) {
     return 0;
   }
@@ -1194,9 +1244,23 @@ static int idp_check_dp(DIST_POINT_NAME *a, DIST_POINT_NAME *b) {
 // Check CRLDP and IDP. Return true when the CRL is a good
 // candidate CRL from which to check revocation of the certificate.
 static int crl_crldp_check(X509 *x, X509_CRL *crl, int crl_score, int *idp_match) {
+  //= https://www.rfc-editor.org/rfc/rfc5280#section-6.3.3
+  //# Verify that the onlyContainsAttributeCerts boolean is
+  //# not asserted.
   if (crl->idp_flags & IDP_ONLYATTR) {
     return 0;
   }
+  //= https://www.rfc-editor.org/rfc/rfc5280#section-6.3.3
+  //# If the onlyContainsUserCerts boolean is asserted in
+  //# the IDP CRL extension, verify that the certificate
+  //# does not include the basic constraints extension with
+  //# the cA boolean asserted.
+  //
+  //= https://www.rfc-editor.org/rfc/rfc5280#section-6.3.3
+  //# If the onlyContainsCACerts boolean is asserted in the
+  //# IDP CRL extension, verify that the certificate
+  //# includes the basic constraints extension with the cA
+  //# boolean asserted.
   if (x->ex_flags & EXFLAG_CA) {
     if (crl->idp_flags & IDP_ONLYUSER) {
       return 0;
@@ -1309,7 +1373,10 @@ static int check_crl(X509_STORE_CTX *ctx, X509_CRL *crl) {
   }
 
   if (issuer) {
-    // Check for cRLSign bit if keyUsage present
+    //= https://www.rfc-editor.org/rfc/rfc5280#section-6.3.3
+    //# If a key usage extension is present
+    //# in the CRL issuer's certificate, verify that the cRLSign bit
+    //# is set.
     if ((issuer->ex_flags & EXFLAG_KUSAGE) &&
         !(issuer->ex_kusage & X509v3_KU_CRL_SIGN)) {
       ctx->error = X509_V_ERR_KEYUSAGE_NO_CRL_SIGN;
@@ -1346,7 +1413,9 @@ static int check_crl(X509_STORE_CTX *ctx, X509_CRL *crl) {
         return 0;
       }
     } else {
-      // Verify CRL signature
+      //= https://www.rfc-editor.org/rfc/rfc5280#section-6.3.3
+      //# Validate the signature on the complete CRL using the public
+      //# key validated in step (f).
       if (X509_CRL_verify(crl, ikey) <= 0) {
         ctx->error = X509_V_ERR_CRL_SIGNATURE_FAILURE;
         if (!call_verify_cb(0, ctx)) {
@@ -1375,7 +1444,9 @@ static int cert_crl(X509_STORE_CTX *ctx, X509_CRL *crl, X509 *x) {
       return 0;
     }
   }
-  // Look for serial number of certificate in CRL.
+  //= https://www.rfc-editor.org/rfc/rfc5280#section-6.3.3
+  //# If (cert_status is UNREVOKED), then search for the
+  //# certificate on the complete CRL.
   if (X509_CRL_get0_by_cert(crl, &rev, x)) {
     ctx->error = X509_V_ERR_CERT_REVOKED;
     ok = call_verify_cb(0, ctx);

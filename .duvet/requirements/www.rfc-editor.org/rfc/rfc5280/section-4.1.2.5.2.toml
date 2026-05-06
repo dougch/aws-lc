@@ -1,0 +1,38 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-4.1.2.5.2"
+
+# GeneralizedTime
+#
+#    The generalized time type, GeneralizedTime, is a standard ASN.1 type
+#    for variable precision representation of time.  Optionally, the
+#    GeneralizedTime field can include a representation of the time
+#    differential between local and Greenwich Mean Time.
+# 
+#    For the purposes of this profile, GeneralizedTime values MUST be
+#    expressed in Greenwich Mean Time (Zulu) and MUST include seconds
+#    (i.e., times are YYYYMMDDHHMMSSZ), even where the number of seconds
+#    is zero.  GeneralizedTime values MUST NOT include fractional seconds.
+
+[[spec]]
+level = "MUST"
+quote = '''
+For the purposes of this profile, GeneralizedTime values MUST be
+expressed in Greenwich Mean Time (Zulu) and MUST include seconds
+(i.e., times are YYYYMMDDHHMMSSZ), even where the number of seconds
+is zero.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+For the purposes of this profile, GeneralizedTime values MUST be
+expressed in Greenwich Mean Time (Zulu) and MUST include seconds
+(i.e., times are YYYYMMDDHHMMSSZ), even where the number of seconds
+is zero.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+GeneralizedTime values MUST NOT include fractional seconds.
+'''
+

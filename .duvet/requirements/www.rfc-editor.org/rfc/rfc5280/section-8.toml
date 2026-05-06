@@ -1,0 +1,328 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-8"
+
+# Security Considerations
+#
+#    The majority of this specification is devoted to the format and
+#    content of certificates and CRLs.  Since certificates and CRLs are
+#    digitally signed, no additional integrity service is necessary.
+#    Neither certificates nor CRLs need be kept secret, and unrestricted
+#    and anonymous access to certificates and CRLs has no security
+#    implications.
+# 
+#    However, security factors outside the scope of this specification
+#    will affect the assurance provided to certificate users.  This
+#    section highlights critical issues to be considered by implementers,
+#    administrators, and users.
+# 
+#    The procedures performed by CAs and RAs to validate the binding of
+#    the subject's identity to their public key greatly affect the
+#    assurance that ought to be placed in the certificate.  Relying
+# 
+#    parties might wish to review the CA's certification practice
+#    statement.  This is particularly important when issuing certificates
+#    to other CAs.
+# 
+#    The use of a single key pair for both signature and other purposes is
+#    strongly discouraged.  Use of separate key pairs for signature and
+#    key management provides several benefits to the users.  The
+#    ramifications associated with loss or disclosure of a signature key
+#    are different from loss or disclosure of a key management key.  Using
+#    separate key pairs permits a balanced and flexible response.
+#    Similarly, different validity periods or key lengths for each key
+#    pair may be appropriate in some application environments.
+#    Unfortunately, some legacy applications (e.g., Secure Sockets Layer
+#    (SSL)) use a single key pair for signature and key management.
+# 
+#    The protection afforded private keys is a critical security factor.
+#    On a small scale, failure of users to protect their private keys will
+#    permit an attacker to masquerade as them or decrypt their personal
+#    information.  On a larger scale, compromise of a CA's private signing
+#    key may have a catastrophic effect.  If an attacker obtains the
+#    private key unnoticed, the attacker may issue bogus certificates and
+#    CRLs.  Existence of bogus certificates and CRLs will undermine
+#    confidence in the system.  If such a compromise is detected, all
+#    certificates issued to the compromised CA MUST be revoked, preventing
+#    services between its users and users of other CAs.  Rebuilding after
+#    such a compromise will be problematic, so CAs are advised to
+#    implement a combination of strong technical measures (e.g., tamper-
+#    resistant cryptographic modules) and appropriate management
+#    procedures (e.g., separation of duties) to avoid such an incident.
+# 
+#    Loss of a CA's private signing key may also be problematic.  The CA
+#    would not be able to produce CRLs or perform normal key rollover.
+#    CAs SHOULD maintain secure backup for signing keys.  The security of
+#    the key backup procedures is a critical factor in avoiding key
+#    compromise.
+# 
+#    The availability and freshness of revocation information affects the
+#    degree of assurance that ought to be placed in a certificate.  While
+#    certificates expire naturally, events may occur during its natural
+#    lifetime that negate the binding between the subject and public key.
+#    If revocation information is untimely or unavailable, the assurance
+#    associated with the binding is clearly reduced.  Relying parties
+#    might not be able to process every critical extension that can appear
+#    in a CRL.  CAs SHOULD take extra care when making revocation
+#    information available only through CRLs that contain critical
+#    extensions, particularly if support for those extensions is not
+#    mandated by this profile.  For example, if revocation information is
+#    supplied using a combination of delta CRLs and full CRLs, and the
+# 
+#    delta CRLs are issued more frequently than the full CRLs, then
+#    relying parties that cannot handle the critical extensions related to
+#    delta CRL processing will not be able to obtain the most recent
+#    revocation information.  Alternatively, if a full CRL is issued
+#    whenever a delta CRL is issued, then timely revocation information
+#    will be available to all relying parties.  Similarly, implementations
+#    of the certification path validation mechanism described in Section 6
+#    that omit revocation checking provide less assurance than those that
+#    support it.
+# 
+#    The certification path validation algorithm depends on the certain
+#    knowledge of the public keys (and other information) about one or
+#    more trusted CAs.  The decision to trust a CA is an important
+#    decision as it ultimately determines the trust afforded a
+#    certificate.  The authenticated distribution of trusted CA public
+#    keys (usually in the form of a "self-signed" certificate) is a
+#    security critical out-of-band process that is beyond the scope of
+#    this specification.
+# 
+#    In addition, where a key compromise or CA failure occurs for a
+#    trusted CA, the user will need to modify the information provided to
+#    the path validation routine.  Selection of too many trusted CAs makes
+#    the trusted CA information difficult to maintain.  On the other hand,
+#    selection of only one trusted CA could limit users to a closed
+#    community of users.
+# 
+#    The quality of implementations that process certificates also affects
+#    the degree of assurance provided.  The path validation algorithm
+#    described in Section 6 relies upon the integrity of the trusted CA
+#    information, and especially the integrity of the public keys
+#    associated with the trusted CAs.  By substituting public keys for
+#    which an attacker has the private key, an attacker could trick the
+#    user into accepting false certificates.
+# 
+#    The binding between a key and certificate subject cannot be stronger
+#    than the cryptographic module implementation and algorithms used to
+#    generate the signature.  Short key lengths or weak hash algorithms
+#    will limit the utility of a certificate.  CAs are encouraged to note
+#    advances in cryptology so they can employ strong cryptographic
+#    techniques.  In addition, CAs SHOULD decline to issue certificates to
+#    CAs or end entities that generate weak signatures.
+# 
+#    Inconsistent application of name comparison rules can result in
+#    acceptance of invalid X.509 certification paths or rejection of valid
+#    ones.  The X.500 series of specifications defines rules for comparing
+#    distinguished names that require comparison of strings without regard
+# 
+#    to case, character set, multi-character white space substring, or
+#    leading and trailing white space.  This specification relaxes these
+#    requirements, requiring support for binary comparison at a minimum.
+# 
+#    CAs MUST encode the distinguished name in the subject field of a CA
+#    certificate identically to the distinguished name in the issuer field
+#    in certificates issued by that CA.  If CAs use different encodings,
+#    implementations might fail to recognize name chains for paths that
+#    include this certificate.  As a consequence, valid paths could be
+#    rejected.
+# 
+#    In addition, name constraints for distinguished names MUST be stated
+#    identically to the encoding used in the subject field or
+#    subjectAltName extension.  If not, then name constraints stated as
+#    excludedSubtrees will not match and invalid paths will be accepted
+#    and name constraints expressed as permittedSubtrees will not match
+#    and valid paths will be rejected.  To avoid acceptance of invalid
+#    paths, CAs SHOULD state name constraints for distinguished names as
+#    permittedSubtrees wherever possible.
+# 
+#    In general, using the nameConstraints extension to constrain one name
+#    form (e.g., DNS names) offers no protection against use of other name
+#    forms (e.g., electronic mail addresses).
+# 
+#    While X.509 mandates that names be unambiguous, there is a risk that
+#    two unrelated authorities will issue certificates and/or CRLs under
+#    the same issuer name.  As a means of reducing problems and security
+#    issues related to issuer name collisions, CA and CRL issuer names
+#    SHOULD be formed in a way that reduces the likelihood of name
+#    collisions.  Implementers should take into account the possible
+#    existence of multiple unrelated CAs and CRL issuers with the same
+#    name.  At a minimum, implementations validating CRLs MUST ensure that
+#    the certification path of a certificate and the CRL issuer
+#    certification path used to validate the certificate terminate at the
+#    same trust anchor.
+# 
+#    While the local-part of an electronic mail address is case sensitive
+#    [RFC2821], emailAddress attribute values are not case sensitive
+#    [RFC2985].  As a result, there is a risk that two different email
+#    addresses will be treated as the same address when the matching rule
+#    for the emailAddress attribute is used, if the email server exploits
+#    the case sensitivity of mailbox local-parts.  Implementers should not
+#    include an email address in the emailAddress attribute if the email
+#    server that hosts the email address treats the local-part of email
+#    addresses as case sensitive.
+# 
+#    Implementers should be aware of risks involved if the CRL
+#    distribution points or authority information access extensions of
+# 
+#    corrupted certificates or CRLs contain links to malicious code.
+#    Implementers should always take the steps of validating the retrieved
+#    data to ensure that the data is properly formed.
+# 
+#    When certificates include a cRLDistributionPoints extension with an
+#    https URI or similar scheme, circular dependencies can be introduced.
+#    The relying party is forced to perform an additional path validation
+#    in order to obtain the CRL required to complete the initial path
+#    validation!  Circular conditions can also be created with an https
+#    URI (or similar scheme) in the authorityInfoAccess or
+#    subjectInfoAccess extensions.  At worst, this situation can create
+#    unresolvable dependencies.
+# 
+#    CAs SHOULD NOT include URIs that specify https, ldaps, or similar
+#    schemes in extensions.  CAs that include an https URI in one of these
+#    extensions MUST ensure that the server's certificate can be validated
+#    without using the information that is pointed to by the URI.  Relying
+#    parties that choose to validate the server's certificate when
+#    obtaining information pointed to by an https URI in the
+#    cRLDistributionPoints, authorityInfoAccess, or subjectInfoAccess
+#    extensions MUST be prepared for the possibility that this will result
+#    in unbounded recursion.
+# 
+#    Self-issued certificates provide CAs with one automated mechanism to
+#    indicate changes in the CA's operations.  In particular, self-issued
+#    certificates may be used to implement a graceful change-over from one
+#    non-compromised CA key pair to the next.  Detailed procedures for "CA
+#    key update" are specified in [RFC4210], where the CA protects its new
+#    public key using its previous private key and vice versa using two
+#    self-issued certificates.  Conforming client implementations will
+#    process the self-issued certificate and determine whether
+#    certificates issued under the new key may be trusted.  Self-issued
+#    certificates MAY be used to support other changes in CA operations,
+#    such as additions to the CA's policy set, using similar procedures.
+# 
+#    Some legacy implementations support names encoded in the ISO 8859-1
+#    character set (Latin1String) [ISO8859] but tag them as TeletexString.
+#    TeletexString encodes a larger character set than ISO 8859-1, but it
+#    encodes some characters differently.  The name comparison rules
+#    specified in Section 7.1 assume that TeletexStrings are encoded as
+#    described in the ASN.1 standard.  When comparing names encoded using
+#    the Latin1String character set, false positives and negatives are
+#    possible.
+# 
+#    When strings are mapped from internal representations to visual
+#    representations, sometimes two different strings will have the same
+#    or similar visual representations.  This can happen for many
+#    different reasons, including use of similar glyphs and use of
+# 
+#    composed characters (such as e + ' equaling U+00E9, the Korean
+#    composed characters, and vowels above consonant clusters in certain
+#    languages).  As a result of this situation, people doing visual
+#    comparisons between two different names may think they are the same
+#    when in fact they are not.  Also, people may mistake one string for
+#    another.  Issuers of certificates and relying parties both need to be
+#    aware of this situation.
+
+[[spec]]
+level = "MUST"
+quote = '''
+If such a compromise is detected, all
+certificates issued to the compromised CA MUST be revoked, preventing
+services between its users and users of other CAs.
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+CAs SHOULD maintain secure backup for signing keys.
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+CAs SHOULD take extra care when making revocation
+information available only through CRLs that contain critical
+extensions, particularly if support for those extensions is not
+mandated by this profile.
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+In addition, CAs SHOULD decline to issue certificates to
+CAs or end entities that generate weak signatures.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+CAs MUST encode the distinguished name in the subject field of a CA
+certificate identically to the distinguished name in the issuer field
+in certificates issued by that CA.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+In addition, name constraints for distinguished names MUST be stated
+identically to the encoding used in the subject field or
+subjectAltName extension.
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+To avoid acceptance of invalid
+paths, CAs SHOULD state name constraints for distinguished names as
+permittedSubtrees wherever possible.
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+As a means of reducing problems and security
+issues related to issuer name collisions, CA and CRL issuer names
+SHOULD be formed in a way that reduces the likelihood of name
+collisions.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+At a minimum, implementations validating CRLs MUST ensure that
+the certification path of a certificate and the CRL issuer
+certification path used to validate the certificate terminate at the
+same trust anchor.
+'''
+
+[[spec]]
+level = "SHOULD"
+quote = '''
+CAs SHOULD NOT include URIs that specify https, ldaps, or similar
+schemes in extensions.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+CAs that include an https URI in one of these
+extensions MUST ensure that the server's certificate can be validated
+without using the information that is pointed to by the URI.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Relying
+parties that choose to validate the server's certificate when
+obtaining information pointed to by an https URI in the
+cRLDistributionPoints, authorityInfoAccess, or subjectInfoAccess
+extensions MUST be prepared for the possibility that this will result
+in unbounded recursion.
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+Self-issued
+certificates MAY be used to support other changes in CA operations,
+such as additions to the CA's policy set, using similar procedures.
+'''
+

@@ -1,0 +1,51 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-6"
+
+# Certification Path Validation
+#
+#    Certification path validation procedures for the Internet PKI are
+#    based on the algorithm supplied in [X.509].  Certification path
+#    processing verifies the binding between the subject distinguished
+#    name and/or subject alternative name and subject public key.  The
+#    binding is limited by constraints that are specified in the
+#    certificates that comprise the path and inputs that are specified by
+#    the relying party.  The basic constraints and policy constraints
+#    extensions allow the certification path processing logic to automate
+#    the decision making process.
+# 
+#    This section describes an algorithm for validating certification
+#    paths.  Conforming implementations of this specification are not
+#    required to implement this algorithm, but MUST provide functionality
+#    equivalent to the external behavior resulting from this procedure.
+#    Any algorithm may be used by a particular implementation so long as
+#    it derives the correct result.
+# 
+#    In Section 6.1, the text describes basic path validation.  Valid
+#    paths begin with certificates issued by a trust anchor.  The
+#    algorithm requires the public key of the CA, the CA's name, and any
+#    constraints upon the set of paths that may be validated using this
+#    key.
+# 
+#    The selection of a trust anchor is a matter of policy: it could be
+#    the top CA in a hierarchical PKI, the CA that issued the verifier's
+#    own certificate(s), or any other CA in a network PKI.  The path
+# 
+#    validation procedure is the same regardless of the choice of trust
+#    anchor.  In addition, different applications may rely on different
+#    trust anchors, or may accept paths that begin with any of a set of
+#    trust anchors.
+# 
+#    Section 6.2 describes methods for using the path validation algorithm
+#    in specific implementations.
+# 
+#    Section 6.3 describes the steps necessary to determine if a
+#    certificate is revoked when CRLs are the revocation mechanism used by
+#    the certificate issuer.
+
+[[spec]]
+level = "MUST"
+quote = '''
+Conforming implementations of this specification are not
+required to implement this algorithm, but MUST provide functionality
+equivalent to the external behavior resulting from this procedure.
+'''
+

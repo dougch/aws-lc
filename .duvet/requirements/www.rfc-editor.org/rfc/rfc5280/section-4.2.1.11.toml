@@ -1,0 +1,113 @@
+target = "https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.11"
+
+# Policy Constraints
+#
+#    The policy constraints extension can be used in certificates issued
+#    to CAs.  The policy constraints extension constrains path validation
+#    in two ways.  It can be used to prohibit policy mapping or require
+#    that each certificate in a path contain an acceptable policy
+#    identifier.
+# 
+#    If the inhibitPolicyMapping field is present, the value indicates the
+#    number of additional certificates that may appear in the path before
+#    policy mapping is no longer permitted.  For example, a value of one
+#    indicates that policy mapping may be processed in certificates issued
+#    by the subject of this certificate, but not in additional
+#    certificates in the path.
+# 
+#    If the requireExplicitPolicy field is present, the value of
+#    requireExplicitPolicy indicates the number of additional certificates
+#    that may appear in the path before an explicit policy is required for
+#    the entire path.  When an explicit policy is required, it is
+#    necessary for all certificates in the path to contain an acceptable
+#    policy identifier in the certificate policies extension.  An
+#    acceptable policy identifier is the identifier of a policy required
+#    by the user of the certification path or the identifier of a policy
+#    that has been declared equivalent through policy mapping.
+# 
+#    Conforming applications MUST be able to process the
+#    requireExplicitPolicy field and SHOULD be able to process the
+#    inhibitPolicyMapping field.  Applications that support the
+#    inhibitPolicyMapping field MUST also implement support for the
+#    policyMappings extension.  If the policyConstraints extension is
+#    marked as critical and the inhibitPolicyMapping field is present,
+#    applications that do not implement support for the
+#    inhibitPolicyMapping field MUST reject the certificate.
+# 
+#    Conforming CAs MUST NOT issue certificates where policy constraints
+#    is an empty sequence.  That is, either the inhibitPolicyMapping field
+#    or the requireExplicitPolicy field MUST be present.  The behavior of
+#    clients that encounter an empty policy constraints field is not
+#    addressed in this profile.
+# 
+#    Conforming CAs MUST mark this extension as critical.
+# 
+#    id-ce-policyConstraints OBJECT IDENTIFIER ::=  { id-ce 36 }
+# 
+#    PolicyConstraints ::= SEQUENCE {
+#         requireExplicitPolicy           [0] SkipCerts OPTIONAL,
+#         inhibitPolicyMapping            [1] SkipCerts OPTIONAL }
+# 
+#    SkipCerts ::= INTEGER (0..MAX)
+
+[[spec]]
+level = "MUST"
+quote = '''
+Conforming applications MUST be able to process the
+requireExplicitPolicy field and SHOULD be able to process the
+inhibitPolicyMapping field.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Applications that support the
+inhibitPolicyMapping field MUST also implement support for the
+policyMappings extension.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If the policyConstraints extension is
+marked as critical and the inhibitPolicyMapping field is present,
+applications that do not implement support for the
+inhibitPolicyMapping field MUST reject the certificate.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Conforming CAs MUST NOT issue certificates where policy constraints
+is an empty sequence.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+That is, either the inhibitPolicyMapping field
+or the requireExplicitPolicy field MUST be present.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Conforming CAs MUST mark this extension as critical.
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+PolicyConstraints ::= SEQUENCE {
+requireExplicitPolicy           [0] SkipCerts OPTIONAL,
+inhibitPolicyMapping            [1] SkipCerts OPTIONAL }
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+PolicyConstraints ::= SEQUENCE {
+requireExplicitPolicy           [0] SkipCerts OPTIONAL,
+inhibitPolicyMapping            [1] SkipCerts OPTIONAL }
+'''
+
