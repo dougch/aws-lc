@@ -22,6 +22,10 @@ static void *v2i_AUTHORITY_KEYID(const X509V3_EXT_METHOD *method,
                                  const X509V3_CTX *ctx,
                                  const STACK_OF(CONF_VALUE) *values);
 
+//= https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.1
+//# The identification MAY be based on either the
+//# key identifier (the subject key identifier in the issuer's
+//# certificate) or the issuer name and serial number.
 const X509V3_EXT_METHOD v3_akey_id = {
     NID_authority_key_identifier,
     X509V3_EXT_MULTILINE,

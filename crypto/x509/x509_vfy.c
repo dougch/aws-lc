@@ -714,6 +714,11 @@ static int check_chain_extensions(X509_STORE_CTX *ctx) {
     }
 
     int must_be_ca = i > 0;
+    //= https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.9
+    //# If the basic constraints extension is not present in a
+    //# version 3 certificate, or the extension is present but the cA boolean
+    //# is not asserted, then the certified public key MUST NOT be used to
+    //# verify certificate signatures.
     if (must_be_ca && !X509_check_ca(x)) {
       ctx->error = X509_V_ERR_INVALID_CA;
       ctx->error_depth = i;

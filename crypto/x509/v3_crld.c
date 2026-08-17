@@ -21,6 +21,9 @@ static void *v2i_crld(const X509V3_EXT_METHOD *method, const X509V3_CTX *ctx,
 static int i2r_crldp(const X509V3_EXT_METHOD *method, void *pcrldp, BIO *out,
                      int indent);
 
+//= https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.13
+//# The extension SHOULD be non-critical, but this profile
+//# RECOMMENDS support for this extension by CAs and applications.
 const X509V3_EXT_METHOD v3_crld = {
     NID_crl_distribution_points,
     0,

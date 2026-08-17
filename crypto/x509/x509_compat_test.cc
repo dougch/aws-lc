@@ -2111,6 +2111,11 @@ TEST(X509CompatTest, EECertificateWithNegativeSerialNumber) {
                    /*crls=*/{}, /*flags=*/0));
 }
 
+//= https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.10
+//# For IPv4
+//# addresses, the iPAddress field of GeneralName MUST contain eight (8)
+//# octets, encoded in the style of RFC 4632 (CIDR) to represent an
+//# address range [RFC4632].
 TEST(X509CompatTest, EECertificateWithValidNameConstrainedSubjAltIPv4) {
   bssl::UniquePtr<X509> root = CertFromPEM(kValidRootCA1);
   ASSERT_TRUE(root);
@@ -2129,6 +2134,12 @@ TEST(X509CompatTest, EECertificateWithValidNameConstrainedSubjAltIPv4) {
                               }));
 }
 
+//= https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.10
+//# If a name constraints extension that is marked as critical
+//# imposes constraints on a particular name form, and an instance of
+//# that name form appears in the subject field or subjectAltName
+//# extension of a subsequent certificate, then the application MUST
+//# either process the constraint or reject the certificate.
 TEST(X509CompatTest, EECertificateWithInvalidExcludedNameConstrainedSubjAltIPv4) {
   bssl::UniquePtr<X509> root = CertFromPEM(kValidRootCA1);
   ASSERT_TRUE(root);
@@ -2144,6 +2155,12 @@ TEST(X509CompatTest, EECertificateWithInvalidExcludedNameConstrainedSubjAltIPv4)
                    /*crls=*/{}, /*flags=*/0));
 }
 
+//= https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.10
+//# If a name constraints extension that is marked as critical
+//# imposes constraints on a particular name form, and an instance of
+//# that name form appears in the subject field or subjectAltName
+//# extension of a subsequent certificate, then the application MUST
+//# either process the constraint or reject the certificate.
 TEST(X509CompatTest, EECertificateWithInvalidPermittedNameConstrainedSubjAltIPv4) {
   bssl::UniquePtr<X509> root = CertFromPEM(kValidRootCA1);
   ASSERT_TRUE(root);
@@ -2159,6 +2176,9 @@ TEST(X509CompatTest, EECertificateWithInvalidPermittedNameConstrainedSubjAltIPv4
                    /*crls=*/{}, /*flags=*/0));
 }
 
+//= https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.10
+//# For IPv6 addresses, the iPAddress field
+//# MUST contain 32 octets similarly encoded.
 TEST(X509CompatTest, EECertificateWithValidNameConstrainedSubjAltIPv6) {
   bssl::UniquePtr<X509> root = CertFromPEM(kValidRootCA1);
   ASSERT_TRUE(root);
@@ -2177,6 +2197,12 @@ TEST(X509CompatTest, EECertificateWithValidNameConstrainedSubjAltIPv6) {
                               }));
 }
 
+//= https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.10
+//# If a name constraints extension that is marked as critical
+//# imposes constraints on a particular name form, and an instance of
+//# that name form appears in the subject field or subjectAltName
+//# extension of a subsequent certificate, then the application MUST
+//# either process the constraint or reject the certificate.
 TEST(X509CompatTest,
      EECertificateWithInvalidExcludedNameConstrainedSubjAltIPv6) {
   bssl::UniquePtr<X509> root = CertFromPEM(kValidRootCA1);
@@ -2193,6 +2219,12 @@ TEST(X509CompatTest,
                    /*crls=*/{}, /*flags=*/0));
 }
 
+//= https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.10
+//# If a name constraints extension that is marked as critical
+//# imposes constraints on a particular name form, and an instance of
+//# that name form appears in the subject field or subjectAltName
+//# extension of a subsequent certificate, then the application MUST
+//# either process the constraint or reject the certificate.
 TEST(X509CompatTest,
      EECertificateWithInvalidPermittedNameConstrainedSubjAltIPv6) {
   bssl::UniquePtr<X509> root = CertFromPEM(kValidRootCA1);
@@ -2209,6 +2241,11 @@ TEST(X509CompatTest,
                    /*crls=*/{}, /*flags=*/0));
 }
 
+//= https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.10
+//# For IPv4
+//# addresses, the iPAddress field of GeneralName MUST contain eight (8)
+//# octets, encoded in the style of RFC 4632 (CIDR) to represent an
+//# address range [RFC4632].
 TEST(X509CompatTest, EECertificateWithIPv4SANIssuedByCAWithBadNameConstraint) {
   bssl::UniquePtr<X509> root = CertFromPEM(kValidRootCA1);
   ASSERT_TRUE(root);
@@ -2224,6 +2261,9 @@ TEST(X509CompatTest, EECertificateWithIPv4SANIssuedByCAWithBadNameConstraint) {
                    /*crls=*/{}, /*flags=*/0));
 }
 
+//= https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.10
+//# For IPv6 addresses, the iPAddress field
+//# MUST contain 32 octets similarly encoded.
 TEST(X509CompatTest, EECertificateWithIPv6SANIssuedByCAWithBadNameConstraint) {
   bssl::UniquePtr<X509> root = CertFromPEM(kValidRootCA1);
   ASSERT_TRUE(root);
@@ -2239,6 +2279,9 @@ TEST(X509CompatTest, EECertificateWithIPv6SANIssuedByCAWithBadNameConstraint) {
                    /*crls=*/{}, /*flags=*/0));
 }
 
+//= https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.10
+//# The syntax of iPAddress MUST be as described in Section 4.2.1.6 with
+//# the following additions specifically for name constraints.
 TEST(X509CompatTest, EECertificateWithIPSANIssuedByCAWithBadNameConstraint) {
   bssl::UniquePtr<X509> root = CertFromPEM(kValidRootCA1);
   ASSERT_TRUE(root);
@@ -2320,6 +2363,12 @@ TEST(X509CompatTest, IpCidrNetmaskTest) {
   }
 }
 
+//= https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.10
+//# Applications conforming to this profile MUST be able to process name
+//# constraints that are imposed on the directoryName name form and
+//# SHOULD be able to process name constraints that are imposed on the
+//# rfc822Name, uniformResourceIdentifier, dNSName, and iPAddress name
+//# forms.
 TEST(X509CompatTest, EECertificate1WithValidSANBoundByNameConstraints) {
   bssl::UniquePtr<X509> root = CertFromPEM(kValidRootCA1);
   ASSERT_TRUE(root);
@@ -2339,6 +2388,12 @@ TEST(X509CompatTest, EECertificate1WithValidSANBoundByNameConstraints) {
                    }));
 }
 
+//= https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.10
+//# Applications conforming to this profile MUST be able to process name
+//# constraints that are imposed on the directoryName name form and
+//# SHOULD be able to process name constraints that are imposed on the
+//# rfc822Name, uniformResourceIdentifier, dNSName, and iPAddress name
+//# forms.
 TEST(X509CompatTest, EECertificate2WithValidSANBoundByNameConstraints) {
   bssl::UniquePtr<X509> root = CertFromPEM(kValidRootCA1);
   ASSERT_TRUE(root);
@@ -2358,6 +2413,12 @@ TEST(X509CompatTest, EECertificate2WithValidSANBoundByNameConstraints) {
                    }));
 }
 
+//= https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.10
+//# If a name constraints extension that is marked as critical
+//# imposes constraints on a particular name form, and an instance of
+//# that name form appears in the subject field or subjectAltName
+//# extension of a subsequent certificate, then the application MUST
+//# either process the constraint or reject the certificate.
 TEST(X509CompatTest, EECertificate3WithInvalidSANBoundByNameConstraints) {
   bssl::UniquePtr<X509> root = CertFromPEM(kValidRootCA1);
   ASSERT_TRUE(root);

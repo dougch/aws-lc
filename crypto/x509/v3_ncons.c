@@ -683,7 +683,10 @@ static int nc_email(const ASN1_IA5STRING *eml, const ASN1_IA5STRING *base,
   int base_has_at = CBS_get_until_first(&base_cbs, &base_local, '@');
 
   if (base_has_at) {
-    // "@example.com" is not a valid constraint per RFC 5280 Sec.4.2.1.10.
+    //= https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.10
+    //# A name constraint for Internet mail addresses MAY specify a
+    //# particular mailbox, all addresses at a particular host, or all
+    //# mailboxes in a domain.
     if (CBS_len(&base_local) == 0) {
       return X509_V_ERR_UNSUPPORTED_NAME_SYNTAX;
     }
@@ -750,11 +753,19 @@ static int nc_uri(const ASN1_IA5STRING *uri, const ASN1_IA5STRING *base) {
     return X509_V_ERR_UNSUPPORTED_NAME_SYNTAX;
   }
 
-  // RFC 5280 §4.2.1.10 specifies that URI name constraints "MUST be specified
-  // as a fully qualified domain name". IPv6 literal URIs (e.g.
-  // "https://[2001:db8::1]/") are not domain names, and matching them by string
-  // comparison would be unreliable because IPv6 addresses have many equivalent
-  // textual representations. Reject them as unsupported.
+  //= https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.10
+  //# If a constraint is applied to the
+  //# uniformResourceIdentifier name form and a subsequent certificate
+  //# includes a subjectAltName extension with a uniformResourceIdentifier
+  //# that does not include an authority component with a host name
+  //# specified as a fully qualified domain name (e.g., if the URI either
+  //# does not include an authority component or includes an authority
+  //# component in which the host name is specified as an IP address), then
+  //# the application MUST reject the certificate.
+  //
+  // IPv6 literal URIs (e.g. "https://[2001:db8::1]/") are not domain names,
+  // and matching them by string comparison would be unreliable because IPv6
+  // addresses have many equivalent textual representations.
   if (starts_with(&uri_cbs, '[')) {
     return X509_V_ERR_UNSUPPORTED_NAME_SYNTAX;
   }
@@ -799,7 +810,16 @@ static int nc_uri(const ASN1_IA5STRING *uri, const ASN1_IA5STRING *base) {
     CBS_get_last_u8(&base_cbs, &unused);
   }
 
-  // RFC 5280 §4.2.1.10 requires the host to be a fully qualified domain name.
+  //= https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.10
+  //# If a constraint is applied to the
+  //# uniformResourceIdentifier name form and a subsequent certificate
+  //# includes a subjectAltName extension with a uniformResourceIdentifier
+  //# that does not include an authority component with a host name
+  //# specified as a fully qualified domain name (e.g., if the URI either
+  //# does not include an authority component or includes an authority
+  //# component in which the host name is specified as an IP address), then
+  //# the application MUST reject the certificate.
+  //
   // Validate that the host contains only characters valid in a DNS name
   // (RFC 1034 §3.5): letters, digits, hyphens, and dots. This rejects
   // percent-encoded hosts and any other non-FQDN syntax, preventing
