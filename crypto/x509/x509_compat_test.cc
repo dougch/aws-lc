@@ -2025,6 +2025,10 @@ HgIhAOuNZnDiLHYroqM46RBRHOiJgn7OgKH98soGYNDmHkn4
 )";
 
 // EE certificate should not verify if signed by invalid root CA
+//= https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.9
+//# If the cA boolean is not asserted,
+//# then the keyCertSign bit in the key usage extension MUST NOT be
+//# asserted.
 TEST(X509CompatTest, CertificatesFromTrustStoreValidated) {
   bssl::UniquePtr<X509> root = CertFromPEM(kRootBadBasicConstraints);
   ASSERT_TRUE(root);
@@ -2039,6 +2043,8 @@ TEST(X509CompatTest, CertificatesFromTrustStoreValidated) {
 // Certificate should be rejected if it contains a critical AKID extension.
 // This reports a X509_V_ERR_UNHANDLED_CRITICAL_EXTENSION due to it being an
 // unhandled critical exception.
+//= https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.1
+//# Conforming CAs MUST mark this extension as non-critical.
 TEST(X509CompatTest, EECertificateWithCriticalAKID) {
   bssl::UniquePtr<X509> root = CertFromPEM(kValidRootCA1);
   ASSERT_TRUE(root);
@@ -2053,6 +2059,9 @@ TEST(X509CompatTest, EECertificateWithCriticalAKID) {
 
 // Certificate should not be rejected if it contains a critical CRL Distribution
 // Points extension.
+//= https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.13
+//# The extension SHOULD be non-critical, but this profile
+//# RECOMMENDS support for this extension by CAs and applications.
 TEST(X509CompatTest, EECertificateWithCriticalCRLDistributionPointsExt) {
   bssl::UniquePtr<X509> root = CertFromPEM(kValidRootCA1);
   ASSERT_TRUE(root);
@@ -2066,6 +2075,11 @@ TEST(X509CompatTest, EECertificateWithCriticalCRLDistributionPointsExt) {
 }
 
 // EE certificate's trust root is missing the basic constraints extension.
+//= https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.9
+//# If the basic constraints extension is not present in a
+//# version 3 certificate, or the extension is present but the cA boolean
+//# is not asserted, then the certified public key MUST NOT be used to
+//# verify certificate signatures.
 TEST(X509CompatTest, EECertificateSignedByInvalidRootMissingBasicConstraints) {
   bssl::UniquePtr<X509> root =
       CertFromPEM(kInvalidRootCertificateWithMissingBasicConstraintsExt);
@@ -2081,6 +2095,10 @@ TEST(X509CompatTest, EECertificateSignedByInvalidRootMissingBasicConstraints) {
 
 // EE certificate with negative serial number, while technically invalid per RFC
 // 5280, should pass.
+//= https://www.rfc-editor.org/rfc/rfc5280#section-4.1.2.2
+//= type=exception
+//# The serial number MUST be a positive integer assigned by the CA to
+//# each certificate.
 TEST(X509CompatTest, EECertificateWithNegativeSerialNumber) {
   bssl::UniquePtr<X509> root = CertFromPEM(kValidRootCA1);
   ASSERT_TRUE(root);
