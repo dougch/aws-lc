@@ -1,0 +1,46 @@
+'$schema' = "https://awslabs.github.io/duvet/config/v0.4.0.json"
+
+# Source patterns: the FIPS-approved-algorithm surface.
+# - crypto/fipsmodule/**  — the module itself (per-algorithm implementations)
+# - crypto/evp/**         — the EVP dispatch layer (public entry points)
+# - include/openssl/evp.h — the public API surface
+
+[[source]]
+pattern = "crypto/fipsmodule/**/*.c"
+
+[[source]]
+pattern = "crypto/fipsmodule/**/*.h"
+
+[[source]]
+pattern = "crypto/fipsmodule/**/*_test.cc"
+type = "test"
+
+[[source]]
+pattern = "crypto/evp/**/*.c"
+
+[[source]]
+pattern = "crypto/evp/*_test.cc"
+type = "test"
+
+[[source]]
+pattern = "include/openssl/evp.h"
+
+# SP 800-140C is an approvals index, not a normative prose spec.
+# We hand-author requirements in `.duvet/custom-requirements/` rather than
+# extracting. The specification block is included so the HTML report has a
+# canonical section to hang requirements under; `format = "markdown"` is a
+# valid Duvet config value (Duvet only accepts IETF or markdown here) and
+# is harmless because we never invoke `duvet extract` against this target.
+[[specification]]
+source = "https://csrc.nist.gov/projects/cryptographic-module-validation-program/sp-800-140-series-supplemental-information/sp800-140c"
+format = "markdown"
+
+[[requirement]]
+pattern = ".duvet/custom-requirements/**/*.toml"
+
+[report.html]
+enabled = true
+blob-link = "https://github.com/aws/aws-lc/blob/main"
+
+[report.json]
+enabled = true

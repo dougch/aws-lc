@@ -1,0 +1,9 @@
+# SP 800-140C §6.2.2.3 — SKIPJACK
+target = "https://csrc.nist.gov/projects/cryptographic-module-validation-program/sp-800-140-series-supplemental-information/sp800-140c#skipjack"
+
+# SKIPJACK — decryption only; underlying FIPS 185 has been withdrawn.
+[[spec]]
+level = "SHOULD"
+quote = '''
+The use of SKIPJACK is approved for decryption only. The SKIPJACK algorithm has been documented in Federal Information Processing Standards Publication (FIPS) 185.
+'''

@@ -1,0 +1,10 @@
+# SP 800-140C §6.2.2.2 — Triple-DES Encryption Algorithm (TDEA)
+target = "https://csrc.nist.gov/projects/cryptographic-module-validation-program/sp-800-140-series-supplemental-information/sp800-140c#tdea"
+
+# TDEA — legacy-use only for three-key TDEA since 2024-01-01.
+# Operations outside decryption/unwrapping/CMAC-verify are not approved.
+[[spec]]
+level = "SHOULD"
+quote = '''
+As of January 1, 2024, three-key Triple-DES is only approved for decryption, unwrapping or CMAC verification for legacy use.
+'''

@@ -1,0 +1,273 @@
+### SP 800-140C: Approved Security Functions
+
+*Short URL: *[*https://csrc.nist.gov/projects/cmvp/sp800-140c*](https://csrc.nist.gov/projects/cmvp/sp800-140c)
+
+The following information is referenced from Section 6.2, Approved Security Functions, of NIST SP 800-140Cr2.
+
+<span class="small">[Transitions](#transitions) \| [Block Cipher](#block-cipher) \| [Digital Signature](#digital-signature) \| [Secure Hash](#secure-hash)\
+[Extendable Output Functions](#xof) \| [Message Authentication](#message-auth) \| [Entropy Source](#entropy-source)\
+[DRBG](#drbg) \| [RBG](#rbg) \| [Other Security Functions](#other) \| [Change Log](#change-log)</span>
+
+#### **<span id="transitions"></span>6.2.1 Transitions**
+
+Barker EB, Roginsky AL (2019) *Transitioning the Use of Cryptographic Algorithms and Key Lengths.* (National Institute of Standards and Technology, Gaithersburg, MD), NIST Special Publication (SP) 800-131A, Rev. 2. <https://doi.org/10.6028/NIST.SP.800-131Ar2>
+
+#### **<span id="block-cipher"></span>6.2.2 Block Cipher**
+
+##### 6.2.2.1 Advanced Encryption Standard (AES) {#aes}
+
+National Institute of Standards and Technology (2001) *Advanced Encryption Standard (AES)*. (U.S. Department of Commerce, Washington, DC), Federal Information Processing Standards Publication (FIPS) 197-upd1, updated May 9, 2023. [https://doi.org/10.6028/NIST.FIPS.197-upd1](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.197-upd1.pdf)
+
+Dworkin MJ (2001) *Recommendation for Block Cipher Modes of Operation: Methods and Techniques*. (National Institute of Standards and Technology, Gaithersburg, MD), NIST Special Publication (SP) 800-38A. <https://doi.org/10.6028/NIST.SP.800-38A>
+
+Dworkin MJ (2010) *Recommendation for Block Cipher Modes of Operation: Three Variants of Ciphertext Stealing for CBC Mode.* (National Institute of Standards and Technology, Gaithersburg, MD), NIST Special Publication (SP) 800-38A, Addendum. <https://doi.org/10.6028/NIST.SP.800-38A-Add>
+
+Dworkin MJ (2004) *Recommendation for Block Cipher Modes of Operation: the CCM Mode for Authentication and Confidentiality.* (National Institute of Standards and Technology, Gaithersburg, MD), NIST Special Publication (SP) 800-38C, Includes updates as of July 20, 2007. <https://doi.org/10.6028/NIST.SP.800-38C>
+
+Dworkin MJ (2007) *Recommendation for Block Cipher Modes of Operation: Galois/Counter Mode (GCM) and GMAC.* (National Institute of Standards and Technology, Gaithersburg, MD), NIST Special Publication (SP) 800-38D. <https://doi.org/10.6028/NIST.SP.800-38D>
+
+Dworkin MJ (2010) *Recommendation for Block Cipher Modes of Operation: The XTS-AES Mode for Confidentiality on Storage Devices.* (National Institute of Standards and Technology, Gaithersburg, MD), NIST Special Publication (SP) 800-38E. <https://doi.org/10.6028/NIST.SP.800-38E>
+
+Dworkin MJ (2012) *Recommendation for Block Cipher Modes of Operation: Methods for Key Wrapping.* (National Institute of Standards and Technology, Gaithersburg, MD), NIST Special Publication (SP) 800-38F. <https://doi.org/10.6028/NIST.SP.800-38F>
+
+IEEE Standards Association (2013) *IEEE 802.1AEbw-2013* – *IEEE Standard for Local and metropolitan area networks—Media Access Control (MAC) Security Amendment 2: Extended Packet Numbering* (IEEE, Piscataway, NJ). Available at <https://standards.ieee.org/standard/802_1AEbw-2013.html>
+
+Dworkin MJ (2016) *Recommendation for Block Cipher Modes of Operation: Methods for Format-Preserving Encryption.* (National Institute of Standards and Technology, Gaithersburg, MD), NIST Special Publication (SP) 800-38G. <https://doi.org/10.6028/NIST.SP.800-38G>
+
+##### **6.2.2.2 Triple-DES Encryption Algorithm (TDEA)** {#tdea}
+
+Barker EB, Mouha N (2017) *Recommendation for the Triple Data Encryption Algorithm (TDEA) Block Cipher.* (National Institute of Standards and Technology, Gaithersburg, MD), NIST Special Publication (SP) 800-67, Rev. 2. <https://doi.org/10.6028/NIST.SP.800-67r2>
+
+Dworkin MJ (2001) *Recommendation for Block Cipher Modes of Operation: Methods and Techniques.* (National Institute of Standards and Technology, Gaithersburg, MD), NIST Special Publication (SP) 800-38A. <https://doi.org/10.6028/NIST.SP.800-38A>
+
+- Appendix E references modes of the Triple-DES algorithm.
+
+Dworkin MJ (2012) *Recommendation for Block Cipher Modes of Operation: Methods for Key Wrapping.* (National Institute of Standards and Technology, Gaithersburg, MD), NIST Special Publication (SP) 800-38F. <https://doi.org/10.6028/NIST.SP.800-38F>
+
+**NOTE** As of January 1, 2024, three-key Triple-DES is only approved for decryption, unwrapping or CMAC verification for legacy use.
+
+##### **6.2.2.3 SKIPJACK** {#skipjack}
+
+**NOTE** The use of SKIPJACK is approved for decryption only. The SKIPJACK algorithm has been documented in Federal Information Processing Standards Publication (FIPS) 185. This publication is obsolete and has been withdrawn.
+
+#### **<span id="digital-signature"></span>6.2.3 Digital Signature**
+
+##### **6.2.3.1 Digital Signature Standard (DSS) (DSA, RSA, ECDSA, EdDSA, ML-DSA, SLH-DSA)**
+
+National Institute of Standards and Technology (2013) *Digital Signature Standard (DSS).* (U.S. Department of Commerce, Washington, DC), Federal Information Processing Standards Publication (FIPS) 186-4. <https://doi.org/10.6028/NIST.FIPS.186-4>
+
+National Institute of Standards and Technology (2023) *Digital Signature Standard (DSS). *(U.S. Department of Commerce, Washington, DC), Federal Information Processing Standards Publication (FIPS) 186-5. <https://doi.org/10.6028/NIST.FIPS.186-5>
+
+Chen L, Moody D, Regenscheid A, Robinson A, Randall K (2023) *Recommendations for Discrete Logarithm-based Cryptography: Elliptic Curve Domain Parameters*. (National Institute of Standards and Technology, Gaithersburg, MD), NIST Special Publication (SP) 800-186. <https://doi.org/10.6028/NIST.SP.800-186>
+
+National Institute of Standards and Technology (2024) Module-Lattice-Based Digital Signature Standard. (Department of Commerce, Washington, D.C.), Federal Information Processing Standards Publication (FIPS) NIST FIPS 204. <https://doi.org/10.6028/NIST.FIPS.204>
+
+National Institute of Standards and Technology (2024) Stateless Hash-Based Digital Signature Standard. (Department of Commerce, Washington, D.C.), Federal Information Processing Standards Publication (FIPS) NIST FIPS 205. <https://doi.org/10.6028/NIST.FIPS.205>
+
+##### **6.2.3.2 Stateful Hash-Based Signature Schemes (LMS, HSS, XMSS, XMSS<sup>MT</sup>)**
+
+Cooper DA, Apon DC, Dang QH, Davidson MS, Dworkin MJ, Miller CA (2020) *Recommendation for Stateful Hash-Based Signature Schemes.* (National Institute of Standards and Technology, Gaithersburg, MD), NIST Special Publication (SP) 800-208. <https://doi.org/10.6028/NIST.SP.800-208>
+
+#### **<span id="secure-hash"></span>6.2.4 Secure Hash**
+
+##### **6.2.4.1 Secure Hash Standard (SHS) (SHA-1, SHA-224, SHA-256, SHA-384, SHA-512, SHA-512/224, and SHA-512/256)**
+
+National Institute of Standards and Technology (2015) *Secure Hash Standard (SHS).* (U.S. Department of Commerce, Washington, DC), Federal Information Processing Standards Publication (FIPS) 180-4. <https://doi.org/10.6028/NIST.FIPS.180-4>
+
+##### **6.2.4.2 SHA-3 Hash Algorithms (SHA3-224, SHA3-256, SHA3-384, SHA3-512)**
+
+National Institute of Standards and Technology (2015) *SHA-3 Standard: Permutation-Based Hash and Extendable-Output Functions.* (U.S. Department of Commerce, Washington, DC), Federal Information Processing Standards Publication (FIPS) 202. <https://doi.org/10.6028/NIST.FIPS.202>
+
+##### **6.2.4.3 Ascon-Based Lightweight Cryptography (Ascon-Hash256)**
+
+Turan MS, McKay K, Chang D, Kang J, Kelsey J (2025) *Ascon-Based Lightweight Cryptography Standards for Constrained Devices: Authenticated Encryption, Hash, and Extendable Output Functions.* (National Institute of Standards and Technology, Gaithersburg, MD), NIST Special Publication (SP) 800-232. <a href="https://doi.org/10.6028/NIST.SP.800-232" style="color:#467886; text-decoration:underline">https://doi.org/10.6028/NIST.SP.800-232</a>
+
+#### **<span id="xof"></span>6.2.5 Extendable Output Functions**
+
+##### **6.2.5.1 SHA-3 Extendable-Output Functions (XOF) (SHAKE128, SHAKE256)**
+
+National Institute of Standards and Technology (2015) *SHA-3 Standard: Permutation-Based Hash and Extendable-Output Functions.* (U.S. Department of Commerce, Washington, DC), Federal Information Processing Standards Publication (FIPS) 202. <https://doi.org/10.6028/NIST.FIPS.202>
+
+##### **6.2.5.2 SHA-3 Derived Functions (cSHAKE, TupleHash, and ParallelHash)**
+
+Kelsey JM, Chang S-jH, Perlner RA (2016) *SHA-3 Derived Functions: cSHAKE, KMAC, TupleHash, and ParallelHash.* (National Institute of Standards and Technology, Gaithersburg, MD), NIST Special Publication (SP) 800-185. <https://doi.org/10.6028/NIST.SP.800-185>
+
+##### **6.2.5.3 Ascon-Based Lightweight Cryptography (Ascon-XOF128, Ascon-CXOF128)**
+
+Turan MS, McKay K, Chang D, Kang J, Kelsey J (2025) *Ascon-Based Lightweight Cryptography Standards for Constrained Devices: Authenticated Encryption, Hash, and Extendable Output Functions.* (National Institute of Standards and Technology, Gaithersburg, MD), NIST Special Publication (SP) 800-232. <a href="https://doi.org/10.6028/NIST.SP.800-232" style="color:#467886; text-decoration:underline">https://doi.org/10.6028/NIST.SP.800-232</a>
+
+#### **<span id="message-auth"></span>6.2.6 Message Authentication**
+
+##### **6.2.6.1 Triple-DES**
+
+Dworkin MJ (2005) *Recommendation for Block Cipher Modes of Operation: The CMAC Mode for Authentication.* (National Institute of Standards and Technology, Gaithersburg, MD), NIST Special Publication (SP) 800-38B, Includes updates as of October 6, 2016. <https://doi.org/10.6028/NIST.SP.800-38B>
+
+**NOTE** As of January 1, 2024, three-key Triple-DES is only approved for decryption, unwrapping or CMAC verification for legacy use.
+
+##### **6.2.6.2 AES**
+
+Dworkin MJ (2005) *Recommendation for Block Cipher Modes of Operation: The CMAC Mode for Authentication.* (National Institute of Standards and Technology, Gaithersburg, MD), NIST Special Publication (SP) 800-38B, Includes updates as of October 6, 2016. <https://doi.org/10.6028/NIST.SP.800-38B>
+
+Dworkin MJ (2004) *Recommendation for Block Cipher Modes of Operation: The CCM Mode for Authentication and Confidentiality.* (National Institute of Standards and Technology, Gaithersburg, MD), NIST Special Publication (SP) 800-38C, Includes updates as of July 20, 2007. <https://doi.org/10.6028/NIST.SP.800-38C>
+
+Dworkin MJ (2007) *Recommendation for Block Cipher Modes of Operation: Galois/Counter Mode (GCM) and GMAC.* (National Institute of Standards and Technology, Gaithersburg, MD), NIST Special Publication (SP) 800-38D. <https://doi.org/10.6028/NIST.SP.800-38D>
+
+##### **6.2.6.3 HMAC**
+
+National Institute of Standards and Technology (2008) *The Keyed-Hash Message Authentication Code (HMAC)*. (U.S. Department of Commerce, Washington, DC), Federal Information Processing Standards Publication (FIPS) 198-1. <https://doi.org/10.6028/NIST.FIPS.198-1>
+
+Dang QH (2012) *Recommendation for Applications Using Approved Hash Algorithms.* (National Institute of Standards and Technology, Gaithersburg, MD), NIST Special Publication (SP) 800-107, Rev. 1. <https://doi.org/10.6028/NIST.SP.800-107r1>
+
+##### **6.2.6.4 KMAC**
+
+Kelsey JM, Chang S-jH, Perlner RA (2016) *SHA-3 Derived Functions: cSHAKE, KMAC, TupleHash, and ParallelHash.* (National Institute of Standards and Technology, Gaithersburg, MD), NIST Special Publication (SP) 800-185. <https://doi.org/10.6028/NIST.SP.800-185>
+
+##### **6.2.6.5 Ascon-Based Lightweight Cryptography (Ascon-AEAD128)**
+
+Turan MS, McKay K, Chang D, Kang J, Kelsey J (2025) *Ascon-Based Lightweight Cryptography Standards for Constrained Devices: Authenticated Encryption, Hash, and Extendable Output Functions.* (National Institute of Standards and Technology, Gaithersburg, MD), NIST Special Publication (SP) 800-232. <a href="https://doi.org/10.6028/NIST.SP.800-232" style="color:#467886; text-decoration:underline">https://doi.org/10.6028/NIST.SP.800-232</a>
+
+#### **<span id="entropy-source"></span>6.2.7 Entropy Source**
+
+Sönmez Turan M, Barker EB, Kelsey JM, McKay KA, Baish ML, Boyle M (2018) *Recommendation for Entropy Sources Used for Random Number Generation*. (National Institute of Standards and Technology, Gaithersburg, MD), NIST Special Publication (SP) 800-90B. <https://doi.org/10.6028/NIST.SP.800-90B>
+
+#### **<span id="drbg"></span>6.2.8 Deterministic Random Bit Generator (DRBG)**
+
+Barker EB, Kelsey JM (2015) *Recommendation for Random Number Generation Using Deterministic Random Bit Generators*. (National Institute of Standards and Technology, Gaithersburg, MD), NIST Special Publication (SP) NIST SP 800-90A, Rev. 1. <https://doi.org/10.6028/NIST.SP.800-90Ar1>
+
+#### **<span id="rbg"></span>6.2.9 Random Bit Generator (RBG)**
+
+Barker EB, Kelsey JM, McKay KA, Roginsky AL, Sönmez Turan M (2025) *Recommendation for Random Bit Generator (RBG) Constructions*. (National Institute of Standards and Technology, Gaithersburg, MD), NIST Special Publication (SP) NIST SP 800-90C. <https://doi.org/10.6028/NIST.SP.800-90C>
+
+#### **<span id="other"></span>6.2.10 Other Security Functions**
+
+Calis AH (2023) Cryptographic Module Validation Program (CMVP)-Approved Sensitive Security Parameter Generation and Establishment Methods: CMVP Validation Authority Updates to ISO/IEC 24759. (National Institute of Standards and Technology, Gaithersburg, MD), NIST Special Publication (SP) 800-140Dr2. <https://doi.org/10.6028/NIST.SP.800-140Dr2>
+
+<span id="change-log"></span>
+
+<div id="collapse1786818823356" class="panel-group" aria-multiselectable="true" role="tablist">
+
+<div class="panel panel-default">
+
+<div id="heading1786818823356_1" class="panel-heading" role="tab">
+
+<div class="panel-title">
+
+<a href="javascript:void(0)" class="collapsed" aria-controls="collapse1786818823356_1" aria-expanded="false" data-parent="#collapse1786818823356" data-target="#collapse1786818823356_1" data-toggle="collapse">Change Log</a>
+
+</div>
+
+</div>
+
+<div id="collapse1786818823356_1" class="collapse panel-collapse" aria-labelledby="heading1786818823356_1" role="tabpanel">
+
+<div class="panel-body">
+
+<div class="table-responsive">
+
+<table class="table table-condensed table-striped" data-align="left">
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col">Date</th>
+<th scope="col">Section</th>
+<th scope="col">Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>6/22/26</td>
+<td><p><strong>6.2.9 Random Bit Generator (RBG)</strong></p>
+<p><strong>6.2.10 Other Security Functions</strong></p></td>
+<td><p>Added: SP 800-90C (NEW 6.2.9)</p>
+<p>Modified: 6.2.9 (Other Security Functions) to 6.2.10.</p></td>
+</tr>
+<tr>
+<td>9/02/25</td>
+<td><p><strong>6.2.4.3 Ascon-Based Lightweight Cryptography (Ascon-Hash256)</strong></p>
+<p><strong>6.2.5.3 Ascon-Based Lightweight Cryptography (Ascon-XOF128, Ascon-CXOF128)</strong></p>
+<p><strong>6.2.6.5 Ascon-Based Lightweight Cryptography (Ascon-AEAD128)</strong></p></td>
+<td><p>Added: SP 800-232 (Ascon)</p></td>
+</tr>
+<tr>
+<td>12/10/24</td>
+<td><p><strong>6.2.2.2 Triple-DES Encryption Algorithm (TDEA)</strong></p>
+<p><strong>6.2.6.1 Triple-DES</strong></p></td>
+<td><p>Added: Note on Triple-DES approval status due to transition.</p></td>
+</tr>
+<tr>
+<td>8/13/24</td>
+<td><p><strong>6.2.3.1 Digital Signature Standard (DSS) (DSA, RSA, ECDSA, EdDSA, ML-DSA, SLH-DSA)</strong></p></td>
+<td><p>Added: FIPS 204 and FIPS 205</p></td>
+</tr>
+<tr>
+<td>8/17/23</td>
+<td><p><strong>6.2.3.1 Digital Signature Standard (DSS) (DSA, RSA, ECDSA, EdDSA)</strong></p></td>
+<td><p>Removed: SP 800-89</p></td>
+</tr>
+<tr>
+<td>7/25/23</td>
+<td><p><strong>6.2.2.1 Advanced Encryption Standard (AES)</strong></p></td>
+<td><p>Added: FIPS 197-upd1</p></td>
+</tr>
+<tr>
+<td>7/25/23</td>
+<td><p><strong>6.2.3.1 Digital Signature Standard (DSS) (DSA, RSA, ECDSA, EdDSA)</strong></p></td>
+<td><p>Added: FIPS 186-5, SP 800-186, and SP 800-89</p></td>
+</tr>
+<tr>
+<td>7/25/23</td>
+<td><p><strong>6.2.9 Other Security Functions</strong></p></td>
+<td><p>Added: SP 800-140Dr2</p>
+<p>Removed: SP 800-140Dr1</p></td>
+</tr>
+<tr>
+<td>5/20/22</td>
+<td><p><strong>6.2 Approved security functions</strong></p></td>
+<td><p>Added/Modified: Security function subsection headers.</p>
+<p>Added: SP 800-90A and SP 800-90B</p></td>
+</tr>
+<tr>
+<td>5/20/22</td>
+<td><p><strong>6.2.1 Transitions</strong></p></td>
+<td><p>Removed: SP 800-131Ar2 section references</p></td>
+</tr>
+<tr>
+<td>5/20/22</td>
+<td><p><strong>6.2.3 Digital Signature</strong></p></td>
+<td><p>Added: SP 800-208, October 2020</p></td>
+</tr>
+<tr>
+<td>5/20/22</td>
+<td><p><strong>6.2.9 Other Security Functions</strong></p></td>
+<td><p>Added: SP 800-140Dr1, May 2022</p></td>
+</tr>
+</tbody>
+</table>
+
+</div>
+
+ 
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-lg-4 hidden-xs hidden-sm hidden-md">
+
+<div class="project-nav-container">
+
+<div id="projectLinksContainer-lg" class="bs-callout bs-callout-subnav">
+
+</div>
+
+</div>
+
+</div>

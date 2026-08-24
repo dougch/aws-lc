@@ -135,6 +135,8 @@ void FIPS_service_indicator_unlock_state(void) {
 }
 
 void AEAD_GCM_verify_service_indicator(const EVP_AEAD_CTX *ctx) {
+  //= https://csrc.nist.gov/projects/cryptographic-module-validation-program/sp-800-140-series-supplemental-information/sp800-140c#aes
+  //# Advanced Encryption Standard (AES)
   // We only have support for 128 bit and 256 bit keys for AES-GCM. AES-GCM is
   // approved only with an internal IV, see SP 800-38D Sec 8.2.2.
   // Note: |EVP_AEAD_key_length| returns the length in bytes.

@@ -1,0 +1,9 @@
+# SP 800-140C §6.2.2.1 — Advanced Encryption Standard (AES)
+target = "https://csrc.nist.gov/projects/cryptographic-module-validation-program/sp-800-140-series-supplemental-information/sp800-140c#aes"
+
+# AES — approved without restriction.
+[[spec]]
+level = "MUST"
+quote = '''
+Advanced Encryption Standard (AES)
+'''
