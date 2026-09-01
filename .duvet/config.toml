@@ -48,6 +48,16 @@ format = "ietf"
 [[requirement]]
 pattern = ".duvet/rfc8032-requirements/**/*.toml"
 
+# RFC 8032 (EdDSA) — a normative IETF spec, so requirements are extracted
+# from the RFC prose (`duvet extract`) rather than hand-authored. Covers the
+# Ed25519 / Ed25519ph surface in crypto/fipsmodule/curve25519/.
+[[specification]]
+source = "https://www.rfc-editor.org/rfc/rfc8032"
+format = "ietf"
+
+[[requirement]]
+pattern = ".duvet/rfc8032-requirements/**/*.toml"
+
 # RFC 7748 (X25519 / X448) — normative IETF spec; requirements extracted via
 # `duvet extract`. Covers the X25519 / X448 surface in crypto/fipsmodule/curve25519/.
 [[specification]]

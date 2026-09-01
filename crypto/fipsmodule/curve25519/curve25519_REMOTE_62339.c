@@ -166,9 +166,6 @@ int ED25519_sign(uint8_t out_sig[ED25519_SIGNATURE_LEN],
   //= https://www.rfc-editor.org/rfc/rfc8032#section-5.1
   //# The context (if present at all) MUST be empty.
   // Plain Ed25519: this entry point signs with no context (dom2 empty).
-  //= https://www.rfc-editor.org/rfc/rfc8032#section-5.1
-  //# The context (if present at all) MUST be empty.
-  // Plain Ed25519: this entry point signs with no context (dom2 empty).
   FIPS_service_indicator_lock_state();
   boringssl_ensure_eddsa_self_test();
   int res =
@@ -384,10 +381,11 @@ int ED25519ph_sign(uint8_t out_sig[ED25519_SIGNATURE_LEN],
                    const uint8_t *context, size_t context_len) {
   //= https://www.rfc-editor.org/rfc/rfc8032#section-5.1
   //# For Ed25519ph, phflag=1 and PH is SHA512 instead.
-  // Ed25519ph pre-hashes the message with SHA-512 before signing. Getting
-  // this wrong (e.g. double-hashing, or hashing an already-digested input)
-  // produces signatures no compliant verifier accepts; the RFC 8032 §7.3
-  // KAT vectors (Ed25519phTest) guard the implementation against that.
+  // COE 395135: KMS's ED25519_PH_SHA_512 double-hashed the message instead
+  // of exposing the FIPS 186-5 §7.8 DIGEST bypass; the pre-hash requirement
+  // went uncovered and shipped signatures no compliant verifier accepts.
+  // aws-lc pre-hashes here and pins it with the RFC 8032 §7.3 KAT vectors
+  // (Ed25519phTest). Duvet keeps that coverage a standing, visible property.
   FIPS_service_indicator_lock_state();
   boringssl_ensure_hasheddsa_self_test();
   int res = ED25519ph_sign_no_self_test(out_sig, message, message_len,

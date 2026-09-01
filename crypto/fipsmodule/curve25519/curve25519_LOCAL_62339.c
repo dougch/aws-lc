@@ -166,9 +166,6 @@ int ED25519_sign(uint8_t out_sig[ED25519_SIGNATURE_LEN],
   //= https://www.rfc-editor.org/rfc/rfc8032#section-5.1
   //# The context (if present at all) MUST be empty.
   // Plain Ed25519: this entry point signs with no context (dom2 empty).
-  //= https://www.rfc-editor.org/rfc/rfc8032#section-5.1
-  //# The context (if present at all) MUST be empty.
-  // Plain Ed25519: this entry point signs with no context (dom2 empty).
   FIPS_service_indicator_lock_state();
   boringssl_ensure_eddsa_self_test();
   int res =
