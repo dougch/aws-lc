@@ -128,9 +128,9 @@ TEST(Ed25519Test, KeypairFromSeed) {
 //= https://www.rfc-editor.org/rfc/rfc8032#section-5.1
 //= type=test
 //# For Ed25519ph, phflag=1 and PH is SHA512 instead.
-// RFC 8032 §7.3 known-answer vectors for Ed25519ph. COE 395135 (KMS) shipped
-// a non-compliant pre-hash because these KATs could not run through its
-// 64-byte-only path; here they gate the aws-lc pre-hash implementation.
+// RFC 8032 §7.3 known-answer vectors for Ed25519ph. These KATs gate the
+// pre-hash implementation and catch double-hashing / digest-handling
+// mistakes that would otherwise produce non-compliant signatures.
 TEST(Ed25519phTest, TestVectors) {
   FileTestGTest("crypto/fipsmodule/curve25519/ed25519ph_tests.txt", [](FileTest *t) {
     std::vector<uint8_t> seed, q, message, context, expected_signature;

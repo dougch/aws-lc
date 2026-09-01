@@ -1,12 +1,12 @@
 ### SP 800-140C: Approved Security Functions
 
-*Short URL: *[*https://csrc.nist.gov/projects/cmvp/sp800-140c*](https://csrc.nist.gov/projects/cmvp/sp800-140c)
+*Short URL: *[*https://csrc.nist.gov/projects/cmvp/sp800-140c*](https://csrc.nist.gov/projects/cmvp/sp800-140c)
 
 The following information is referenced from Section 6.2, Approved Security Functions, of NIST SP 800-140Cr2.
 
 <span class="small">[Transitions](#transitions) \| [Block Cipher](#block-cipher) \| [Digital Signature](#digital-signature) \| [Secure Hash](#secure-hash)\
-[Extendable Output Functions](#xof) \| [Message Authentication](#message-auth) \| [Entropy Source](#entropy-source)\
-[DRBG](#drbg) \| [RBG](#rbg) \| [Other Security Functions](#other) \| [Change Log](#change-log)</span>
+[Extendable Output Functions](#xof) \| [Message Authentication](#message-auth) \| [Entropy Source](#entropy-source)\
+[DRBG](#drbg) \| [RBG](#rbg) \| [Other Security Functions](#other) \| [Change Log](#change-log)</span>
 
 #### **<span id="transitions"></span>6.2.1 Transitions**
 
@@ -44,7 +44,7 @@ Dworkin MJ (2001) *Recommendation for Block Cipher Modes of Operation: Methods a
 
 Dworkin MJ (2012) *Recommendation for Block Cipher Modes of Operation: Methods for Key Wrapping.* (National Institute of Standards and Technology, Gaithersburg, MD), NIST Special Publication (SP) 800-38F. <https://doi.org/10.6028/NIST.SP.800-38F>
 
-**NOTE** As of January 1, 2024, three-key Triple-DES is only approved for decryption, unwrapping or CMAC verification for legacy use.
+**NOTE** As of January 1, 2024, three-key Triple-DES is only approved for decryption, unwrapping or CMAC verification for legacy use.
 
 ##### **6.2.2.3 SKIPJACK** {#skipjack}
 
@@ -56,9 +56,9 @@ Dworkin MJ (2012) *Recommendation for Block Cipher Modes of Operation: Methods f
 
 National Institute of Standards and Technology (2013) *Digital Signature Standard (DSS).* (U.S. Department of Commerce, Washington, DC), Federal Information Processing Standards Publication (FIPS) 186-4. <https://doi.org/10.6028/NIST.FIPS.186-4>
 
-National Institute of Standards and Technology (2023) *Digital Signature Standard (DSS). *(U.S. Department of Commerce, Washington, DC), Federal Information Processing Standards Publication (FIPS) 186-5. <https://doi.org/10.6028/NIST.FIPS.186-5>
+National Institute of Standards and Technology (2023) *Digital Signature Standard (DSS). *(U.S. Department of Commerce, Washington, DC), Federal Information Processing Standards Publication (FIPS) 186-5. <https://doi.org/10.6028/NIST.FIPS.186-5>
 
-Chen L, Moody D, Regenscheid A, Robinson A, Randall K (2023) *Recommendations for Discrete Logarithm-based Cryptography: Elliptic Curve Domain Parameters*. (National Institute of Standards and Technology, Gaithersburg, MD), NIST Special Publication (SP) 800-186. <https://doi.org/10.6028/NIST.SP.800-186>
+Chen L, Moody D, Regenscheid A, Robinson A, Randall K (2023) *Recommendations for Discrete Logarithm-based Cryptography: Elliptic Curve Domain Parameters*. (National Institute of Standards and Technology, Gaithersburg, MD), NIST Special Publication (SP) 800-186. <https://doi.org/10.6028/NIST.SP.800-186>
 
 National Institute of Standards and Technology (2024) Module-Lattice-Based Digital Signature Standard. (Department of Commerce, Washington, D.C.), Federal Information Processing Standards Publication (FIPS) NIST FIPS 204. <https://doi.org/10.6028/NIST.FIPS.204>
 
@@ -74,7 +74,7 @@ Cooper DA, Apon DC, Dang QH, Davidson MS, Dworkin MJ, Miller CA (2020) *Recommen
 
 National Institute of Standards and Technology (2015) *Secure Hash Standard (SHS).* (U.S. Department of Commerce, Washington, DC), Federal Information Processing Standards Publication (FIPS) 180-4. <https://doi.org/10.6028/NIST.FIPS.180-4>
 
-##### **6.2.4.2 SHA-3 Hash Algorithms (SHA3-224, SHA3-256, SHA3-384, SHA3-512)**
+##### **6.2.4.2 SHA-3 Hash Algorithms (SHA3-224, SHA3-256, SHA3-384, SHA3-512)**
 
 National Institute of Standards and Technology (2015) *SHA-3 Standard: Permutation-Based Hash and Extendable-Output Functions.* (U.S. Department of Commerce, Washington, DC), Federal Information Processing Standards Publication (FIPS) 202. <https://doi.org/10.6028/NIST.FIPS.202>
 
@@ -102,7 +102,7 @@ Turan MS, McKay K, Chang D, Kang J, Kelsey J (2025) *Ascon-Based Lightweight Cry
 
 Dworkin MJ (2005) *Recommendation for Block Cipher Modes of Operation: The CMAC Mode for Authentication.* (National Institute of Standards and Technology, Gaithersburg, MD), NIST Special Publication (SP) 800-38B, Includes updates as of October 6, 2016. <https://doi.org/10.6028/NIST.SP.800-38B>
 
-**NOTE** As of January 1, 2024, three-key Triple-DES is only approved for decryption, unwrapping or CMAC verification for legacy use.
+**NOTE** As of January 1, 2024, three-key Triple-DES is only approved for decryption, unwrapping or CMAC verification for legacy use.
 
 ##### **6.2.6.2 AES**
 
@@ -220,9 +220,9 @@ Calis AH (2023) Cryptographic Module Validation Program (CMVP)-Approved Sensitiv
 </tr>
 <tr>
 <td>7/25/23</td>
-<td><p><strong>6.2.9 Other Security Functions</strong></p></td>
+<td><p><strong>6.2.9 Other Security Functions</strong></p></td>
 <td><p>Added: SP 800-140Dr2</p>
-<p>Removed: SP 800-140Dr1</p></td>
+<p>Removed: SP 800-140Dr1</p></td>
 </tr>
 <tr>
 <td>5/20/22</td>
@@ -250,7 +250,7 @@ Calis AH (2023) Cryptographic Module Validation Program (CMVP)-Approved Sensitiv
 
 </div>
 
- 
+ 
 
 </div>
 
