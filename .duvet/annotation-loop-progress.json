@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "description": "Unsupervised duvet annotation loop state. RFC 7748 pilot.",
+  "commit_per_rfc": true,
+  "source_root": "/Users/dougch/gitrepos/aws-lc",
+  "rfcs": [
+    {
+      "rfc": "rfc7748",
+      "spec_url": "https://www.rfc-editor.org/rfc/rfc7748",
+      "committed": true,
+      "requirements": [
+        {
+          "id": "rfc7748-s5-must1",
+          "section": "section-5",
+          "level": "MUST",
+          "quote": "When receiving such an array, implementations of X25519\n(but not X448) MUST mask the most significant bit in the final byte.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc7748#section-5",
+          "status": "annotated",
+          "annotation_file": "crypto/fipsmodule/curve25519/curve25519_nohw.c",
+          "annotation_line": 143,
+          "skip_reason": null
+        },
+        {
+          "id": "rfc7748-s5-must2",
+          "section": "section-5",
+          "level": "MUST",
+          "quote": "Implementations MUST accept non-canonical values and process them as\nif they had been reduced modulo the field prime.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc7748#section-5",
+          "status": "annotated",
+          "annotation_file": "crypto/fipsmodule/curve25519/curve25519_nohw.c",
+          "annotation_line": 136,
+          "skip_reason": null
+        },
+        {
+          "id": "rfc7748-s5-must3",
+          "section": "section-5",
+          "level": "MUST",
+          "quote": "For X25519, the unused, most significant bit MUST be\nzero.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc7748#section-5",
+          "status": "annotated",
+          "annotation_file": "crypto/fipsmodule/curve25519/curve25519_nohw.c",
+          "annotation_line": 156,
+          "skip_reason": null
+        },
+        {
+          "id": "rfc7748-appendixA-must1",
+          "section": "appendix-A",
+          "level": "MUST",
+          "quote": "The trace of Frobenius MUST NOT be in {0, 1} in order to rule out\nthe attacks described in [smart], [satoh], and [semaev], as in\n[brainpool] and [safecurves].",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc7748#appendix-A",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "Theoretical curve security property of Curve25519. Satisfied by the curve definition, not addressable as a code annotation."
+        },
+        {
+          "id": "rfc7748-appendixA-must2",
+          "section": "appendix-A",
+          "level": "MUST",
+          "quote": "MOV Degree [reducing]: the embedding degree MUST be greater than\n(order - 1) / 100, as in [brainpool] and [safecurves].",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc7748#appendix-A",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "Theoretical curve security property of Curve25519. Satisfied by the curve definition, not addressable as a code annotation."
+        },
+        {
+          "id": "rfc7748-appendixA-must3",
+          "section": "appendix-A",
+          "level": "MUST",
+          "quote": "CM Discriminant: discriminant D MUST be greater than 2^100, as in\n[safecurves].",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc7748#appendix-A",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "Theoretical curve security property of Curve25519. Satisfied by the curve definition, not addressable as a code annotation."
+        }
+      ]
+    }
+  ]
+}

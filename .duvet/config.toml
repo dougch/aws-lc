@@ -48,6 +48,15 @@ format = "ietf"
 [[requirement]]
 pattern = ".duvet/rfc8032-requirements/**/*.toml"
 
+# RFC 7748 (X25519 / X448) — normative IETF spec; requirements extracted via
+# `duvet extract`. Covers the X25519 / X448 surface in crypto/fipsmodule/curve25519/.
+[[specification]]
+source = "https://www.rfc-editor.org/rfc/rfc7748"
+format = "ietf"
+
+[[requirement]]
+pattern = ".duvet/requirements/www.rfc-editor.org/rfc/rfc7748/**/*.toml"
+
 [report.html]
 enabled = true
 blob-link = "https://github.com/aws/aws-lc/blob/main"

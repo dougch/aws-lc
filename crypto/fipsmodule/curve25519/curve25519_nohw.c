@@ -133,6 +133,9 @@ typedef uint32_t fe_limb_t;
 OPENSSL_STATIC_ASSERT(sizeof(fe) == sizeof(fe_limb_t) * FE_NUM_LIMBS,
                       fe_limb_t_FE_NUM_LIMBS_is_inconsistent_with_fe)
 
+//= https://www.rfc-editor.org/rfc/rfc7748#section-5
+//# Implementations MUST accept non-canonical values and process them as
+//# if they had been reduced modulo the field prime.
 static void fe_frombytes_strict(fe *h, const uint8_t s[32]) {
   // |fiat_25519_from_bytes| requires the top-most bit be clear.
   declassify_assert((s[31] & 0x80) == 0);
@@ -140,6 +143,9 @@ static void fe_frombytes_strict(fe *h, const uint8_t s[32]) {
   assert_fe(h->v);
 }
 
+//= https://www.rfc-editor.org/rfc/rfc7748#section-5
+//# When receiving such an array, implementations of X25519
+//# (but not X448) MUST mask the most significant bit in the final byte.
 static void fe_frombytes(fe *h, const uint8_t s[32]) {
   uint8_t s_copy[32];
   OPENSSL_memcpy(s_copy, s, 32);
@@ -147,6 +153,9 @@ static void fe_frombytes(fe *h, const uint8_t s[32]) {
   fe_frombytes_strict(h, s_copy);
 }
 
+//= https://www.rfc-editor.org/rfc/rfc7748#section-5
+//# For X25519, the unused, most significant bit MUST be
+//# zero.
 static void fe_tobytes(uint8_t s[32], const fe *f) {
   assert_fe(f->v);
   fiat_25519_to_bytes(s, f->v);

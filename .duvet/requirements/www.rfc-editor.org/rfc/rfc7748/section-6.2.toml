@@ -1,0 +1,42 @@
+target = "https://www.rfc-editor.org/rfc/rfc7748#section-6.2"
+
+# Curve448
+#
+#    The X448 function can be used in an ECDH protocol very much like the
+#    X25519 function.
+# 
+#    If X448 is to be used, the only differences are that Alice and Bob
+#    generate 56 random bytes (not 32) and calculate K_A = X448(a, 5) or
+#    K_B = X448(b, 5), where 5 is the u-coordinate of the base point and
+#    is encoded as a byte with value 5, followed by 55 zero bytes.
+# 
+#    As with X25519, both sides MAY check, without leaking extra
+#    information about the value of K, whether the resulting shared K is
+#    the all-zero value and abort if so.
+# 
+#    Test vector:
+# 
+#    Alice's private key, a:
+#      9a8f4925d1519f5775cf46b04b5800d4ee9ee8bae8bc5565d498c28d
+#      d9c9baf574a9419744897391006382a6f127ab1d9ac2d8c0a598726b
+#    Alice's public key, X448(a, 5):
+#      9b08f7cc31b7e3e67d22d5aea121074a273bd2b83de09c63faa73d2c
+#      22c5d9bbc836647241d953d40c5b12da88120d53177f80e532c41fa0
+#    Bob's private key, b:
+#      1c306a7ac2a0e2e0990b294470cba339e6453772b075811d8fad0d1d
+#      6927c120bb5ee8972b0d3e21374c9c921b09d1b0366f10b65173992d
+#    Bob's public key, X448(b, 5):
+#      3eb7a829b0cd20f5bcfc0b599b6feccf6da4627107bdb0d4f345b430
+#      27d8b972fc3e34fb4232a13ca706dcb57aec3dae07bdc1c67bf33609
+#    Their shared secret, K:
+#      07fff4181ac6cc95ec1c16a94a0f74d12da232ce40a77552281d282b
+#      b60c0b56fd2464c335543936521c24403085d59a449a5037514a879d
+
+[[spec]]
+level = "MAY"
+quote = '''
+As with X25519, both sides MAY check, without leaking extra
+information about the value of K, whether the resulting shared K is
+the all-zero value and abort if so.
+'''
+

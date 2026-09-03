@@ -1,0 +1,57 @@
+target = "https://www.rfc-editor.org/rfc/rfc7748#appendix-A"
+
+# Deterministic Generation
+#
+#    This section specifies the procedure that was used to generate the
+#    above curves; specifically, it defines how to generate the parameter
+#    A of the Montgomery curve y^2 = x^3 + A*x^2 + x.  This procedure is
+#    intended to be as objective as can reasonably be achieved so that
+#    it's clear that no untoward considerations influenced the choice of
+#    curve.  The input to this process is p, the prime that defines the
+#    underlying field.  The size of p determines the amount of work needed
+#    to compute a discrete logarithm in the elliptic curve group, and
+#    choosing a precise p depends on many implementation concerns.  The
+#    performance of the curve will be dominated by operations in GF(p), so
+#    carefully choosing a value that allows for easy reductions on the
+#    intended architecture is critical.  This document does not attempt to
+#    articulate all these considerations.
+# 
+#    The value (A-2)/4 is used in several of the elliptic curve point
+#    arithmetic formulas.  For simplicity and performance reasons, it is
+#    beneficial to make this constant small, i.e., to choose A so that
+#    (A-2) is a small integer that is divisible by four.
+# 
+#    For each curve at a specific security level:
+# 
+#    1.  The trace of Frobenius MUST NOT be in {0, 1} in order to rule out
+#        the attacks described in [smart], [satoh], and [semaev], as in
+#        [brainpool] and [safecurves].
+# 
+#    2.  MOV Degree [reducing]: the embedding degree MUST be greater than
+#        (order - 1) / 100, as in [brainpool] and [safecurves].
+# 
+#    3.  CM Discriminant: discriminant D MUST be greater than 2^100, as in
+#        [safecurves].
+
+[[spec]]
+level = "MUST"
+quote = '''
+The trace of Frobenius MUST NOT be in {0, 1} in order to rule out
+the attacks described in [smart], [satoh], and [semaev], as in
+[brainpool] and [safecurves].
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+MOV Degree [reducing]: the embedding degree MUST be greater than
+(order - 1) / 100, as in [brainpool] and [safecurves].
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+CM Discriminant: discriminant D MUST be greater than 2^100, as in
+[safecurves].
+'''
+
