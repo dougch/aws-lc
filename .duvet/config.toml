@@ -1,9 +1,19 @@
 '$schema' = "https://awslabs.github.io/duvet/config/v0.4.0.json"
 
 # Source patterns: the FIPS-approved-algorithm surface.
-# - crypto/fipsmodule/**  — the module itself (per-algorithm implementations)
-# - crypto/evp/**         — the EVP dispatch layer (public entry points)
+# - crypto/fipsmodule/**  — the module itself (per-algorithm implementations),
+#                           which includes the EVP dispatch layer at
+#                           crypto/fipsmodule/evp/ (public entry points)
 # - include/openssl/evp.h — the public API surface
+#
+# Deliberately out of scope: crypto/evp_extra/, crypto/cipher_extra/,
+# crypto/obj/, crypto/asn1/, crypto/x509/. These hold real implementations
+# (AES-GCM-SIV, ASN.1 AlgorithmIdentifiers, OID tables) but sit outside the
+# FIPS-approved-algorithm surface this config tracks.
+#
+# Widening these patterns does not change the requirement denominator — the
+# report's requirement set comes only from the [[requirement]] blocks below.
+# Source patterns control where duvet looks for citations, nothing more.
 
 [[source]]
 pattern = "crypto/fipsmodule/**/*.c"
@@ -13,13 +23,6 @@ pattern = "crypto/fipsmodule/**/*.h"
 
 [[source]]
 pattern = "crypto/fipsmodule/**/*_test.cc"
-type = "test"
-
-[[source]]
-pattern = "crypto/evp/**/*.c"
-
-[[source]]
-pattern = "crypto/evp/*_test.cc"
 type = "test"
 
 [[source]]
