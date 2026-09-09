@@ -714,7 +714,7 @@
           "quote": "The pair (r,s) should be unique, and\nMUST be unpredictable for each invocation (that is why it was\noriginally obtained by encrypting a nonce), while \"r\" MAY be\nconstant, but needs to be modified as follows before being used: (\"r\"\nis treated as a 16-octet little-endian number):",
           "status": "annotated",
           "annotation_file": "crypto/poly1305/poly1305.c",
-          "annotation_line": 153,
+          "annotation_line": 154,
           "skip_reason": null,
           "target_url": "https://www.rfc-editor.org/rfc/rfc8439#section-2.5"
         },
@@ -747,7 +747,7 @@
           "quote": "The Poly1305 key MUST be unpredictable to an attacker.",
           "status": "annotated",
           "annotation_file": "crypto/cipher_extra/e_chacha20poly1305.c",
-          "annotation_line": 115,
+          "annotation_line": 130,
           "skip_reason": null,
           "target_url": "https://www.rfc-editor.org/rfc/rfc8439#section-4"
         },
@@ -758,7 +758,7 @@
           "quote": "For this reason, with online protocols,\nimplementation MUST use a constant-time comparison function rather\nthan relying on optimized but insecure library functions such as the\nC language's memcmp().",
           "status": "annotated",
           "annotation_file": "crypto/cipher_extra/e_chacha20poly1305.c",
-          "annotation_line": 291,
+          "annotation_line": 306,
           "skip_reason": null,
           "target_url": "https://www.rfc-editor.org/rfc/rfc8439#section-4"
         },
@@ -767,10 +767,10 @@
           "section": "section-4",
           "level": "MUST",
           "quote": "Additionally, any protocol using this algorithm MUST include the\ncomplete tag to minimize the opportunity for forgery.",
-          "status": "skip",
-          "annotation_file": null,
-          "annotation_line": null,
-          "skip_reason": "Protocol actor, but the API permits the opposite: aead_chacha20_poly1305_init accepts any tag_len in 1..POLY1305_TAG_LEN, and the EVP_CIPHER path accepts EVP_CTRL_AEAD_SET_TAG with any arg in that range. aws-lc therefore lets a caller request a truncated tag. Not cited, and not asserted as a defect \u2014 the requirement addresses protocols rather than primitives. Worth a maintainer's review.",
+          "status": "todo",
+          "annotation_file": "crypto/cipher_extra/e_chacha20poly1305.c",
+          "annotation_line": 86,
+          "skip_reason": "Upper bound only; a caller may request a truncated tag. Not an aws-lc divergence: the check has been upper-bound-only since Adam Langley's original BoringSSL commit de0b20268 (2014-06-20), which predates RFC 8439, and current upstream BoringSSL (crypto/cipher/e_chacha20poly1305.cc, master) still has the identical check. EVP_AEAD_CTX_init documents truncation as intended for every AEAD: 'Authentication tags may be truncated by passing a size as |tag_len|' (include/openssl/aead.h). Annotated type=TODO so it stays uncited and visible; tightening it would diverge from the documented EVP_AEAD contract.",
           "target_url": "https://www.rfc-editor.org/rfc/rfc8439#section-4"
         },
         {
@@ -778,10 +778,10 @@
           "section": "section-4",
           "level": "MUST",
           "quote": "Tag truncation\nMUST NOT be done.",
-          "status": "skip",
-          "annotation_file": null,
-          "annotation_line": null,
-          "skip_reason": "Same as rfc8439-s4-must3: the caller-selectable tag_len range 1..16 permits truncation. Flagged for maintainer review rather than cited.",
+          "status": "todo",
+          "annotation_file": "crypto/cipher_extra/e_chacha20poly1305.c",
+          "annotation_line": 90,
+          "skip_reason": "Upper bound only; a caller may request a truncated tag. Not an aws-lc divergence: the check has been upper-bound-only since Adam Langley's original BoringSSL commit de0b20268 (2014-06-20), which predates RFC 8439, and current upstream BoringSSL (crypto/cipher/e_chacha20poly1305.cc, master) still has the identical check. EVP_AEAD_CTX_init documents truncation as intended for every AEAD: 'Authentication tags may be truncated by passing a size as |tag_len|' (include/openssl/aead.h). Annotated type=TODO so it stays uncited and visible; tightening it would diverge from the documented EVP_AEAD contract.",
           "target_url": "https://www.rfc-editor.org/rfc/rfc8439#section-4"
         }
       ]

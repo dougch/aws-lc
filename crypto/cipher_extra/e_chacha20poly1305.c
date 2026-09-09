@@ -74,6 +74,21 @@ static int aead_chacha20_poly1305_init(EVP_AEAD_CTX *ctx, const uint8_t *key,
     tag_len = POLY1305_TAG_LEN;
   }
 
+  // Only an upper bound is enforced, so a caller may request a truncated tag.
+  // |EVP_AEAD_CTX_init| documents this as intended behaviour for every AEAD
+  // ("Authentication tags may be truncated by passing a size as |tag_len|"),
+  // and the check has been upper-bound-only since the original BoringSSL
+  // implementation in 2014, which predates RFC 8439. Recorded as a TODO rather
+  // than an exception because tightening it here would diverge from the
+  // documented EVP_AEAD contract; that is a call for the maintainers.
+  //= https://www.rfc-editor.org/rfc/rfc8439#section-4
+  //= type=TODO
+  //# Additionally, any protocol using this algorithm MUST include the
+  //# complete tag to minimize the opportunity for forgery.
+  //= https://www.rfc-editor.org/rfc/rfc8439#section-4
+  //= type=TODO
+  //# Tag truncation
+  //# MUST NOT be done.
   if (tag_len > POLY1305_TAG_LEN) {
     OPENSSL_PUT_ERROR(CIPHER, CIPHER_R_TOO_LARGE);
     return 0;
