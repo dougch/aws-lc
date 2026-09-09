@@ -80,7 +80,7 @@
     {
       "rfc": "rfc3610",
       "spec_url": "https://www.rfc-editor.org/rfc/rfc3610",
-      "committed": false,
+      "committed": true,
       "requirements": [
         {
           "id": "rfc3610-section-2.1-must1",
@@ -197,7 +197,7 @@
     {
       "rfc": "rfc3394",
       "spec_url": "https://www.rfc-editor.org/rfc/rfc3394",
-      "committed": false,
+      "committed": true,
       "requirements": [
         {
           "id": "rfc3394-section-5-must1",
@@ -205,9 +205,9 @@
           "level": "MUST",
           "quote": "If unwrapping\nproduces an unexpected value, then the algorithm implementation MUST\nreturn an error, and it MUST NOT return any key data.",
           "target_url": "https://www.rfc-editor.org/rfc/rfc3394#section-5",
-          "status": "pending",
+          "status": "annotated",
           "annotation_file": "crypto/fipsmodule/aes/key_wrap.c",
-          "annotation_line": null,
+          "annotation_line": 109,
           "skip_reason": null
         }
       ]
@@ -215,7 +215,7 @@
     {
       "rfc": "rfc5649",
       "spec_url": "https://www.rfc-editor.org/rfc/rfc5649",
-      "committed": false,
+      "committed": true,
       "requirements": [
         {
           "id": "rfc5649-section-5-must1",
@@ -223,17 +223,17 @@
           "level": "MUST",
           "quote": "In all cases, the AlgorithmIdentifier parameter field MUST be absent.",
           "target_url": "https://www.rfc-editor.org/rfc/rfc5649#section-5",
-          "status": "pending",
-          "annotation_file": "crypto/fipsmodule/aes/key_wrap.c",
+          "status": "skip",
+          "annotation_file": null,
           "annotation_line": null,
-          "skip_reason": null
+          "skip_reason": "ASN.1/OID encoding requirement, not algorithm behavior. The AlgorithmIdentifier and OID tables live in crypto/obj and crypto/asn1, outside this config's source patterns (crypto/fipsmodule, crypto/evp). Not annotatable in scope."
         }
       ]
     },
     {
       "rfc": "rfc3874",
       "spec_url": "https://www.rfc-editor.org/rfc/rfc3874",
-      "committed": false,
+      "committed": true,
       "requirements": [
         {
           "id": "rfc3874-section-4-must1",
@@ -241,17 +241,17 @@
           "level": "MUST",
           "quote": "Implementations of such\nprotocols that make use of SHA-224 MUST use the following object\nidentifier.",
           "target_url": "https://www.rfc-editor.org/rfc/rfc3874#section-4",
-          "status": "pending",
+          "status": "skip",
           "annotation_file": null,
           "annotation_line": null,
-          "skip_reason": null
+          "skip_reason": "ASN.1/OID encoding requirement, not algorithm behavior. The AlgorithmIdentifier and OID tables live in crypto/obj and crypto/asn1, outside this config's source patterns (crypto/fipsmodule, crypto/evp). Not annotatable in scope."
         }
       ]
     },
     {
       "rfc": "rfc8032",
       "spec_url": "https://www.rfc-editor.org/rfc/rfc8032",
-      "committed": false,
+      "committed": true,
       "requirements": [
         {
           "id": "rfc8032-section-5.1-must1",
@@ -259,9 +259,9 @@
           "level": "MUST",
           "quote": "The context (if present at all) MUST be empty.",
           "target_url": "https://www.rfc-editor.org/rfc/rfc8032#section-5.1",
-          "status": "pending",
-          "annotation_file": "crypto/fipsmodule/curve25519/ed25519.c",
-          "annotation_line": null,
+          "status": "annotated",
+          "annotation_file": "crypto/fipsmodule/curve25519/curve25519.c",
+          "annotation_line": 166,
           "skip_reason": null
         },
         {
@@ -270,9 +270,9 @@
           "level": "MUST",
           "quote": "In particular, unless the underlying\nprotocol does not require it, the receiver MUST buffer the entire\nmessage (or enough information to reconstruct it, e.g., compressed or\nencrypted version) to be verified.",
           "target_url": "https://www.rfc-editor.org/rfc/rfc8032#section-8.7",
-          "status": "pending",
-          "annotation_file": "crypto/fipsmodule/curve25519/ed25519.c",
-          "annotation_line": null,
+          "status": "annotated",
+          "annotation_file": "crypto/fipsmodule/curve25519/curve25519.c",
+          "annotation_line": 311,
           "skip_reason": null
         }
       ]

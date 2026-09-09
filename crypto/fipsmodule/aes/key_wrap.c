@@ -102,6 +102,13 @@ int AES_unwrap_key(const AES_KEY *key, const uint8_t *iv, uint8_t *out,
   if (iv == NULL) {
     iv = kDefaultIV;
   }
+  // A mismatch between the recovered and expected IV means the unwrap produced
+  // an unexpected value. Returning -1 reports the error without returning an
+  // unwrapped length, so no key data is returned to the caller.
+  //= https://www.rfc-editor.org/rfc/rfc3394#section-5
+  //# If unwrapping
+  //# produces an unexpected value, then the algorithm implementation MUST
+  //# return an error, and it MUST NOT return any key data.
   if (CRYPTO_memcmp(calculated_iv, iv, 8) != 0) {
     return -1;
   }
