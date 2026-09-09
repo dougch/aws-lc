@@ -276,6 +276,420 @@
           "skip_reason": null
         }
       ]
+    },
+    {
+      "rfc": "rfc9180",
+      "spec_url": "https://www.rfc-editor.org/rfc/rfc9180",
+      "committed": true,
+      "requirements": [
+        {
+          "id": "rfc9180-section-4.1-must0",
+          "section": "section-4.1",
+          "level": "MUST",
+          "quote": "Implementations MUST make sure to use the constants (Nh) and function\ncalls (LabeledExtract and LabeledExpand) of the appropriate KDF when\nimplementing DHKEM.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-4.1",
+          "status": "annotated",
+          "annotation_file": "crypto/hpke/hpke.c",
+          "annotation_line": 481,
+          "skip_reason": null
+        },
+        {
+          "id": "rfc9180-section-4.1-must1",
+          "section": "section-4.1",
+          "level": "MUST",
+          "quote": "Senders and recipients MUST validate KEM inputs and outputs as\ndescribed in Section 7.1.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-4.1",
+          "status": "annotated",
+          "annotation_file": "crypto/hpke/hpke.c",
+          "annotation_line": 204,
+          "skip_reason": null
+        },
+        {
+          "id": "rfc9180-section-4-must2",
+          "section": "section-4",
+          "level": "MUST",
+          "quote": "If\nused inside a KEM algorithm, suite_id MUST start with \"KEM\" and\nidentify this KEM algorithm; if used in the remainder of HPKE, it\nMUST start with \"HPKE\" and identify the entire ciphersuite in use.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-4",
+          "status": "annotated",
+          "annotation_file": "crypto/hpke/hpke.c",
+          "annotation_line": 127,
+          "skip_reason": null
+        },
+        {
+          "id": "rfc9180-section-5.1.2-must3",
+          "section": "section-5.1.2",
+          "level": "MUST",
+          "quote": "The PSK MUST have at least 32 bytes of entropy and SHOULD be of\nlength Nh bytes or longer.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-5.1.2",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "PSK modes not implemented. aws-lc supports HPKE_MODE_BASE and HPKE_MODE_AUTH only; psk and psk_id are always absent (NULL, 0)."
+        },
+        {
+          "id": "rfc9180-section-5.1.4-must4",
+          "section": "section-5.1.4",
+          "level": "MUST",
+          "quote": "The PSK MUST have at least 32 bytes of entropy and SHOULD be of\nlength Nh bytes or longer.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-5.1.4",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "PSK modes not implemented. aws-lc supports HPKE_MODE_BASE and HPKE_MODE_AUTH only; psk and psk_id are always absent (NULL, 0)."
+        },
+        {
+          "id": "rfc9180-section-5.1-must5",
+          "section": "section-5.1",
+          "level": "MUST",
+          "quote": "Senders and recipients MUST validate KEM inputs and outputs as\ndescribed in Section 7.1.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-5.1",
+          "status": "annotated",
+          "annotation_file": "crypto/hpke/hpke.c",
+          "annotation_line": 174,
+          "skip_reason": null
+        },
+        {
+          "id": "rfc9180-section-5.1-must6",
+          "section": "section-5.1",
+          "level": "MUST",
+          "quote": "The psk and psk_id fields MUST appear together or not at all.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-5.1",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "PSK modes not implemented. aws-lc supports HPKE_MODE_BASE and HPKE_MODE_AUTH only; psk and psk_id are always absent (NULL, 0)."
+        },
+        {
+          "id": "rfc9180-section-5.1-must7",
+          "section": "section-5.1",
+          "level": "MUST",
+          "quote": "That\nis, if a non-default value is provided for one of them, then the\nother MUST be set to a non-default value.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-5.1",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "PSK modes not implemented. aws-lc supports HPKE_MODE_BASE and HPKE_MODE_AUTH only; psk and psk_id are always absent (NULL, 0)."
+        },
+        {
+          "id": "rfc9180-section-5.2-must8",
+          "section": "section-5.2",
+          "level": "MUST",
+          "quote": "Implementations MAY use a\nsequence number that is shorter than the nonce length (padding on the\nleft with zero), but MUST raise an error if the sequence number\noverflows.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-5.2",
+          "status": "annotated",
+          "annotation_file": "crypto/hpke/hpke.c",
+          "annotation_line": 764,
+          "skip_reason": null
+        },
+        {
+          "id": "rfc9180-section-5.2-must9",
+          "section": "section-5.2",
+          "level": "MUST",
+          "quote": "The sender's context MUST NOT be used for decryption.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-5.2",
+          "status": "annotated",
+          "annotation_file": "crypto/hpke/hpke.c",
+          "annotation_line": 727,
+          "skip_reason": null
+        },
+        {
+          "id": "rfc9180-section-5.2-must10",
+          "section": "section-5.2",
+          "level": "MUST",
+          "quote": "Similarly, the\nrecipient's context MUST NOT be used for encryption.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-5.2",
+          "status": "annotated",
+          "annotation_file": "crypto/hpke/hpke.c",
+          "annotation_line": 752,
+          "skip_reason": null
+        },
+        {
+          "id": "rfc9180-section-5.2-must11",
+          "section": "section-5.2",
+          "level": "MUST",
+          "quote": "If ContextS.Seal() or ContextR.Open() would\ncause the seq field to overflow, then the implementation MUST fail\nwith an error.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-5.2",
+          "status": "annotated",
+          "annotation_file": "crypto/hpke/hpke.c",
+          "annotation_line": 735,
+          "skip_reason": null
+        },
+        {
+          "id": "rfc9180-section-5.3-must12",
+          "section": "section-5.3",
+          "level": "MUST",
+          "quote": "Future specifications that define new KDFs MUST specify a\nbound for L.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-5.3",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "Addressed to specification authors, not implementers. Requires future RFCs to state bounds or support; no code can satisfy it."
+        },
+        {
+          "id": "rfc9180-section-5-must13",
+          "section": "section-5",
+          "level": "MUST",
+          "quote": "Future\nspecifications which define new KEMs MUST indicate whether these\nmodes are supported.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-5",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "Addressed to specification authors, not implementers. Requires future RFCs to state bounds or support; no code can satisfy it."
+        },
+        {
+          "id": "rfc9180-section-7.1.1-must14",
+          "section": "section-7.1.1",
+          "level": "MUST",
+          "quote": "Some deserialized public keys MUST be validated before they can be\nused.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-7.1.1",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "Forward reference to Section 7.1.4 with no independent obligation. The concrete X25519 validation it points to is cited separately."
+        },
+        {
+          "id": "rfc9180-section-7.1.2-must15",
+          "section": "section-7.1.2",
+          "level": "MUST",
+          "quote": "If the private key is an integer outside the\nrange [0, order-1], where order is the order of the curve being used,\nthe private key MUST be reduced to its representative in [0, order-1]\nbefore being serialized.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-7.1.2",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "No NIST-curve KEM implemented. The only KEM is DHKEM(X25519, HKDF-SHA256); P-256/384/521 code paths do not exist."
+        },
+        {
+          "id": "rfc9180-section-7.1.2-must16",
+          "section": "section-7.1.2",
+          "level": "MUST",
+          "quote": "The\nSerializePrivateKey() function MUST clamp its output and the\nDeserializePrivateKey() function MUST clamp its input, where\n_clamping_ refers to the bitwise operations performed on k in the\ndecodeScalar25519() and decodeScalar448() functions defined in\nSection 5 of [RFC7748].",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-7.1.2",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "aws-lc clamps the X25519 scalar inside the scalar multiplication rather than at serialize/deserialize; X25519_keypair deliberately inverts the masking to detect non-conforming peers. Not cited because the literal serialize/deserialize clamping this requires is not where aws-lc performs it. Worth a maintainer's review."
+        },
+        {
+          "id": "rfc9180-section-7.1.4-must17",
+          "section": "section-7.1.4",
+          "level": "MUST",
+          "quote": "The following public keys are subject to validation if the group\nrequires public key validation: the sender MUST validate the\nrecipient's public key pkR; the recipient MUST validate the ephemeral\npublic key pkE; in authenticated modes, the recipient MUST validate\nthe sender's static public key pkS.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-7.1.4",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "No NIST-curve KEM implemented. The only KEM is DHKEM(X25519, HKDF-SHA256); P-256/384/521 code paths do not exist."
+        },
+        {
+          "id": "rfc9180-section-7.1.4-must18",
+          "section": "section-7.1.4",
+          "level": "MUST",
+          "quote": "For P-256, P-384, and P-521, senders and recipients MUST perform\npartial public key validation on all public key inputs, as defined in\nSection 5.6.2.3.4 of [keyagreement].",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-7.1.4",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "No NIST-curve KEM implemented. The only KEM is DHKEM(X25519, HKDF-SHA256); P-256/384/521 code paths do not exist."
+        },
+        {
+          "id": "rfc9180-section-7.1.4-must19",
+          "section": "section-7.1.4",
+          "level": "MUST",
+          "quote": "Additionally,\nsenders and recipients MUST ensure the Diffie-Hellman shared secret\nis not the point at infinity.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-7.1.4",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "No NIST-curve KEM implemented. The only KEM is DHKEM(X25519, HKDF-SHA256); P-256/384/521 code paths do not exist."
+        },
+        {
+          "id": "rfc9180-section-7.1.4-must20",
+          "section": "section-7.1.4",
+          "level": "MUST",
+          "quote": "For X25519 and X448, public keys and Diffie-Hellman outputs MUST be\nvalidated as described in [RFC7748].",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-7.1.4",
+          "status": "annotated",
+          "annotation_file": "crypto/hpke/hpke.c",
+          "annotation_line": 178,
+          "skip_reason": null
+        },
+        {
+          "id": "rfc9180-section-7.1.4-must21",
+          "section": "section-7.1.4",
+          "level": "MUST",
+          "quote": "In particular, recipients MUST\ncheck whether the Diffie-Hellman shared secret is the all-zero value\nand abort if so.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-7.1.4",
+          "status": "annotated",
+          "annotation_file": "crypto/hpke/hpke.c",
+          "annotation_line": 208,
+          "skip_reason": null
+        },
+        {
+          "id": "rfc9180-section-7.1.5-must22",
+          "section": "section-7.1.5",
+          "level": "MUST",
+          "quote": "Future specifications that define new KEMs MUST\nindicate whether or not Auth and AuthPSK modes are supported.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-7.1.5",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "Addressed to specification authors, not implementers. Requires future RFCs to state bounds or support; no code can satisfy it."
+        },
+        {
+          "id": "rfc9180-section-7.1.5-must23",
+          "section": "section-7.1.5",
+          "level": "MUST",
+          "quote": "Such KEM algorithms\nMUST specify only one encoding algorithm whose output length is Npk.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-7.1.5",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "Addressed to specification authors, not implementers. Requires future RFCs to state bounds or support; no code can satisfy it."
+        },
+        {
+          "id": "rfc9180-section-7.2.1-must24",
+          "section": "section-7.2.1",
+          "level": "MUST",
+          "quote": "Future specifications that define new KDFs MUST specify bounds for\nthese variable-length parameters.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-7.2.1",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "Addressed to specification authors, not implementers. Requires future RFCs to state bounds or support; no code can satisfy it."
+        },
+        {
+          "id": "rfc9180-section-9.2.3-must25",
+          "section": "section-9.2.3",
+          "level": "MUST",
+          "quote": "An ikm input to DeriveKeyPair() (Section 7.1.3) MUST NOT be reused\nelsewhere, in particular not with DeriveKeyPair() of a different KEM.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-9.2.3",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "Caller obligation. Applies to the application driving the HPKE context (message ordering, loss detection, ikm reuse); the library cannot enforce it across calls."
+        },
+        {
+          "id": "rfc9180-section-9.2.3-must26",
+          "section": "section-9.2.3",
+          "level": "MUST",
+          "quote": "The randomness used in Encap() and AuthEncap() to generate the KEM\nshared secret or its encapsulation MUST NOT be reused elsewhere.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-9.2.3",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "Caller obligation. Applies to the application driving the HPKE context (message ordering, loss detection, ikm reuse); the library cannot enforce it across calls."
+        },
+        {
+          "id": "rfc9180-section-9.2-must27",
+          "section": "section-9.2",
+          "level": "MUST",
+          "quote": "A KEM used within HPKE MUST allow HPKE to satisfy its desired\nsecurity properties described in Section 9.1.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-9.2",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "Design-level security property (IND-CCA2, uniform shared secret). Satisfied by primitive choice, not by any checkable code path."
+        },
+        {
+          "id": "rfc9180-section-9.2-must28",
+          "section": "section-9.2",
+          "level": "MUST",
+          "quote": "In particular, the KEM shared secret MUST be a uniformly random byte\nstring of length Nsecret.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-9.2",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "Design-level security property (IND-CCA2, uniform shared secret). Satisfied by primitive choice, not by any checkable code path."
+        },
+        {
+          "id": "rfc9180-section-9.4-must29",
+          "section": "section-9.4",
+          "level": "MUST",
+          "quote": "All AEADs MUST be IND-CCA2-secure, as is currently true for all AEADs\nlisted in Section 7.3.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-9.4",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "Design-level security property (IND-CCA2, uniform shared secret). Satisfied by primitive choice, not by any checkable code path."
+        },
+        {
+          "id": "rfc9180-section-9.5-must30",
+          "section": "section-9.5",
+          "level": "MUST",
+          "quote": "In the PSK and AuthPSK modes, the PSK MUST have at least 32 bytes of\nentropy and SHOULD be of length Nh bytes or longer.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-9.5",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "PSK modes not implemented. aws-lc supports HPKE_MODE_BASE and HPKE_MODE_AUTH only; psk and psk_id are always absent (NULL, 0)."
+        },
+        {
+          "id": "rfc9180-section-9.6-must31",
+          "section": "section-9.6",
+          "level": "MUST",
+          "quote": "Future KEM instantiations MUST ensure, should Extract() and Expand()\nbe used internally, that they can be modeled as functions independent\nfrom the invocations of Extract() and Expand() in the remainder of\nHPKE.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-9.6",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "Addressed to specification authors, not implementers. Requires future RFCs to state bounds or support; no code can satisfy it."
+        },
+        {
+          "id": "rfc9180-section-9.6-must32",
+          "section": "section-9.6",
+          "level": "MUST",
+          "quote": "It MUST be ensured that inputs to\nthese invocations cannot collide with inputs to the internal\ninvocations of these functions inside Extract() or Expand().",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-9.6",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "Addressed to specification authors, not implementers. Requires future RFCs to state bounds or support; no code can satisfy it."
+        },
+        {
+          "id": "rfc9180-section-9.7.1-must33",
+          "section": "section-9.7.1",
+          "level": "MUST",
+          "quote": "The primary requirement that HPKE imposes on applications is the\nrequirement that ciphertexts MUST be presented to ContextR.Open() in\nthe same order in which they were generated by ContextS.Seal().",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-9.7.1",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "Caller obligation. Applies to the application driving the HPKE context (message ordering, loss detection, ikm reuse); the library cannot enforce it across calls."
+        },
+        {
+          "id": "rfc9180-section-9.7.1-must34",
+          "section": "section-9.7.1",
+          "level": "MUST",
+          "quote": "Applications that allow\nfor multiple invocations of Open() / Seal() on the same context MUST\nenforce the ordering property described above.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-9.7.1",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "Caller obligation. Applies to the application driving the HPKE context (message ordering, loss detection, ikm reuse); the library cannot enforce it across calls."
+        },
+        {
+          "id": "rfc9180-section-9.7.1-must35",
+          "section": "section-9.7.1",
+          "level": "MUST",
+          "quote": "Applications MUST be able to\ndetect when a message has been lost.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-9.7.1",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "Caller obligation. Applies to the application driving the HPKE context (message ordering, loss detection, ikm reuse); the library cannot enforce it across calls."
+        },
+        {
+          "id": "rfc9180-section-9.7.1-must36",
+          "section": "section-9.7.1",
+          "level": "MUST",
+          "quote": "When an unrecoverable loss is\ndetected, the application MUST discard any associated HPKE context.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc9180#section-9.7.1",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "Caller obligation. Applies to the application driving the HPKE context (message ordering, loss detection, ikm reuse); the library cannot enforce it across calls."
+        }
+      ]
     }
   ]
 }

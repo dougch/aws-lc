@@ -1,32 +1,29 @@
 '$schema' = "https://awslabs.github.io/duvet/config/v0.4.0.json"
 
-# Source patterns: the FIPS-approved-algorithm surface.
-# - crypto/fipsmodule/**  — the module itself (per-algorithm implementations),
-#                           which includes the EVP dispatch layer at
-#                           crypto/fipsmodule/evp/ (public entry points)
-# - include/openssl/evp.h — the public API surface
+# Source patterns: all of crypto/, plus the public headers.
 #
-# Deliberately out of scope: crypto/evp_extra/, crypto/cipher_extra/,
-# crypto/obj/, crypto/asn1/, crypto/x509/. These hold real implementations
-# (AES-GCM-SIV, ASN.1 AlgorithmIdentifiers, OID tables) but sit outside the
-# FIPS-approved-algorithm surface this config tracks.
+# This deliberately covers more than the FIPS-approved-algorithm surface.
+# Normative RFC requirements are implemented throughout crypto/, not only in
+# crypto/fipsmodule/ — RFC 9180 (HPKE) in crypto/hpke/ and RFC 8439
+# (ChaCha20-Poly1305) in crypto/cipher_extra/ are the largest instances.
+# Scoping sources to the FIPS module made those requirements uncitable.
 #
 # Widening these patterns does not change the requirement denominator — the
 # report's requirement set comes only from the [[requirement]] blocks below.
 # Source patterns control where duvet looks for citations, nothing more.
 
 [[source]]
-pattern = "crypto/fipsmodule/**/*.c"
+pattern = "crypto/**/*.c"
 
 [[source]]
-pattern = "crypto/fipsmodule/**/*.h"
+pattern = "crypto/**/*.h"
 
 [[source]]
-pattern = "crypto/fipsmodule/**/*_test.cc"
+pattern = "crypto/**/*_test.cc"
 type = "test"
 
 [[source]]
-pattern = "include/openssl/evp.h"
+pattern = "include/openssl/*.h"
 
 # SP 800-140C is an approvals index, not a normative prose spec.
 # We hand-author requirements in `.duvet/custom-requirements/` rather than
@@ -98,6 +95,16 @@ format = "ietf"
 
 [[requirement]]
 pattern = ".duvet/requirements/www.rfc-editor.org/rfc/rfc3874/**/*.toml"
+
+# RFC 9180 (HPKE) — normative IETF spec, 37 body MUSTs at 0% appendix ratio.
+# Covers crypto/hpke/hpke.c. Not a FIPS-approved algorithm; included because
+# the requirements are normative and the implementation is here.
+[[specification]]
+source = "https://www.rfc-editor.org/rfc/rfc9180"
+format = "ietf"
+
+[[requirement]]
+pattern = ".duvet/requirements/www.rfc-editor.org/rfc/rfc9180/**/*.toml"
 
 [report.html]
 enabled = true

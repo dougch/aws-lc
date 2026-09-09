@@ -124,6 +124,11 @@ static int dhkem_extract_and_expand(uint16_t kem_id, const EVP_MD *hkdf_md,
                                     const uint8_t *kem_context,
                                     size_t kem_context_len) {
   // concat("KEM", I2OSP(kem_id, 2))
+  //= https://www.rfc-editor.org/rfc/rfc9180#section-4
+  //# If
+  //# used inside a KEM algorithm, suite_id MUST start with "KEM" and
+  //# identify this KEM algorithm; if used in the remainder of HPKE, it
+  //# MUST start with "HPKE" and identify the entire ciphersuite in use.
   uint8_t suite_id[5] = {'K', 'E', 'M', kem_id >> 8, kem_id & 0xff};
   uint8_t prk[EVP_MAX_MD_SIZE];
   size_t prk_len;
@@ -169,6 +174,14 @@ static int x25519_encap_with_seed(
   X25519_public_from_private(out_enc, seed);
 
   uint8_t dh[X25519_SHARED_KEY_LEN];
+  // |X25519| returns 0 when the Diffie-Hellman output is the all-zero value,
+  // which is the RFC 7748 validation this requirement defers to.
+  //= https://www.rfc-editor.org/rfc/rfc9180#section-5.1
+  //# Senders and recipients MUST validate KEM inputs and outputs as
+  //# described in Section 7.1.
+  //= https://www.rfc-editor.org/rfc/rfc9180#section-7.1.4
+  //# For X25519 and X448, public keys and Diffie-Hellman outputs MUST be
+  //# validated as described in [RFC7748].
   if (peer_public_key_len != X25519_PUBLIC_VALUE_LEN ||
       !X25519(dh, seed, peer_public_key)) {
     OPENSSL_PUT_ERROR(EVP, EVP_R_INVALID_PEER_KEY);
@@ -194,6 +207,15 @@ static int x25519_decap(const EVP_HPKE_KEY *key, uint8_t *out_shared_secret,
                         size_t *out_shared_secret_len, const uint8_t *enc,
                         size_t enc_len) {
   uint8_t dh[X25519_SHARED_KEY_LEN];
+  // |X25519| returns 0 on an all-zero shared secret, so the failure branch is
+  // the abort this requirement calls for.
+  //= https://www.rfc-editor.org/rfc/rfc9180#section-4.1
+  //# Senders and recipients MUST validate KEM inputs and outputs as
+  //# described in Section 7.1.
+  //= https://www.rfc-editor.org/rfc/rfc9180#section-7.1.4
+  //# In particular, recipients MUST
+  //# check whether the Diffie-Hellman shared secret is the all-zero value
+  //# and abort if so.
   if (enc_len != X25519_PUBLIC_VALUE_LEN ||
       !X25519(dh, key->private_key, enc)) {
     OPENSSL_PUT_ERROR(EVP, EVP_R_INVALID_PEER_KEY);
@@ -468,6 +490,12 @@ static int hpke_key_schedule(EVP_HPKE_CTX *ctx, uint8_t mode,
 
   // psk_id_hash = LabeledExtract("", "psk_id_hash", psk_id)
   // TODO(davidben): Precompute this value and store it with the EVP_HPKE_KDF.
+  // Every LabeledExtract/LabeledExpand call below is passed |hkdf_md|, taken
+  // from the context's own KDF, so the KDF cannot be mixed across calls.
+  //= https://www.rfc-editor.org/rfc/rfc9180#section-4.1
+  //# Implementations MUST make sure to use the constants (Nh) and function
+  //# calls (LabeledExtract and LabeledExpand) of the appropriate KDF when
+  //# implementing DHKEM.
   const EVP_MD *hkdf_md = ctx->kdf->hkdf_md_func();
   uint8_t psk_id_hash[EVP_MAX_MD_SIZE];
   size_t psk_id_hash_len;
@@ -713,10 +741,18 @@ static void hpke_nonce(const EVP_HPKE_CTX *ctx, uint8_t *out_nonce,
 int EVP_HPKE_CTX_open(EVP_HPKE_CTX *ctx, uint8_t *out, size_t *out_len,
                       size_t max_out_len, const uint8_t *in, size_t in_len,
                       const uint8_t *ad, size_t ad_len) {
+  //= https://www.rfc-editor.org/rfc/rfc9180#section-5.2
+  //# The sender's context MUST NOT be used for decryption.
   if (ctx->is_sender) {
     OPENSSL_PUT_ERROR(EVP, ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
     return 0;
   }
+  // |ctx->seq| is incremented only after a successful open, so refusing
+  // UINT64_MAX stops before the increment can wrap.
+  //= https://www.rfc-editor.org/rfc/rfc9180#section-5.2
+  //# If ContextS.Seal() or ContextR.Open() would
+  //# cause the seq field to overflow, then the implementation MUST fail
+  //# with an error.
   if (ctx->seq == UINT64_MAX) {
     OPENSSL_PUT_ERROR(EVP, ERR_R_OVERFLOW);
     return 0;
@@ -737,10 +773,19 @@ int EVP_HPKE_CTX_open(EVP_HPKE_CTX *ctx, uint8_t *out, size_t *out_len,
 int EVP_HPKE_CTX_seal(EVP_HPKE_CTX *ctx, uint8_t *out, size_t *out_len,
                       size_t max_out_len, const uint8_t *in, size_t in_len,
                       const uint8_t *ad, size_t ad_len) {
+  //= https://www.rfc-editor.org/rfc/rfc9180#section-5.2
+  //# Similarly, the
+  //# recipient's context MUST NOT be used for encryption.
   if (!ctx->is_sender) {
     OPENSSL_PUT_ERROR(EVP, ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
     return 0;
   }
+  // The nonce is base_nonce XOR seq, so a wrapped seq would repeat a nonce.
+  //= https://www.rfc-editor.org/rfc/rfc9180#section-5.2
+  //# Implementations MAY use a
+  //# sequence number that is shorter than the nonce length (padding on the
+  //# left with zero), but MUST raise an error if the sequence number
+  //# overflows.
   if (ctx->seq == UINT64_MAX) {
     OPENSSL_PUT_ERROR(EVP, ERR_R_OVERFLOW);
     return 0;
