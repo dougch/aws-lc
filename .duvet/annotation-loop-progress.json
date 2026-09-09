@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "description": "Unsupervised duvet annotation loop state. RFC 7748 pilot.",
+  "description": "Unsupervised duvet annotation loop state. RFC 7748 pilot complete; queue from rfc-candidates.md gates.",
   "commit_per_rfc": true,
   "source_root": "/Users/dougch/gitrepos/aws-lc",
   "rfcs": [
@@ -74,6 +74,206 @@
           "annotation_file": null,
           "annotation_line": null,
           "skip_reason": "Theoretical curve security property of Curve25519. Satisfied by the curve definition, not addressable as a code annotation."
+        }
+      ]
+    },
+    {
+      "rfc": "rfc3610",
+      "spec_url": "https://www.rfc-editor.org/rfc/rfc3610",
+      "committed": false,
+      "requirements": [
+        {
+          "id": "rfc3610-section-2.1-must1",
+          "section": "section-2.1",
+          "level": "MUST",
+          "quote": "Within the scope of any encryption key\nK, the nonce value MUST be unique.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc3610#section-2.1",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "Caller obligation, not library behavior. The AEAD/EVP API accepts a caller-supplied nonce; aws-lc cannot enforce uniqueness across calls. No code path implements or checks this."
+        },
+        {
+          "id": "rfc3610-section-2.1-must2",
+          "section": "section-2.1",
+          "level": "MUST",
+          "quote": "That is, the set of nonce\nvalues used with any given key MUST NOT contain any duplicate\nvalues.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc3610#section-2.1",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "Caller obligation, not library behavior. The AEAD/EVP API accepts a caller-supplied nonce; aws-lc cannot enforce uniqueness across calls. No code path implements or checks this."
+        },
+        {
+          "id": "rfc3610-section-2.2-must3",
+          "section": "section-2.2",
+          "level": "MUST",
+          "quote": "The 3-bit field MUST NOT have a value of zero,\nwhich would correspond to a 16-bit integrity check value.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc3610#section-2.2",
+          "status": "annotated",
+          "annotation_file": "crypto/fipsmodule/cipher/e_aesccm.c",
+          "annotation_line": 67,
+          "skip_reason": null
+        },
+        {
+          "id": "rfc3610-section-2.3-must4",
+          "section": "section-2.3",
+          "level": "MUST",
+          "quote": "The Reserved bits are reserved for future expansions and MUST be set\nto zero.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc3610#section-2.3",
+          "status": "annotated",
+          "annotation_file": "crypto/fipsmodule/cipher/e_aesccm.c",
+          "annotation_line": 185,
+          "skip_reason": null
+        },
+        {
+          "id": "rfc3610-section-2.3-must5",
+          "section": "section-2.3",
+          "level": "MUST",
+          "quote": "Bit 6 corresponds to the Adata bit in the B_0 block, but as\nthis bit is not used here, it is reserved and MUST be set to zero.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc3610#section-2.3",
+          "status": "annotated",
+          "annotation_file": "crypto/fipsmodule/cipher/e_aesccm.c",
+          "annotation_line": 188,
+          "skip_reason": null
+        },
+        {
+          "id": "rfc3610-section-2.5-must6",
+          "section": "section-2.5",
+          "level": "MUST",
+          "quote": "If the T value is not correct, the receiver MUST NOT reveal any\ninformation except for the fact that T is incorrect.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc3610#section-2.5",
+          "status": "annotated",
+          "annotation_file": "crypto/fipsmodule/cipher/e_aesccm.c",
+          "annotation_line": 401,
+          "skip_reason": null
+        },
+        {
+          "id": "rfc3610-section-2.5-must7",
+          "section": "section-2.5",
+          "level": "MUST",
+          "quote": "The receiver\nMUST NOT reveal the decrypted message, the value T, or any other\ninformation.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc3610#section-2.5",
+          "status": "annotated",
+          "annotation_file": "crypto/fipsmodule/cipher/e_aesccm.c",
+          "annotation_line": 622,
+          "skip_reason": null
+        },
+        {
+          "id": "rfc3610-section-2.6-must8",
+          "section": "section-2.6",
+          "level": "MUST",
+          "quote": "This is roughly 16 million\nterabytes, which should be more than enough for most applications.)\nIn an environment where this limit might be reached, the sender MUST\nensure that the total number of block cipher encryption operations in\nthe CBC-MAC and encryption together does not exceed 2^61.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc3610#section-2.6",
+          "status": "annotated",
+          "annotation_file": "crypto/fipsmodule/cipher/e_aesccm.c",
+          "annotation_line": 168,
+          "skip_reason": null
+        },
+        {
+          "id": "rfc3610-section-2.6-must9",
+          "section": "section-2.6",
+          "level": "MUST",
+          "quote": "The recipient MUST verify the CBC-MAC before releasing any\ninformation such as the plaintext.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc3610#section-2.6",
+          "status": "annotated",
+          "annotation_file": "crypto/fipsmodule/cipher/e_aesccm.c",
+          "annotation_line": 398,
+          "skip_reason": null
+        },
+        {
+          "id": "rfc3610-section-2.6-must10",
+          "section": "section-2.6",
+          "level": "MUST",
+          "quote": "If the CBC-MAC verification\nfails, the receiver MUST destroy all information, except for the fact\nthat the CBC-MAC verification failed.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc3610#section-2.6",
+          "status": "annotated",
+          "annotation_file": "crypto/fipsmodule/cipher/e_aesccm.c",
+          "annotation_line": 618,
+          "skip_reason": null
+        }
+      ]
+    },
+    {
+      "rfc": "rfc3394",
+      "spec_url": "https://www.rfc-editor.org/rfc/rfc3394",
+      "committed": false,
+      "requirements": [
+        {
+          "id": "rfc3394-section-5-must1",
+          "section": "section-5",
+          "level": "MUST",
+          "quote": "If unwrapping\nproduces an unexpected value, then the algorithm implementation MUST\nreturn an error, and it MUST NOT return any key data.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc3394#section-5",
+          "status": "pending",
+          "annotation_file": "crypto/fipsmodule/aes/key_wrap.c",
+          "annotation_line": null,
+          "skip_reason": null
+        }
+      ]
+    },
+    {
+      "rfc": "rfc5649",
+      "spec_url": "https://www.rfc-editor.org/rfc/rfc5649",
+      "committed": false,
+      "requirements": [
+        {
+          "id": "rfc5649-section-5-must1",
+          "section": "section-5",
+          "level": "MUST",
+          "quote": "In all cases, the AlgorithmIdentifier parameter field MUST be absent.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc5649#section-5",
+          "status": "pending",
+          "annotation_file": "crypto/fipsmodule/aes/key_wrap.c",
+          "annotation_line": null,
+          "skip_reason": null
+        }
+      ]
+    },
+    {
+      "rfc": "rfc3874",
+      "spec_url": "https://www.rfc-editor.org/rfc/rfc3874",
+      "committed": false,
+      "requirements": [
+        {
+          "id": "rfc3874-section-4-must1",
+          "section": "section-4",
+          "level": "MUST",
+          "quote": "Implementations of such\nprotocols that make use of SHA-224 MUST use the following object\nidentifier.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc3874#section-4",
+          "status": "pending",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": null
+        }
+      ]
+    },
+    {
+      "rfc": "rfc8032",
+      "spec_url": "https://www.rfc-editor.org/rfc/rfc8032",
+      "committed": false,
+      "requirements": [
+        {
+          "id": "rfc8032-section-5.1-must1",
+          "section": "section-5.1",
+          "level": "MUST",
+          "quote": "The context (if present at all) MUST be empty.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc8032#section-5.1",
+          "status": "pending",
+          "annotation_file": "crypto/fipsmodule/curve25519/ed25519.c",
+          "annotation_line": null,
+          "skip_reason": null
+        },
+        {
+          "id": "rfc8032-section-8.7-must2",
+          "section": "section-8.7",
+          "level": "MUST",
+          "quote": "In particular, unless the underlying\nprotocol does not require it, the receiver MUST buffer the entire\nmessage (or enough information to reconstruct it, e.g., compressed or\nencrypted version) to be verified.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc8032#section-8.7",
+          "status": "pending",
+          "annotation_file": "crypto/fipsmodule/curve25519/ed25519.c",
+          "annotation_line": null,
+          "skip_reason": null
         }
       ]
     }

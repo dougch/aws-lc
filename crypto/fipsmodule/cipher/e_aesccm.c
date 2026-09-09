@@ -62,6 +62,11 @@ typedef struct cipher_aes_ccm_ctx {
 // As per RFC3610, the nonce length in bytes is 15 - L.
 #define CCM_L_TO_NONCE_LEN(L) (15 - (L))
 
+// The M parameter is encoded into the B_0 flags byte as ((M-2)/2), a 3-bit
+// field. Rejecting M < 4 keeps that encoded field non-zero.
+//= https://www.rfc-editor.org/rfc/rfc3610#section-2.2
+//# The 3-bit field MUST NOT have a value of zero,
+//# which would correspond to a 16-bit integrity check value.
 static int CRYPTO_ccm128_init(struct ccm128_context *ctx, block128_f block,
                               ctr128_f ctr, unsigned M, unsigned L) {
   if (M < EVP_AEAD_AES_CCM_MIN_TAG_LEN || M > EVP_AEAD_AES_CCM_MAX_TAG_LEN
@@ -158,9 +163,14 @@ static int ccm128_init_state(const struct ccm128_context *ctx,
     } while (aad_len != 0);
   }
 
-  // Per RFC 3610, section 2.6, the total number of block cipher operations done
-  // must not exceed 2^61. There are two block cipher operations remaining per
-  // message block, plus one block at the end to encrypt the MAC.
+  // There are two block cipher operations remaining per message block, plus one
+  // block at the end to encrypt the MAC.
+  //= https://www.rfc-editor.org/rfc/rfc3610#section-2.6
+  //# This is roughly 16 million
+  //# terabytes, which should be more than enough for most applications.)
+  //# In an environment where this limit might be reached, the sender MUST
+  //# ensure that the total number of block cipher encryption operations in
+  //# the CBC-MAC and encryption together does not exceed 2^61.
   size_t remaining_blocks = 2 * ((plaintext_len + 15) / 16) + 1;
   if (plaintext_len + 15 < plaintext_len ||
       remaining_blocks + blocks < blocks ||
@@ -170,7 +180,14 @@ static int ccm128_init_state(const struct ccm128_context *ctx,
 
   // Assemble the first block for encrypting and decrypting. The bottom |L|
   // bytes are replaced with a counter and all bit the encoding of |L| is
-  // cleared in the first byte.
+  // cleared in the first byte. Masking with 7 leaves only the 3-bit |L-1|
+  // field, clearing the reserved bits (7, 6) and bits 5-3 of the A_i flags.
+  //= https://www.rfc-editor.org/rfc/rfc3610#section-2.3
+  //# The Reserved bits are reserved for future expansions and MUST be set
+  //# to zero.
+  //= https://www.rfc-editor.org/rfc/rfc3610#section-2.3
+  //# Bit 6 corresponds to the Adata bit in the B_0 block, but as
+  //# this bit is not used here, it is reserved and MUST be set to zero.
   state->nonce[0] &= 7;
   return 1;
 }
@@ -375,6 +392,15 @@ static int aead_aes_ccm_open_gather(const EVP_AEAD_CTX *ctx, uint8_t *out,
     return 0;
   }
 
+  // The tag is verified before this function returns success, so |out| is never
+  // presented to the caller as authenticated plaintext until the CBC-MAC checks
+  // out. On mismatch the only signal returned is the error itself.
+  //= https://www.rfc-editor.org/rfc/rfc3610#section-2.6
+  //# The recipient MUST verify the CBC-MAC before releasing any
+  //# information such as the plaintext.
+  //= https://www.rfc-editor.org/rfc/rfc3610#section-2.5
+  //# If the T value is not correct, the receiver MUST NOT reveal any
+  //# information except for the fact that T is incorrect.
   if (CRYPTO_memcmp(tag, in_tag, ctx->tag_len) != 0) {
     OPENSSL_PUT_ERROR(CIPHER, CIPHER_R_BAD_DECRYPT);
     return 0;
@@ -587,6 +613,16 @@ static int cipher_aes_ccm_cipher(EVP_CIPHER_CTX *ctx, uint8_t *out,
       return -1;
     }
     // Validate the tag and invalidate the output if it doesn't match.
+    // |OPENSSL_cleanse| zeroes the decrypted plaintext so a failed
+    // authentication leaks nothing but the failure itself.
+    //= https://www.rfc-editor.org/rfc/rfc3610#section-2.6
+    //# If the CBC-MAC verification
+    //# fails, the receiver MUST destroy all information, except for the fact
+    //# that the CBC-MAC verification failed.
+    //= https://www.rfc-editor.org/rfc/rfc3610#section-2.5
+    //# The receiver
+    //# MUST NOT reveal the decrypted message, the value T, or any other
+    //# information.
     if (CRYPTO_memcmp(cipher_ctx->tag, computed_tag, cipher_ctx->M)) {
       OPENSSL_cleanse(out, len);
       return -1;

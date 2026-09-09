@@ -57,6 +57,45 @@ format = "ietf"
 [[requirement]]
 pattern = ".duvet/requirements/www.rfc-editor.org/rfc/rfc7748/**/*.toml"
 
+# RFC 8032 requirements extracted from the RFC prose. This is separate from the
+# hand-authored `.duvet/rfc8032-requirements/` block above, which covers the
+# Ed25519ph prehash surface that the RFC text does not state normatively.
+[[requirement]]
+pattern = ".duvet/requirements/www.rfc-editor.org/rfc/rfc8032/**/*.toml"
+
+# RFC 3610 (CCM mode) — normative IETF spec; requirements extracted via
+# `duvet extract`. Covers crypto/fipsmodule/cipher/e_aesccm.c.
+[[specification]]
+source = "https://www.rfc-editor.org/rfc/rfc3610"
+format = "ietf"
+
+[[requirement]]
+pattern = ".duvet/requirements/www.rfc-editor.org/rfc/rfc3610/**/*.toml"
+
+# RFC 3394 (AES Key Wrap) — covers crypto/fipsmodule/aes/key_wrap.c.
+[[specification]]
+source = "https://www.rfc-editor.org/rfc/rfc3394"
+format = "ietf"
+
+[[requirement]]
+pattern = ".duvet/requirements/www.rfc-editor.org/rfc/rfc3394/**/*.toml"
+
+# RFC 5649 (AES Key Wrap with Padding) — covers crypto/fipsmodule/aes/key_wrap.c.
+[[specification]]
+source = "https://www.rfc-editor.org/rfc/rfc5649"
+format = "ietf"
+
+[[requirement]]
+pattern = ".duvet/requirements/www.rfc-editor.org/rfc/rfc5649/**/*.toml"
+
+# RFC 3874 (SHA-224) — covers crypto/fipsmodule/sha/.
+[[specification]]
+source = "https://www.rfc-editor.org/rfc/rfc3874"
+format = "ietf"
+
+[[requirement]]
+pattern = ".duvet/requirements/www.rfc-editor.org/rfc/rfc3874/**/*.toml"
+
 [report.html]
 enabled = true
 blob-link = "https://github.com/aws/aws-lc/blob/main"

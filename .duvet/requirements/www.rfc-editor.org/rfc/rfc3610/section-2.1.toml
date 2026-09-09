@@ -1,0 +1,52 @@
+target = "https://www.rfc-editor.org/rfc/rfc3610#section-2.1"
+
+# Inputs
+#
+#    To authenticate and encrypt a message the following information is
+#    required:
+# 
+#    1.  An encryption key K suitable for the block cipher.
+# 
+#    2.  A nonce N of 15-L octets.  Within the scope of any encryption key
+#        K, the nonce value MUST be unique.  That is, the set of nonce
+#        values used with any given key MUST NOT contain any duplicate
+#        values.  Using the same nonce for two different messages
+#        encrypted with the same key destroys the security properties of
+#        this mode.
+# 
+#    3.  The message m, consisting of a string of l(m) octets where 0 <=
+#        l(m) < 2^(8L).  The length restriction ensures that l(m) can be
+#        encoded in a field of L octets.
+# 
+#    4.  Additional authenticated data a, consisting of a string of l(a)
+#        octets where 0 <= l(a) < 2^64.  This additional data is
+#        authenticated but not encrypted, and is not included in the
+#        output of this mode.  It can be used to authenticate plaintext
+#        packet headers, or contextual information that affects the
+#        interpretation of the message.  Users who do not wish to
+#        authenticate additional data can provide a string of length zero.
+# 
+#    The inputs are summarized as:
+# 
+#       Name  Description                          Size
+#       ----  -----------------------------------  -----------------------
+#       K     Block cipher key                     Depends on block cipher
+#       N     Nonce                                15-L octets
+#       m     Message to authenticate and encrypt  l(m) octets
+#       a     Additional authenticated data        l(a) octets
+
+[[spec]]
+level = "MUST"
+quote = '''
+Within the scope of any encryption key
+K, the nonce value MUST be unique.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+That is, the set of nonce
+values used with any given key MUST NOT contain any duplicate
+values.
+'''
+

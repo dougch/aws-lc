@@ -1,0 +1,54 @@
+target = "https://www.rfc-editor.org/rfc/rfc3610#section-2.6"
+
+# Restrictions
+#
+#    To preserve security, implementations need to limit the total amount
+#    of data that is encrypted with a single key; the total number of
+#    block cipher encryption operations in the CBC-MAC and encryption
+#    together cannot exceed 2^61.  (This allows nearly 2^64 octets to be
+#    encrypted and authenticated using CCM.  This is roughly 16 million
+#    terabytes, which should be more than enough for most applications.)
+#    In an environment where this limit might be reached, the sender MUST
+#    ensure that the total number of block cipher encryption operations in
+#    the CBC-MAC and encryption together does not exceed 2^61.  Receivers
+#    that do not expect to decrypt the same message twice MAY also check
+#    this limit.
+# 
+#    The recipient MUST verify the CBC-MAC before releasing any
+#    information such as the plaintext.  If the CBC-MAC verification
+#    fails, the receiver MUST destroy all information, except for the fact
+#    that the CBC-MAC verification failed.
+
+[[spec]]
+level = "MUST"
+quote = '''
+This is roughly 16 million
+terabytes, which should be more than enough for most applications.)
+In an environment where this limit might be reached, the sender MUST
+ensure that the total number of block cipher encryption operations in
+the CBC-MAC and encryption together does not exceed 2^61.
+'''
+
+[[spec]]
+level = "MAY"
+quote = '''
+Receivers
+that do not expect to decrypt the same message twice MAY also check
+this limit.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+The recipient MUST verify the CBC-MAC before releasing any
+information such as the plaintext.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+If the CBC-MAC verification
+fails, the receiver MUST destroy all information, except for the fact
+that the CBC-MAC verification failed.
+'''
+

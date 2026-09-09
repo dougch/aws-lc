@@ -1,0 +1,60 @@
+target = "https://www.rfc-editor.org/rfc/rfc3610#section-2.3"
+
+# Encryption
+#
+#    To encrypt the message data we use Counter (CTR) mode.  We first
+#    define the key stream blocks by:
+# 
+#       S_i := E( K, A_i )   for i=0, 1, 2, ...
+# 
+#    The values A_i are formatted as follows, where the Counter field i is
+#    encoded in most-significant-byte first order:
+# 
+#       Octet Number   Contents
+#       ------------   ---------
+#       0              Flags
+#       1 ... 15-L     Nonce N
+#       16-L ... 15    Counter i
+# 
+#    The Flags field is formatted as follows:
+# 
+#       Bit Number   Contents
+#       ----------   ----------------------
+#       7            Reserved (always zero)
+#       6            Reserved (always zero)
+#       5 ... 3      Zero
+#       2 ... 0      L'
+# 
+#    Another way say the same thing is:  Flags = L'.
+# 
+#    The Reserved bits are reserved for future expansions and MUST be set
+#    to zero.  Bit 6 corresponds to the Adata bit in the B_0 block, but as
+#    this bit is not used here, it is reserved and MUST be set to zero.
+#    Bits 3, 4, and 5 are also set to zero, ensuring that all the A blocks
+#    are distinct from B_0, which has the non-zero encoding of M in this
+#    position.  Bits 0, 1, and 2 contain L', using the same encoding as in
+#    B_0.
+# 
+#    The message is encrypted by XORing the octets of message m with the
+#    first l(m) octets of the concatenation of S_1, S_2, S_3, ... .  Note
+#    that S_0 is not used to encrypt the message.
+# 
+#    The authentication value U is computed by encrypting T with the key
+#    stream block S_0 and truncating it to the desired length.
+# 
+#       U := T XOR first-M-bytes( S_0 )
+
+[[spec]]
+level = "MUST"
+quote = '''
+The Reserved bits are reserved for future expansions and MUST be set
+to zero.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Bit 6 corresponds to the Adata bit in the B_0 block, but as
+this bit is not used here, it is reserved and MUST be set to zero.
+'''
+

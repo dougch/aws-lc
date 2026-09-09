@@ -1,0 +1,39 @@
+target = "https://www.rfc-editor.org/rfc/rfc3610#section-2.5"
+
+# Decryption and Authentication Checking
+#
+#    To decrypt a message the following information is required:
+# 
+#       1.  The encryption key K.
+# 
+#       2.  The nonce N.
+# 
+#       3.  The additional authenticated data a.
+# 
+#       4.  The encrypted and authenticated message c.
+# 
+#    Decryption starts by recomputing the key stream to recover the
+#    message m and the MAC value T.  The message and additional
+#    authentication data is then used to recompute the CBC-MAC value and
+#    check T.
+# 
+#    If the T value is not correct, the receiver MUST NOT reveal any
+#    information except for the fact that T is incorrect.  The receiver
+#    MUST NOT reveal the decrypted message, the value T, or any other
+#    information.
+
+[[spec]]
+level = "MUST"
+quote = '''
+If the T value is not correct, the receiver MUST NOT reveal any
+information except for the fact that T is incorrect.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+The receiver
+MUST NOT reveal the decrypted message, the value T, or any other
+information.
+'''
+

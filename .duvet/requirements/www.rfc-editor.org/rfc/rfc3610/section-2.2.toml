@@ -1,0 +1,100 @@
+target = "https://www.rfc-editor.org/rfc/rfc3610#section-2.2"
+
+# Authentication
+#
+#    The first step is to compute the authentication field T.  This is
+#    done using CBC-MAC [MAC].  We first define a sequence of blocks B_0,
+#    B_1, ..., B_n and then apply CBC-MAC to these blocks.
+# 
+#    The first block B_0 is formatted as follows, where l(m) is encoded in
+#    most-significant-byte first order:
+# 
+#       Octet Number   Contents
+#       ------------   ---------
+#       0              Flags
+#       1 ... 15-L     Nonce N
+#       16-L ... 15    l(m)
+# 
+#    Within the first block B_0, the Flags field is formatted as follows:
+# 
+#       Bit Number   Contents
+#       ----------   ----------------------
+#       7            Reserved (always zero)
+#       6            Adata
+#       5 ... 3      M'
+#       2 ... 0      L'
+# 
+#    Another way say the same thing is:  Flags = 64*Adata + 8*M' + L'.
+# 
+#    The Reserved bit is reserved for future expansions and should always
+#    be set to zero.  The Adata bit is set to zero if l(a)=0, and set to
+#    one if l(a)>0.  The M' field is set to (M-2)/2.  As M can take on the
+#    even values from 4 to 16, the 3-bit M' field can take on the values
+#    from one to seven.  The 3-bit field MUST NOT have a value of zero,
+#    which would correspond to a 16-bit integrity check value.  The L'
+#    field encodes the size of the length field used to store l(m).  The
+#    parameter L can take on the values from 2 to 8 (recall, the value L=1
+#    is reserved).  This value is encoded in the 3-bit L' field using the
+#    values from one to seven by choosing L' = L-1 (the zero value is
+#    reserved).
+# 
+#    If l(a)>0 (as indicated by the Adata field), then one or more blocks
+#    of authentication data are added.  These blocks contain l(a) and a
+#    encoded in a reversible manner.  We first construct a string that
+#    encodes l(a).
+# 
+#    If 0 < l(a) < (2^16 - 2^8), then the length field is encoded as two
+#    octets which contain the value l(a) in most-significant-byte first
+#    order.
+# 
+#    If (2^16 - 2^8) <= l(a) < 2^32, then the length field is encoded as
+#    six octets consisting of the octets 0xff, 0xfe, and four octets
+#    encoding l(a) in most-significant-byte-first order.
+# 
+#    If 2^32 <= l(a) < 2^64, then the length field is encoded as ten
+#    octets consisting of the octets 0xff, 0xff, and eight octets encoding
+#    l(a) in most-significant-byte-first order.
+# 
+#    The length encoding conventions are summarized in the following
+#    table.  Note that all fields are interpreted in most-significant-byte
+#    first order.
+# 
+#     First two octets   Followed by       Comment
+#     -----------------  ----------------  -------------------------------
+#     0x0000             Nothing           Reserved
+#     0x0001 ... 0xFEFF  Nothing           For 0 < l(a) < (2^16 - 2^8)
+#     0xFF00 ... 0xFFFD  Nothing           Reserved
+#     0xFFFE             4 octets of l(a)  For (2^16 - 2^8) <= l(a) < 2^32
+#     0xFFFF             8 octets of l(a)  For 2^32 <= l(a) < 2^64
+# 
+#    The blocks encoding a are formed by concatenating this string that
+#    encodes l(a) with a itself, and splitting the result into 16-octet
+#    blocks, and then padding the last block with zeroes if necessary.
+#    These blocks are appended to the first block B0.
+# 
+#    After the (optional) additional authentication blocks have been
+#    added, we add the message blocks.  The message blocks are formed by
+#    splitting the message m into 16-octet blocks, and then padding the
+#    last block with zeroes if necessary.  If the message m consists of
+#    the empty string, then no blocks are added in this step.
+# 
+#    The result is a sequence of blocks B0, B1, ..., Bn.  The CBC-MAC is
+#    computed by:
+# 
+#       X_1 := E( K, B_0 )
+#       X_i+1 := E( K, X_i XOR B_i )  for i=1, ..., n
+#       T := first-M-bytes( X_n+1 )
+# 
+#    where E() is the block cipher encryption function, and T is the MAC
+#    value.  CCM was designed with AES in mind for the E() function, but
+#    any 128-bit block cipher can be used.  Note that the last block B_n
+#    is XORed with X_n, and the result is encrypted with the block cipher.
+#    If needed, the ciphertext is truncated to give T.
+
+[[spec]]
+level = "MUST"
+quote = '''
+The 3-bit field MUST NOT have a value of zero,
+which would correspond to a 16-bit integrity check value.
+'''
+

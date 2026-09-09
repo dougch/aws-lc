@@ -1,0 +1,32 @@
+target = "https://www.rfc-editor.org/rfc/rfc5649#section-5"
+
+# Algorithm Identifiers
+#
+#    Some security protocols employ ASN.1 [X.680] and employ algorithm
+#    identifiers to name cryptographic algorithms.  To support these
+#    protocols, the AES Key Wrap with Padding algorithm has been assigned
+#    the following algorithm identifiers, one for each AES KEK size.  The
+#    AES Key Wrap (without padding) algorithm identifiers are also
+#    included here for convenience.
+# 
+#       aes OBJECT IDENTIFIER ::= { joint-iso-itu-t(2) country(16)
+#                 us(840) organization(1) gov(101) csor(3)
+#                 nistAlgorithm(4) 1 }
+# 
+#       id-aes128-wrap     OBJECT IDENTIFIER ::= { aes 5 }
+#       id-aes128-wrap-pad OBJECT IDENTIFIER ::= { aes 8 }
+# 
+#       id-aes192-wrap     OBJECT IDENTIFIER ::= { aes 25 }
+#       id-aes192-wrap-pad OBJECT IDENTIFIER ::= { aes 28 }
+# 
+#       id-aes256-wrap     OBJECT IDENTIFIER ::= { aes 45 }
+#       id-aes256-wrap-pad OBJECT IDENTIFIER ::= { aes 48 }
+# 
+#    In all cases, the AlgorithmIdentifier parameter field MUST be absent.
+
+[[spec]]
+level = "MUST"
+quote = '''
+In all cases, the AlgorithmIdentifier parameter field MUST be absent.
+'''
+

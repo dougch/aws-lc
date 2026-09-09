@@ -1,0 +1,22 @@
+target = "https://www.rfc-editor.org/rfc/rfc3874#section-4"
+
+# Object Identifier
+#
+#    NIST has assigned an ASN.1 [X.208-88, X.209-88] object identifier for
+#    SHA-224.  Some protocols use object identifiers to name one-way hash
+#    functions.  One example is CMS [CMS].  Implementations of such
+#    protocols that make use of SHA-224 MUST use the following object
+#    identifier.
+# 
+#       id-sha224  OBJECT IDENTIFIER  ::=  { joint-iso-itu-t(2)
+#                       country(16) us(840) organization(1) gov(101)
+#                       csor(3) nistalgorithm(4) hashalgs(2) sha224(4) }
+
+[[spec]]
+level = "MUST"
+quote = '''
+Implementations of such
+protocols that make use of SHA-224 MUST use the following object
+identifier.
+'''
+
