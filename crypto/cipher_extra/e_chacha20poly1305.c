@@ -108,6 +108,11 @@ static void calc_tag(uint8_t tag[POLY1305_TAG_LEN], const uint8_t *key,
                      size_t ad_len, const uint8_t *ciphertext,
                      size_t ciphertext_len, const uint8_t *ciphertext_extra,
                      size_t ciphertext_extra_len) {
+  // The one-time Poly1305 key is ChaCha20 keystream block 0 under the same
+  // key and nonce, so it is not caller-supplied and is unpredictable without
+  // the ChaCha20 key.
+  //= https://www.rfc-editor.org/rfc/rfc8439#section-4
+  //# The Poly1305 key MUST be unpredictable to an attacker.
   alignas(16) uint8_t poly1305_key[CHACHA_KEY_LEN];
   OPENSSL_memset(poly1305_key, 0, sizeof(poly1305_key));
   CRYPTO_chacha_20(poly1305_key, poly1305_key, sizeof(poly1305_key), key, nonce,
@@ -282,6 +287,11 @@ static int chacha20_poly1305_open_gather(const uint8_t *key, uint8_t *out,
     CRYPTO_chacha_20(out, in, in_len, key, nonce, 1);
   }
 
+  //= https://www.rfc-editor.org/rfc/rfc8439#section-4
+  //# For this reason, with online protocols,
+  //# implementation MUST use a constant-time comparison function rather
+  //# than relying on optimized but insecure library functions such as the
+  //# C language's memcmp().
   if (CRYPTO_memcmp(data.out.tag, in_tag, tag_len) != 0) {
     OPENSSL_PUT_ERROR(CIPHER, CIPHER_R_BAD_DECRYPT);
     return 0;

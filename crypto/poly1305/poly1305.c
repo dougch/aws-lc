@@ -146,6 +146,16 @@ void CRYPTO_poly1305_init(poly1305_state *statep, const uint8_t key[32]) {
   t3 = CRYPTO_load_u32_le(key + 12);
 
   // precompute multipliers
+  //
+  // The masks below fold the RFC's clamp of "r" into the radix-2^26 limb
+  // split: 0x3ffff03, 0x3ffc0ff, 0x3f03fff and 0x00fffff clear the top four
+  // bits of key bytes 3, 7, 11, 15 and the low two bits of bytes 4, 8, 12.
+  //= https://www.rfc-editor.org/rfc/rfc8439#section-2.5
+  //# The pair (r,s) should be unique, and
+  //# MUST be unpredictable for each invocation (that is why it was
+  //# originally obtained by encrypting a nonce), while "r" MAY be
+  //# constant, but needs to be modified as follows before being used: ("r"
+  //# is treated as a 16-octet little-endian number):
   state->r0 = t0 & 0x3ffffff;
   t0 >>= 26;
   t0 |= t1 << 6;

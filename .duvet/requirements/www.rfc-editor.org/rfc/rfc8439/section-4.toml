@@ -1,0 +1,103 @@
+target = "https://www.rfc-editor.org/rfc/rfc8439#section-4"
+
+# Security Considerations
+#
+#    The ChaCha20 cipher is designed to provide 256-bit security.
+# 
+#    The Poly1305 authenticator is designed to ensure that forged messages
+#    are rejected with a probability of 1-(n/(2^102)) for a 16n-byte
+#    message, even after sending 2^64 legitimate messages, so it is
+#    SUF-CMA (strong unforgeability against chosen-message attacks) in the
+#    terminology of [AE].
+# 
+#    Proving the security of either of these is beyond the scope of this
+#    document.  Such proofs are available in the referenced academic
+#    papers ([ChaCha], [Poly1305], [LatinDances], [LatinDances2], and
+#    [Zhenqing2012]).
+# 
+#    The most important security consideration in implementing this
+#    document is the uniqueness of the nonce used in ChaCha20.  Counters
+#    and LFSRs are both acceptable ways of generating unique nonces, as is
+#    encrypting a counter using a block cipher with a 64-bit block size
+#    such as DES.  Note that it is not acceptable to use a truncation of a
+#    counter encrypted with block ciphers with 128-bit or 256-bit blocks,
+#    because such a truncation may repeat after a short time.
+# 
+#    Consequences of repeating a nonce: If a nonce is repeated, then both
+#    the one-time Poly1305 key and the keystream are identical between the
+#    messages.  This reveals the XOR of the plaintexts, because the XOR of
+#    the plaintexts is equal to the XOR of the ciphertexts.
+# 
+#    The Poly1305 key MUST be unpredictable to an attacker.  Randomly
+#    generating the key would fulfill this requirement, except that
+#    Poly1305 is often used in communications protocols, so the receiver
+#    should know the key.  Pseudorandom number generation such as by
+#    encrypting a counter is acceptable.  Using ChaCha with a secret key
+#    and a nonce is also acceptable.
+# 
+#    The algorithms presented here were designed to be easy to implement
+#    in constant time to avoid side-channel vulnerabilities.  The
+#    operations used in ChaCha20 are all additions, XORs, and fixed rolls.
+#    All of these can and should be implemented in constant time.  Access
+#    to offsets into the ChaCha state and the number of operations do not
+#    depend on any property of the key, eliminating the chance of
+#    information about the key leaking through the timing of cache misses.
+# 
+#    For Poly1305, the operations are addition, multiplication. and
+#    modulus, all on numbers with greater than 128 bits.  This can be done
+#    in constant time, but a naive implementation (such as using some
+#    generic big number library) will not be constant time.  For example,
+#    if the multiplication is performed as a separate operation from the
+# 
+#    modulus, the result will sometimes be under 2^256 and sometimes be
+#    above 2^256.  Implementers should be careful about timing side-
+#    channels for Poly1305 by using the appropriate implementation of
+#    these operations.
+# 
+#    Validating the authenticity of a message involves a bitwise
+#    comparison of the calculated tag with the received tag.  In most use
+#    cases, nonces and AAD contents are not "used up" until a valid
+#    message is received.  This allows an attacker to send multiple
+#    identical messages with different tags until one passes the tag
+#    comparison.  This is hard if the attacker has to try all 2^128
+#    possible tags one by one.  However, if the timing of the tag
+#    comparison operation reveals how long a prefix of the calculated and
+#    received tags is identical, the number of messages can be reduced
+#    significantly.  For this reason, with online protocols,
+#    implementation MUST use a constant-time comparison function rather
+#    than relying on optimized but insecure library functions such as the
+#    C language's memcmp().
+# 
+#    Additionally, any protocol using this algorithm MUST include the
+#    complete tag to minimize the opportunity for forgery.  Tag truncation
+#    MUST NOT be done.
+
+[[spec]]
+level = "MUST"
+quote = '''
+The Poly1305 key MUST be unpredictable to an attacker.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+For this reason, with online protocols,
+implementation MUST use a constant-time comparison function rather
+than relying on optimized but insecure library functions such as the
+C language's memcmp().
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Additionally, any protocol using this algorithm MUST include the
+complete tag to minimize the opportunity for forgery.
+'''
+
+[[spec]]
+level = "MUST"
+quote = '''
+Tag truncation
+MUST NOT be done.
+'''
+

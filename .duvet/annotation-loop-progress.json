@@ -690,6 +690,101 @@
           "skip_reason": "Caller obligation. Applies to the application driving the HPKE context (message ordering, loss detection, ikm reuse); the library cannot enforce it across calls."
         }
       ]
+    },
+    {
+      "rfc": "rfc8439",
+      "spec_url": "https://www.rfc-editor.org/rfc/rfc8439",
+      "committed": true,
+      "requirements": [
+        {
+          "id": "rfc8439-s2.3-must1",
+          "section": "section-2.3",
+          "level": "MUST",
+          "quote": "o  Words 13-15 are a nonce, which MUST not be repeated for the same\nkey.",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "Caller obligation. The AEAD/EVP interface takes the nonce as a parameter and cannot detect reuse across independent calls. Same category as RFC 3610 nonce uniqueness.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc8439#section-2.3"
+        },
+        {
+          "id": "rfc8439-s2.5-must1",
+          "section": "section-2.5",
+          "level": "MUST",
+          "quote": "The pair (r,s) should be unique, and\nMUST be unpredictable for each invocation (that is why it was\noriginally obtained by encrypting a nonce), while \"r\" MAY be\nconstant, but needs to be modified as follows before being used: (\"r\"\nis treated as a 16-octet little-endian number):",
+          "status": "annotated",
+          "annotation_file": "crypto/poly1305/poly1305.c",
+          "annotation_line": 153,
+          "skip_reason": null,
+          "target_url": "https://www.rfc-editor.org/rfc/rfc8439#section-2.5"
+        },
+        {
+          "id": "rfc8439-s2.6-must1",
+          "section": "section-2.6",
+          "level": "MUST",
+          "quote": "Any document that specifies the use of Poly1305 as a\nMAC algorithm for some protocol MUST specify that 256 bits are\nallocated for the integrity key.",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "Specification-author actor. Addressed to documents that specify Poly1305 for a protocol, not to an implementation. Same category as the RFC 9180 \"future specifications MUST\" requirements.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc8439#section-2.6"
+        },
+        {
+          "id": "rfc8439-s2.6-must2",
+          "section": "section-2.6",
+          "level": "MUST",
+          "quote": "This MUST be\nunique per invocation with the same key, so it MUST NOT be\nrandomly generated.",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "Caller obligation. Constrains how the caller derives the nonce it passes in; aws-lc neither generates nor sequences the nonce for ChaCha20-Poly1305.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc8439#section-2.6"
+        },
+        {
+          "id": "rfc8439-s4-must1",
+          "section": "section-4",
+          "level": "MUST",
+          "quote": "The Poly1305 key MUST be unpredictable to an attacker.",
+          "status": "annotated",
+          "annotation_file": "crypto/cipher_extra/e_chacha20poly1305.c",
+          "annotation_line": 115,
+          "skip_reason": null,
+          "target_url": "https://www.rfc-editor.org/rfc/rfc8439#section-4"
+        },
+        {
+          "id": "rfc8439-s4-must2",
+          "section": "section-4",
+          "level": "MUST",
+          "quote": "For this reason, with online protocols,\nimplementation MUST use a constant-time comparison function rather\nthan relying on optimized but insecure library functions such as the\nC language's memcmp().",
+          "status": "annotated",
+          "annotation_file": "crypto/cipher_extra/e_chacha20poly1305.c",
+          "annotation_line": 291,
+          "skip_reason": null,
+          "target_url": "https://www.rfc-editor.org/rfc/rfc8439#section-4"
+        },
+        {
+          "id": "rfc8439-s4-must3",
+          "section": "section-4",
+          "level": "MUST",
+          "quote": "Additionally, any protocol using this algorithm MUST include the\ncomplete tag to minimize the opportunity for forgery.",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "Protocol actor, but the API permits the opposite: aead_chacha20_poly1305_init accepts any tag_len in 1..POLY1305_TAG_LEN, and the EVP_CIPHER path accepts EVP_CTRL_AEAD_SET_TAG with any arg in that range. aws-lc therefore lets a caller request a truncated tag. Not cited, and not asserted as a defect \u2014 the requirement addresses protocols rather than primitives. Worth a maintainer's review.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc8439#section-4"
+        },
+        {
+          "id": "rfc8439-s4-must4",
+          "section": "section-4",
+          "level": "MUST",
+          "quote": "Tag truncation\nMUST NOT be done.",
+          "status": "skip",
+          "annotation_file": null,
+          "annotation_line": null,
+          "skip_reason": "Same as rfc8439-s4-must3: the caller-selectable tag_len range 1..16 permits truncation. Flagged for maintainer review rather than cited.",
+          "target_url": "https://www.rfc-editor.org/rfc/rfc8439#section-4"
+        }
+      ]
     }
   ]
 }
