@@ -74,19 +74,24 @@ static int aead_chacha20_poly1305_init(EVP_AEAD_CTX *ctx, const uint8_t *key,
     tag_len = POLY1305_TAG_LEN;
   }
 
-  // Only an upper bound is enforced, so a caller may request a truncated tag.
-  // |EVP_AEAD_CTX_init| documents this as intended behaviour for every AEAD
-  // ("Authentication tags may be truncated by passing a size as |tag_len|"),
-  // and the check has been upper-bound-only since the original BoringSSL
-  // implementation in 2014, which predates RFC 8439. Recorded as a TODO rather
-  // than an exception because tightening it here would diverge from the
-  // documented EVP_AEAD contract; that is a call for the maintainers.
   //= https://www.rfc-editor.org/rfc/rfc8439#section-4
-  //= type=TODO
+  //= type=exception
+  //= reason=The actor here is a protocol using ChaCha20-Poly1305; aws-lc
+  //= reason=ships the primitive. The EVP_AEAD abstraction deliberately
+  //= reason=delegates tag length to the caller: EVP_AEAD_CTX_init documents
+  //= reason="Authentication tags may be truncated by passing a size as
+  //= reason=|tag_len|" for every AEAD.
   //# Additionally, any protocol using this algorithm MUST include the
   //# complete tag to minimize the opportunity for forgery.
   //= https://www.rfc-editor.org/rfc/rfc8439#section-4
-  //= type=TODO
+  //= type=exception
+  //= reason=Only an upper bound is enforced, so a caller may select a
+  //= reason=truncated tag. Inherited and intentional rather than an aws-lc
+  //= reason=divergence: the check has been upper-bound-only since BoringSSL
+  //= reason=commit de0b20268 (2014-06-20), which predates RFC 8439, and
+  //= reason=upstream BoringSSL still has it verbatim. Tightening it here
+  //= reason=would diverge from the EVP_AEAD contract documented in
+  //= reason=include/openssl/aead.h.
   //# Tag truncation
   //# MUST NOT be done.
   if (tag_len > POLY1305_TAG_LEN) {
